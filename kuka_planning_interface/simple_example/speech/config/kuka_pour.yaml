@@ -1,0 +1,18 @@
+allegro_hand_control:
+  # List of topics
+  topics:
+    - allegroHand/lib_cmd : String
+    - allegroHand/envelop_torque : Float32
+  allegroHand/lib_cmd:
+    'off': 'off'
+    'stop': 'off'
+    'on': home
+    'home': home
+    'back': back
+    'pouring': pour
+    'joint imp': joint_imp
+    'safe gravity': safe_grav_comp
+    'gravity': grav_comp
+    gravity compensation: grav_comp
+  allegroHand/envelop_torque:
+    set torque half: 0.5

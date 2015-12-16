@@ -1,0 +1,8 @@
+prefix=/home/guillaume/roscode/catkin_ws2/src/kuka_planning_interface/kuka_action_server/build/devel
+
+Name: kuka_action_server
+Description: Description of kuka_action_server
+Version: 0.0.0
+Cflags: -I/home/guillaume/roscode/catkin_ws2/src/kuka_planning_interface/kuka_action_server/build/devel/include -I/home/guillaume/roscode/catkin_ws2/src/kuka_planning_interface/kuka_action_server/include
+Libs: -L/home/guillaume/roscode/catkin_ws2/src/kuka_planning_interface/kuka_action_server/build/devel/lib -lkuka_action_server -loptitrack_rviz
+Requires: std_tools tf optitrack_rviz message_runtime std_msgs kuka_fri_bridge

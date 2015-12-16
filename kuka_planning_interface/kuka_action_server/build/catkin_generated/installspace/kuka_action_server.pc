@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: kuka_action_server
+Description: Description of kuka_action_server
+Version: 0.0.0
+Cflags: -I/usr/local/include
+Libs: -L/usr/local/lib -lkuka_action_server -loptitrack_rviz
+Requires: std_tools tf optitrack_rviz message_runtime std_msgs kuka_fri_bridge

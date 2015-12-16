@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<launch>
+
+	<!-- SIMULATION LAUNCH FILE  "Simple example" -->
+
+  	<include file="$(find lwr_launch)/launch/simulation.launch">
+    		<arg name="rviz_config"       value="$(find simple_example)/launch/rviz/rviz_config.rviz"/>
+ 		<arg name="t1_limits" 	      value="false"/>
+ 	</include>
+
+</launch>

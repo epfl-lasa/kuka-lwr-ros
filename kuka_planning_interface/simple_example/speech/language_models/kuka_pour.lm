@@ -1,0 +1,65 @@
+Language model created by QuickLM on Sat Oct 31 09:02:06 EDT 2015
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 9 sentences and 12 words
+
+\data\
+ngram 1=12
+ngram 2=19
+ngram 3=11
+
+\1-grams:
+-0.8092 </s> -0.3010
+-0.8092 <s> -0.2188
+-1.7634 BACK -0.2278
+-1.4624 GRAVITY -0.2278
+-1.7634 HOME -0.2278
+-1.7634 IMP -0.2278
+-1.7634 JOINT -0.2935
+-1.7634 OFF -0.2278
+-1.7634 ON -0.2278
+-1.7634 POURING -0.2278
+-1.7634 SAFE -0.2858
+-1.7634 STOP -0.2278
+
+\2-grams:
+-1.2553 <s> BACK 0.0000
+-1.2553 <s> GRAVITY 0.0000
+-1.2553 <s> HOME 0.0000
+-1.2553 <s> JOINT 0.0000
+-1.2553 <s> OFF 0.0000
+-1.2553 <s> ON 0.0000
+-1.2553 <s> POURING 0.0000
+-1.2553 <s> SAFE 0.0000
+-1.2553 <s> STOP 0.0000
+-0.3010 BACK </s> -0.3010
+-0.3010 GRAVITY </s> -0.3010
+-0.3010 HOME </s> -0.3010
+-0.3010 IMP </s> -0.3010
+-0.3010 JOINT IMP 0.0000
+-0.3010 OFF </s> -0.3010
+-0.3010 ON </s> -0.3010
+-0.3010 POURING </s> -0.3010
+-0.3010 SAFE GRAVITY 0.0000
+-0.3010 STOP </s> -0.3010
+
+\3-grams:
+-0.3010 <s> BACK </s>
+-0.3010 <s> GRAVITY </s>
+-0.3010 <s> HOME </s>
+-0.3010 <s> JOINT IMP
+-0.3010 <s> OFF </s>
+-0.3010 <s> ON </s>
+-0.3010 <s> POURING </s>
+-0.3010 <s> SAFE GRAVITY
+-0.3010 <s> STOP </s>
+-0.3010 JOINT IMP </s>
+-0.3010 SAFE GRAVITY </s>
+
+\end\

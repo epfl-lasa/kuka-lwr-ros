@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+	<arg name="action_server_name"  default="kuka_server" />
+
+	<node name="kuka_server" pkg="simple_example" type="server_action_node" required="true" output="screen" >
+		<param name="action_server_name" 	value="$(arg action_server_name)"/>
+	</node>
+</launch>

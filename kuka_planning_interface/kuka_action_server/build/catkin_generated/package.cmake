@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "kuka_action_server")
+set(kuka_action_server_MAINTAINER "guillaume <guillaume@todo.todo>")
+set(kuka_action_server_DEPRECATED "")
+set(kuka_action_server_VERSION "0.0.0")
+set(kuka_action_server_BUILD_DEPENDS "roscpp" "sensor_msgs" "std_tools" "geometry_msgs" "tf" "iai_control_msgs" "lasa_action_planners" "robohow_common_msgs" "genmsg" "actionlib_msgs" "actionlib" "message_generation" "geometry_msgs" "std_msgs" "message_runtime" "kuka_fri_bridge" "optitrack_rviz")
+set(kuka_action_server_RUN_DEPENDS "sensor_msgs" "roscpp" "std_tools" "geometry_msgs" "tf" "iai_control_msgs" "lasa_action_planners" "robohow_common_msgs" "genmsg" "actionlib_msgs" "actionlib" "message_generation" "std_msgs" "message_runtime" "kuka_fri_bridge" "optitrack_rviz")
+set(kuka_action_server_BUILDTOOL_DEPENDS "catkin")

@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "kuka_action_client")
+set(kuka_action_client_MAINTAINER "guillaume <guillaume@todo.todo>")
+set(kuka_action_client_DEPRECATED "")
+set(kuka_action_client_VERSION "0.0.0")
+set(kuka_action_client_BUILD_DEPENDS "roscpp" "tf" "lasa_action_planners" "iai_control_msgs" "geometry_msgs" "robohow_common_msgs" "message_generation" "std_msgs" "message_runtime")
+set(kuka_action_client_RUN_DEPENDS "roscpp" "tf" "lasa_action_planners" "iai_control_msgs" "geometry_msgs" "robohow_common_msgs" "message_generation" "std_msgs" "message_runtime")
+set(kuka_action_client_BUILDTOOL_DEPENDS "catkin")

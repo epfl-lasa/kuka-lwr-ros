@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+
+	<arg name="speech_topic"		default="/allegroHand/lib_cmd" />
+	<arg name="action_service_name"  	default="kuka_action_cmd" />
+	<arg name="cmd_service_name"  		default="kuka_interface_cmd" />
+	<arg name="action_server_name"		default="kuka_server" />
+
+	<node name="kuka_client" pkg="simple_example" type="client_action_node" required="true" output="screen">
+  		<param name="speech_topic" 	  	  value="$(arg speech_topic)"/>
+  		<param name="action_service_name" 	  value="$(arg action_service_name)"/>
+		<param name="cmd_service_name"    	  value="$(arg cmd_service_name)"/>
+  		<param name="action_server_name" 	  value="$(arg action_server_name)"/>
+  	</node>	
+	
+
+
+</launch>

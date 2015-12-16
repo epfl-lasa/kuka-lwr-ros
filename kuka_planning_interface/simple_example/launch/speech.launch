@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!--arg name="hand_num" default="0"/-->
+
+    <!-- If 1, start speech-to-text -->
+    <arg name="start_stt" default="1"/>
+
+    <!-- If 1, start microphone -->
+    <arg name="microphone" default="1"/>
+
+    <!-- Microphone (audio capture) -->
+    <node name="microphone_capture" pkg="audio_capture" type="audio_capture"
+          if="$(arg microphone)">
+        <param name="bitrate" value="128"/>
+    </node>
+
+    <!-- subscribe to /audio ROS messages -->
+    <node name="recognizer" pkg="pocketsphinx" type="recognizer.py"
+          output="log"
+          if="$(arg start_stt)">
+        <param name="lm"
+               value="$(find pour_kuka)/speech/language_models/kuka_pour.lm"/>
+        <param name="dict"
+               value="$(find pour_kuka)/speech/language_models/kuka_pour.dic"/>
+        <param name="audio_msg_topic" value="/audio"/>
+        <remap from="~output" to="nl_command_parsed"/>
+    </node>
+
+    <!-- load parameters that specify the available commands -->
+    <rosparam
+            file="$(find pour_kuka)/speech/config/kuka_pour.yaml" command="load"/>
+    <!-- This node maps from NL -> control tokens. -->
+    <node name="kuka_control"    pkg="robot_voice_control"    type="message_control.py"  output="screen">
+    </node> 
+
+    <!-- TODO: Make an allegro_hand_remapper.-->
+
+</launch>

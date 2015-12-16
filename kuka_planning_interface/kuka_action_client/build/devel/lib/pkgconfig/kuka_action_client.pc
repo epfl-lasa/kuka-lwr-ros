@@ -1,0 +1,8 @@
+prefix=/home/guillaume/roscode/catkin_ws/src/kuka_planning_interface/kuka_action_client/build/devel
+
+Name: kuka_action_client
+Description: Description of kuka_action_client
+Version: 0.0.0
+Cflags: -I/home/guillaume/roscode/catkin_ws/src/kuka_planning_interface/kuka_action_client/build/devel/include -I/home/guillaume/roscode/catkin_ws/src/kuka_planning_interface/kuka_action_client/include
+Libs: -L/home/guillaume/roscode/catkin_ws/src/kuka_planning_interface/kuka_action_client/build/devel/lib -lkuka_action_client
+Requires: roscpp tf std_msgs message_runtime
