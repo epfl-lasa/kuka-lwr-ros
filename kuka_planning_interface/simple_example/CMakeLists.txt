@@ -4,7 +4,7 @@ project(simple_example)
 find_package(catkin REQUIRED kuka_action_server kuka_action_client tf)
 
 
-set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -mtune=native -fPIC -Wall")
+set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
 
 
 ###################################

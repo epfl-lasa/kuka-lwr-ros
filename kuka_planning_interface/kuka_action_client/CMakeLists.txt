@@ -4,7 +4,7 @@ project(kuka_action_client)
 
 find_package(catkin REQUIRED tf roscpp std_msgs message_runtime message_generation joint_trajectory_action std_tools_fri)
 
-set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -mtune=native -fPIC -Wall")
+set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)

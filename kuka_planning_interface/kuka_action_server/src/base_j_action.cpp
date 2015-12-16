@@ -13,8 +13,6 @@ Base_j_action::Base_j_action(ros::NodeHandle &nh)
     joint_stiff_pub      = nh.advertise<std_msgs::Float64MultiArray>("/lwr/joint_position_impedance_controller/stiffness",1);
     joint_damp_pub       = nh.advertise<std_msgs::Float64MultiArray>("/lwr/joint_position_impedance_controller/damping",1);
 
-
-
     joint_cmd_msg.data.resize(KUKA_NUM_JOINTS);
     joint_sensed.resize(KUKA_NUM_JOINTS);
     joint_sensed.setZero();
@@ -69,8 +67,6 @@ void Base_j_action::update_damping(const Eigen::VectorXd& joint_damping){
     joint_damp_pub.publish(joint_damp_msg);
 
 }
-
-
 
 void Base_j_action::jStateCallback(const sensor_msgs::JointState::ConstPtr& msg){
     for(std::size_t i = 0; i < KUKA_NUM_JOINTS;i++){

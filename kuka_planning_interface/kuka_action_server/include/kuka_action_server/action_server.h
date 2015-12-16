@@ -1,29 +1,12 @@
 #ifndef KUKA_ACTION_SERVER_ACTION_SERVER_H_
 #define KUKA_ACTION_SERVER_ACTION_SERVER_H_
 
-/**
-    Action Server
-
-    This class acts as the main register for indiviudal implemenations of actions
-
-
-
-  **/
-
 #include <ros/ros.h>
 
-//-- TF Stuff --//
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
-
-
-//-- Message Types --//
-//#include <robohow_common_msgs/MotionPhase.h>
-//#include <robohow_common_msgs/MotionModel.h>
-//#include <robohow_common_msgs/GaussianMixtureModel.h>
-//#include <robohow_common_msgs/GaussianDistribution.h>
 
 #include "kuka_action_server/base_action_server.h"
 #include "kuka_action_server/default_types.h"
@@ -88,7 +71,7 @@ private:
     // create messages that are used to published feedback/result
     alib_feedback                       feedback_;
     alib_result                         result_;
-   // ros::Subscriber                     as_sub;
+
 
     Base_action_server*                  base_action_server;
 
@@ -103,9 +86,6 @@ private:
     std::shared_ptr<asrv::Kuka_grav_as>                 ptr_kuka_grav_as;
     std::shared_ptr<asrv::Kuka_goto_joint_as>           ptr_kuka_goto_joint_as;
     std::shared_ptr<asrv::Kuka_goto_cart_as>            ptr_kuka_goto_cart_as;
-
-    //ros::ServiceClient   state_transformer_service;
-
 
 };
 

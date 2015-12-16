@@ -8,10 +8,8 @@ Action_server::Action_server(ros::NodeHandle& nh,std::string name):
     action_name_(name)
 {
     as_.start();
-
     base_action_server = NULL;
     add_default_actions(nh);
-
 }
 
 void Action_server::push_back(Base_action_server* base_action_server,std::string action_name){
@@ -19,7 +17,6 @@ void Action_server::push_back(Base_action_server* base_action_server,std::string
 }
 
 void Action_server::executeCB(const cptrGoal& goal){
-
 
     if(!ros::ok()) {
         result_.success = 0;

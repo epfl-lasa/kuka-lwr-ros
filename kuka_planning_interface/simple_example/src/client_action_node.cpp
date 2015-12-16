@@ -85,6 +85,7 @@ int main(int argc, char** argv)
     }
     {
         ac::Goal goal;
+        goal.action_type        = "linear";
         goals["linear"]         = goal;
 
     }
