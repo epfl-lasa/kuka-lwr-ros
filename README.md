@@ -28,7 +28,7 @@ caption below Rviz is on the left and Gazebo is on the right.
 ![alt text](readme/gazebo_rviz.png "Gazebo and Rviz GUIs")
 
 Now that the simulations are up and running we are ready to control the robot. For this we need both the action 
-server and client. In two new terminals run the following lines:
+server and client. In two new terminals run the following lines
 
 ```sh
 $ roslaunch simple_example server.launch
