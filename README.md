@@ -11,7 +11,7 @@ Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR)
 
 * **std_tools_fri:**            display console 
 
-## Quick Start
+## Quick Start (Simulation)
 
 Go to your catking workspace folder and git the repository:
 ```sh
@@ -34,9 +34,15 @@ server and client. In two new terminals run the following lines
 $ roslaunch simple_example server.launch
 $ roslaunch simple_example client.launch
 ```
+
 You should have the following triptych view in your console 
 ![alt text](readme/console.png "Triptych console view")
 
+Notice on the bottom right console the heading is "KUKA PLANNING INTERFACE" and a prompt **Cmd>**. This is 
+the main interface from which you will be starting and stopping policies to be run on the robot. If you
+press tab (in this console window) a list of possible actions (robot policies) will be displayed, which in the 
+simple example case are; **go_front**, **go_home**,
+**go_left**, **grav_comp** and **linear** (note that grav_comp only works on the real physical robot).
 
 ## Concept
 
