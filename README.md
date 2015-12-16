@@ -13,10 +13,29 @@ Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR)
 
 ## Quick Start
 
-![alt text](readme/gazebo_rviz.png "Description goes here")
+Go to your catking workspace folder and git the repository:
+```sh
+$ git clone git@github.com:epfl-lasa/kuka-lwr-ros.git
+```
+Rebuild your catking workspace and once everything built properly you are ready to run an example. Open 
+a new terminal and run the following:
+```sh
+$ roslaunch simple_example sim.launch
+```
+This will run the simulator and the Gazebo simulator and ROS Rviz visualiser GUIs should both open. In the
+caption below Rviz is on the left and Gazebo is on the right.
 
+![alt text](readme/gazebo_rviz.png "Gazebo and Rviz GUIs")
 
-![alt text](readme/console.png "Description goes here")
+Now that the simulations are up and running we are ready to control the robot. For this we need both the action 
+server and client. In two new terminals run the following lines:
+
+```sh
+$ roslaunch simple_example server.launch
+$ roslaunch simple_example client.launch
+```
+You should have the following triptych view in your console 
+![alt text](readme/console.png "Triptych console view")
 
 
 ## Concept
