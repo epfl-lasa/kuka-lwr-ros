@@ -38,8 +38,6 @@
 #include <functional>
 #include <map>
 
-#include "kuka_action_server/default_services.h"
-
 
 namespace asrv{
 
@@ -106,7 +104,7 @@ private:
     std::shared_ptr<asrv::Kuka_goto_joint_as>           ptr_kuka_goto_joint_as;
     std::shared_ptr<asrv::Kuka_goto_cart_as>            ptr_kuka_goto_cart_as;
 
-    ros::ServiceClient   state_transformer_service;
+    //ros::ServiceClient   state_transformer_service;
 
 
 };

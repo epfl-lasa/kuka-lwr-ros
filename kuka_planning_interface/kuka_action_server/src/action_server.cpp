@@ -9,13 +9,8 @@ Action_server::Action_server(ros::NodeHandle& nh,std::string name):
 {
     as_.start();
 
-  //  as_sub             = nh.subscribe("/kuka_server/cmd", 10, &Action_server::subscriber_cb,this);
     base_action_server = NULL;
-
     add_default_actions(nh);
-
-    state_transformer_service = nh.serviceClient<state_transformers::String_cmd>("/state_transformer/cmd");
-
 
 }
 
@@ -55,7 +50,6 @@ void Action_server::executeCB(const cptrGoal& goal){
         bool success       = base_action_server->execute_CB(as_,feedback_,goal);
         result_.success    = success;
 
-        asrv::set_control_type(asrv::NONE,state_transformer_service);
         ros::spinOnce();
 
         if(success)

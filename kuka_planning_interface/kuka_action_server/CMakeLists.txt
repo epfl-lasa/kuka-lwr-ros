@@ -54,7 +54,6 @@ set(H_FILES  	${INCLUDE_DIR}/kuka_action_server/base_action_server.h
                 ${INCLUDE_DIR}/kuka_action_server/base_ee_action.h
                 ${INCLUDE_DIR}/kuka_action_server/base_j_action.h
                 ${INCLUDE_DIR}/kuka_action_server/default_topics.h
-                ${INCLUDE_DIR}/kuka_action_server/default_services.h
                 ${INCLUDE_DIR}/kuka_action_server/action_server.h
                 ${INCLUDE_DIR}/kuka_common_action_server/action_initialiser.h
                 ${INCLUDE_DIR}/kuka_common_action_server/kuka_goto_cart_as.h

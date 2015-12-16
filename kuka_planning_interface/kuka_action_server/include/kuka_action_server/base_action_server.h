@@ -1,7 +1,7 @@
 #ifndef KUKA_ACTION_SERVER_BASE_ACTION_SERVER_H_
 #define KUKA_ACTION_SERVER_BASE_ACTION_SERVER_H_
 
-#include "kuka_action_server/default_services.h"
+//#include "kuka_action_server/default_services.h"
 #include "kuka_action_server/default_types.h"
 #include <controller_manager/controller_manager.h>
 
