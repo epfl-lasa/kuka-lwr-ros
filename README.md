@@ -51,7 +51,7 @@ press tab (in this console window) a list of possible actions (robot policies) w
 simple example case are; **go_front**, **go_home**,
 **go_left**, **grav_comp** and **linear** (note that grav_comp only works on the real physical robot).
 
-## Concept
+# Concept
 
 
 ![alt text](readme/concept.png "Description goes here")
