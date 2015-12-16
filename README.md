@@ -8,4 +8,4 @@ Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR)
 * std_tools_fri
 
 
-![alt text](images/test.png "Description goes here")
+![alt text](readme/concept.png "Description goes here")
