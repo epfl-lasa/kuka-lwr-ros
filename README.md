@@ -1,12 +1,12 @@
 # kuka-lwr-ros
 Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR). 
 
-* **kuka_fri_bridge**  to interface and run the physical robot
+* **kuka_fri_bridge**  to interface and run the physical robot.
   
-* kuka_lwr
-* kuka_planning_interface
-* robot_motion_generation
-* std_tools_fri
+* **kuka_lwr** contains URDF robot description and hardware interface controllers with configuration files.
+* **kuka_planning_interface** containes action client & server implementation.
+* **robot_motion_generation**  utilities such as filters for smoothing robot motion.
+* **std_tools_fri** display console 
 
 ## Quick Start
 
