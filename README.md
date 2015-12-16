@@ -11,9 +11,14 @@ Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR)
 
 * **std_tools_fri:**            display console 
 
-Of these packages only the first three are important, the last contain utilities. 
+Of these packages only the first three are important, the last contain utilities. The dependencies
+for this package are
 
-## Quick Start (Simulation)
+## Dependencies
+
+
+
+# Quick Start (Simulation)
 
 Go to your catking workspace folder and git the repository:
 ```sh
