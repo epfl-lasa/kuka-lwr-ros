@@ -1,0 +1,50 @@
+digraph G {
+node [shape=box];
+"world_frame" [label="world_frame"];
+"lwr_base_link" [label="lwr_base_link"];
+"lwr_1_link" [label="lwr_1_link"];
+"lwr_2_link" [label="lwr_2_link"];
+"lwr_3_link" [label="lwr_3_link"];
+"lwr_4_link" [label="lwr_4_link"];
+"lwr_5_link" [label="lwr_5_link"];
+"lwr_6_link" [label="lwr_6_link"];
+"lwr_7_link" [label="lwr_7_link"];
+"lwr_7_link_dummy" [label="lwr_7_link_dummy"];
+"lwr_6_link_dummy" [label="lwr_6_link_dummy"];
+"lwr_5_link_dummy" [label="lwr_5_link_dummy"];
+"lwr_4_link_dummy" [label="lwr_4_link_dummy"];
+"lwr_3_link_dummy" [label="lwr_3_link_dummy"];
+"lwr_2_link_dummy" [label="lwr_2_link_dummy"];
+"lwr_1_link_dummy" [label="lwr_1_link_dummy"];
+node [shape=ellipse, color=blue, fontcolor=blue];
+"world_frame" -> "lwr_base_joint" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"lwr_base_joint" -> "lwr_base_link"
+"lwr_base_link" -> "lwr_0_joint" [label="xyz: 0 0 0.11 \nrpy: 0 -0 0"]
+"lwr_0_joint" -> "lwr_1_link"
+"lwr_1_link" -> "lwr_1_joint" [label="xyz: 0 0 0.2005 \nrpy: 0 -0 0"]
+"lwr_1_joint" -> "lwr_2_link"
+"lwr_2_link" -> "lwr_2_joint" [label="xyz: 0 0 0.2 \nrpy: 0 -0 0"]
+"lwr_2_joint" -> "lwr_3_link"
+"lwr_3_link" -> "lwr_3_joint" [label="xyz: 0 0 0.2 \nrpy: 0 -0 0"]
+"lwr_3_joint" -> "lwr_4_link"
+"lwr_4_link" -> "lwr_4_joint" [label="xyz: 0 0 0.2 \nrpy: 0 -0 0"]
+"lwr_4_joint" -> "lwr_5_link"
+"lwr_5_link" -> "lwr_5_joint" [label="xyz: 0 0 0.19 \nrpy: 0 -0 0"]
+"lwr_5_joint" -> "lwr_6_link"
+"lwr_6_link" -> "lwr_6_joint" [label="xyz: 0 0 0.078 \nrpy: 0 -0 0"]
+"lwr_6_joint" -> "lwr_7_link"
+"lwr_6_link" -> "lwr_6_joint_stiffness" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"lwr_6_joint_stiffness" -> "lwr_7_link_dummy"
+"lwr_5_link" -> "lwr_5_joint_stiffness" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"lwr_5_joint_stiffness" -> "lwr_6_link_dummy"
+"lwr_4_link" -> "lwr_4_joint_stiffness" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"lwr_4_joint_stiffness" -> "lwr_5_link_dummy"
+"lwr_3_link" -> "lwr_3_joint_stiffness" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"lwr_3_joint_stiffness" -> "lwr_4_link_dummy"
+"lwr_2_link" -> "lwr_2_joint_stiffness" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"lwr_2_joint_stiffness" -> "lwr_3_link_dummy"
+"lwr_1_link" -> "lwr_1_joint_stiffness" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"lwr_1_joint_stiffness" -> "lwr_2_link_dummy"
+"lwr_base_link" -> "lwr_0_joint_stiffness" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"lwr_0_joint_stiffness" -> "lwr_1_link_dummy"
+}

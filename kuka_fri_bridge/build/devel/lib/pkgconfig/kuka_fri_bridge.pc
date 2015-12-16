@@ -1,0 +1,8 @@
+prefix=/home/guillaume/roscode/catkin_ws/src/kuka/kuka_interface_packages/kuka_fri_bridge/build/devel
+
+Name: kuka_fri_bridge
+Description: Description of kuka_fri_bridge
+Version: 0.0.0
+Cflags: -I/home/guillaume/roscode/catkin_ws/src/kuka/kuka_interface_packages/kuka_fri_bridge/build/devel/include
+Libs: -L/home/guillaume/roscode/catkin_ws/src/kuka/kuka_interface_packages/kuka_fri_bridge/build/devel/lib 
+Requires: message_runtime

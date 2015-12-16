@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package>
+  <name>single_lwr_robot</name>
+  <version>0.1.0</version>
+  <description>The single_lwr_robot package</description>
+
+  <maintainer email="marco.esposito@tum.de">Marco Esposito</maintainer>
+  <maintainer email="cjrosales@gmail.com">Carlos J. Rosales</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>lwr_hw</run_depend>
+  <run_depend>lwr_description</run_depend>
+  <run_depend>lwr_controllers</run_depend>
+
+  <export>
+  </export>
+</package>

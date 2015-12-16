@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+  <name>lwr_description</name>
+  <version>0.1.0</version>
+  <description>The lwr_description package contains the model of a KUKA LWR 4+ arm.</description>
+
+  <maintainer email="cjrosale@gmail.com">Carlos J. Rosales</maintainer>
+
+  <license>GPLv2</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+  </export>
+</package>

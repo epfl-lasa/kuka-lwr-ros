@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<launch>
+
+	<arg name="robot_name" 		default="single_lwr_robot"/>
+	<arg name="file" 		default="$(find single_lwr_robot)/config/980241-FRI-Driver.init"/>
+    	<arg name="t1_limits" 		default="false"/>
+    	<arg name="controllers" 	default="one_task_inverse_kinematics joint_position_impedance_controller"/>
+    	<arg name="stopped_controllers" default=""/>
+	<arg name="rviz_config" 	default="$(find lwr_launch)/launch/rviz/rviz_config.rviz"/>
+
+ 	<!-- Load updated joint limits (override information from single_lwr_moveit) to respect T1 mode limits -->
+    	<group if="$(arg t1_limits)" ns="robot_description_planning">
+        	<rosparam command="load" file="$(find single_lwr_robot)/config/t1_joint_limits.yaml"/>
+    	</group>
+
+	<!-- load robotHW configurations to rosparam server -->
+	<rosparam command="load" file="$(find single_lwr_robot)/config/hw_interface.yaml"/>
+
+    	<!-- load all controller configurations to rosparam server -->
+    	<rosparam file="$(find single_lwr_robot)/config/controllers.yaml" command="load"/>
+
+	<param name="fri_drivers" type="str" value="$(arg file)"/>
+
+	<group ns="lwr">	
+		<param name="robot_description" command="$(find xacro)/xacro.py $(find single_lwr_robot)/robot/$(arg robot_name).urdf.xacro"/>
+  		
+		<node  name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+		<node  name="controller_spawner_js" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="kuka_joint_state_controller"/>		
+		<node  name="controller_spawner"    pkg="controller_manager"    type="spawner" respawn="false" output="screen" args="--stopped $(arg controllers)"/>
+
+		<node name="kuka_fri_bridge" pkg="kuka_fri_bridge" type="kuka_fri_bridge_node" output="screen"/>
+	</group>
+
+
+	<!-- LAUNCH RVIZ -->
+  	<node name="lwr_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rviz_config)" output="screen"/>
+</launch>
+
+
+

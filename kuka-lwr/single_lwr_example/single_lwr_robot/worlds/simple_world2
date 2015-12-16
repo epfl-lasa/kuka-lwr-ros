@@ -1,0 +1,923 @@
+<sdf version='1.4'>
+  <world name='default'>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+            </friction>
+            <bounce/>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+    </model>
+    <light name='sun' type='directional'>
+      <cast_shadows>1</cast_shadows>
+      <pose>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <physics type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <gravity>0 0 -9.8</gravity>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <model name='single_lwr_robot'>
+      <link name='lwr_base_link'>
+        <pose>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose>0 0 0.055 0 -0 0</pose>
+          <mass>2</mass>
+          <inertia>
+            <ixx>0.00381667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.0036</iyy>
+            <iyz>0</iyz>
+            <izz>0.00381667</izz>
+          </inertia>
+        </inertial>
+        <collision name='lwr_base_link_collision'>
+          <pose>0 0 0.055 0 -0 -3.14159</pose>
+          <geometry>
+            <cylinder>
+              <length>0.11</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='lwr_base_link_visual'>
+          <pose>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/guillaume/roscode/catkin_ws3/src/kuka-lwr/lwr_description/meshes/base.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='lwr_base_joint' type='revolute'>
+        <child>lwr_base_link</child>
+        <parent>world</parent>
+        <axis>
+          <limit>
+            <lower>0</lower>
+            <upper>0</upper>
+          </limit>
+          <dynamics>
+            <damping>0</damping>
+          </dynamics>
+          <xyz>0 0 1</xyz>
+        </axis>
+      </joint>
+      <link name='lwr_1_link'>
+        <pose>0 0 0.11 0 -0 0</pose>
+        <inertial>
+          <pose>0 -0.06 0.13 0 -0 0</pose>
+          <mass>2</mass>
+          <inertia>
+            <ixx>0.0136667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003</iyy>
+            <iyz>0</iyz>
+            <izz>0.0118667</izz>
+          </inertia>
+        </inertial>
+        <collision name='lwr_1_link_collision'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_1_link_collision_lwr_1_link_1'>
+          <pose>0 0.06 0.2 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_1_link_collision_lwr_1_link_2'>
+          <pose>0 0.03 0.1 -0.291 0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.208</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='lwr_1_link_visual'>
+          <pose>0 0 -0.008 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/guillaume/roscode/catkin_ws3/src/kuka-lwr/lwr_description/meshes/link_1.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='lwr_0_joint' type='revolute'>
+        <child>lwr_1_link</child>
+        <parent>lwr_base_link</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-2.96706</lower>
+            <upper>2.96706</upper>
+            <effort>176</effort>
+            <velocity>1.91986</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+          </dynamics>
+        </axis>
+      </joint>
+      <link name='lwr_2_link'>
+        <pose>0 0 0.3105 0 -0 0</pose>
+        <inertial>
+          <pose>0 0.06 0.07 0 -0 0</pose>
+          <mass>2</mass>
+          <inertia>
+            <ixx>0.0136667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003</iyy>
+            <iyz>0</iyz>
+            <izz>0.0118667</izz>
+          </inertia>
+        </inertial>
+        <collision name='lwr_2_link_collision'>
+          <pose>0 0 0.2 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_2_link_collision_lwr_2_link_1'>
+          <pose>0 -0.06 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_2_link_collision_lwr_2_link_2'>
+          <pose>0 -0.03 0.1 -0.291 0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.208</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='lwr_2_link_visual'>
+          <pose>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/guillaume/roscode/catkin_ws3/src/kuka-lwr/lwr_description/meshes/link_2.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='lwr_1_joint' type='revolute'>
+        <child>lwr_2_link</child>
+        <parent>lwr_1_link</parent>
+        <axis>
+          <xyz>0 -1 0</xyz>
+          <limit>
+            <lower>-2.0944</lower>
+            <upper>2.0944</upper>
+            <effort>176</effort>
+            <velocity>1.91986</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+          </dynamics>
+        </axis>
+      </joint>
+      <link name='lwr_3_link'>
+        <pose>0 0 0.5105 0 -0 0</pose>
+        <inertial>
+          <pose>0 0.06 0.13 0 -0 0</pose>
+          <mass>2</mass>
+          <inertia>
+            <ixx>0.0136667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003</iyy>
+            <iyz>0</iyz>
+            <izz>0.0118667</izz>
+          </inertia>
+        </inertial>
+        <collision name='lwr_3_link_collision'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_3_link_collision_lwr_3_link_1'>
+          <pose>0 -0.06 0.2 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_3_link_collision_lwr_3_link_2'>
+          <pose>0 -0.03 0.1 0.291 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.208</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='lwr_3_link_visual'>
+          <pose>0 0 -0.008 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/guillaume/roscode/catkin_ws3/src/kuka-lwr/lwr_description/meshes/link_3.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='lwr_2_joint' type='revolute'>
+        <child>lwr_3_link</child>
+        <parent>lwr_2_link</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-2.96706</lower>
+            <upper>2.96706</upper>
+            <effort>100</effort>
+            <velocity>2.23402</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+          </dynamics>
+        </axis>
+      </joint>
+      <link name='lwr_4_link'>
+        <pose>0 0 0.7105 0 -0 0</pose>
+        <inertial>
+          <pose>0 -0.06 0.07 0 -0 0</pose>
+          <mass>2</mass>
+          <inertia>
+            <ixx>0.0136667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003</iyy>
+            <iyz>0</iyz>
+            <izz>0.0118667</izz>
+          </inertia>
+        </inertial>
+        <collision name='lwr_4_link_collision'>
+          <pose>0 0 0.2 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_4_link_collision_lwr_4_link_1'>
+          <pose>0 0.06 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_4_link_collision_lwr_4_link_2'>
+          <pose>0 0.03 0.1 0.291 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.208</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='lwr_4_link_visual'>
+          <pose>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/guillaume/roscode/catkin_ws3/src/kuka-lwr/lwr_description/meshes/link_4.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='lwr_3_joint' type='revolute'>
+        <child>lwr_4_link</child>
+        <parent>lwr_3_link</parent>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-2.0944</lower>
+            <upper>2.0944</upper>
+            <effort>100</effort>
+            <velocity>2.23402</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+          </dynamics>
+        </axis>
+      </joint>
+      <link name='lwr_5_link'>
+        <pose>0 0 0.9105 0 -0 0</pose>
+        <inertial>
+          <pose>0 0 0.124 0 -0 0</pose>
+          <mass>2</mass>
+          <inertia>
+            <ixx>0.0126507</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.003</iyy>
+            <iyz>0</iyz>
+            <izz>0.0108507</izz>
+          </inertia>
+        </inertial>
+        <collision name='lwr_5_link_collision'>
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_5_link_collision_lwr_5_link_1'>
+          <pose>0 0.04 0.19 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.07</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='lwr_5_link_collision_lwr_5_link_2'>
+          <pose>0 0.02 0.095 -0.207 0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.198</length>
+              <radius>0.07</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='lwr_5_link_visual'>
+          <pose>0 0 -0.008 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/guillaume/roscode/catkin_ws3/src/kuka-lwr/lwr_description/meshes/link_5.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='lwr_4_joint' type='revolute'>
+        <child>lwr_5_link</child>
+        <parent>lwr_4_link</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-2.96706</lower>
+            <upper>2.96706</upper>
+            <effort>100</effort>
+            <velocity>3.56047</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+          </dynamics>
+        </axis>
+      </joint>
+      <link name='lwr_6_link'>
+        <pose>0 0 1.1005 0 -0 0</pose>
+        <inertial>
+          <pose>0 0 0.0625 0 -0 0</pose>
+          <mass>0.2</mass>
+          <inertia>
+            <ixx>0.000520833</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.000520833</iyy>
+            <iyz>0</iyz>
+            <izz>0.000520833</izz>
+          </inertia>
+        </inertial>
+        <collision name='lwr_6_link_collision'>
+          <pose>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/guillaume/roscode/catkin_ws3/src/kuka-lwr/lwr_description/meshes/convex/arm_wrist_convex.stl</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='lwr_6_link_visual'>
+          <pose>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/guillaume/roscode/catkin_ws3/src/kuka-lwr/lwr_description/meshes/link_6.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>PR2/White</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='lwr_5_joint' type='revolute'>
+        <child>lwr_6_link</child>
+        <parent>lwr_5_link</parent>
+        <axis>
+          <xyz>0 -1 0</xyz>
+          <limit>
+            <lower>-2.0944</lower>
+            <upper>2.0944</upper>
+            <effort>38</effort>
+            <velocity>3.21141</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+          </dynamics>
+        </axis>
+      </joint>
+      <link name='lwr_7_link'>
+        <pose>0 0 1.1785 0 -0 0</pose>
+        <inertial>
+          <pose>0 0 0 0 -0 0</pose>
+          <mass>0.2</mass>
+          <inertia>
+            <ixx>0.0333333</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.0333333</iyy>
+            <iyz>0</iyz>
+            <izz>0.0333333</izz>
+          </inertia>
+        </inertial>
+        <collision name='lwr_7_link_collision'>
+          <pose>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <cylinder>
+              <length>0.05</length>
+              <radius>0.04</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='lwr_7_link_visual'>
+          <pose>0 0 0 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/guillaume/roscode/catkin_ws3/src/kuka-lwr/lwr_description/meshes/link_7.dae</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <gravity>1</gravity>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='lwr_6_joint' type='revolute'>
+        <child>lwr_7_link</child>
+        <parent>lwr_6_link</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-2.96706</lower>
+            <upper>2.96706</upper>
+            <effort>38</effort>
+            <velocity>3.21141</velocity>
+          </limit>
+          <dynamics>
+            <damping>1</damping>
+          </dynamics>
+        </axis>
+      </joint>
+      <static>0</static>
+      <plugin name='lwr_lwr_hw_sim' filename='liblwr_hw_gazebo_plugin.so'>
+        <robotNamespace>lwr</robotNamespace>
+      </plugin>
+      <pose>0 0 0 0 -0 0</pose>
+    </model>
+    <state world_name='default'>
+      <sim_time>41 32000000</sim_time>
+      <real_time>64 46238702</real_time>
+      <wall_time>1449749443 763978781</wall_time>
+      <model name='ground_plane'>
+        <pose>0 0 0 0 -0 0</pose>
+        <link name='link'>
+          <pose>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='single_lwr_robot'>
+        <pose>0 1e-06 0 4e-06 -0 0</pose>
+        <link name='lwr_1_link'>
+          <pose>0 1e-06 0.11 -6e-06 -0 5e-06</pose>
+          <velocity>-0 0 0 -0 -0 -1e-05</velocity>
+          <acceleration>-0.00122 -0 0 -1.65436e-24 -2.5e-05 0.000248</acceleration>
+          <wrench>-0.00244 -0 0 0 -0 0</wrench>
+        </link>
+        <link name='lwr_2_link'>
+          <pose>0 2e-06 0.3105 -8e-06 1e-06 5e-06</pose>
+          <velocity>-0 0 0 1.03398e-25 4.9e-05 -1e-05</velocity>
+          <acceleration>0.001086 0 -0 0 2.4e-05 -0.00011</acceleration>
+          <wrench>0.002172 0 -0 0 -0 0</wrench>
+        </link>
+        <link name='lwr_3_link'>
+          <pose>0 3e-06 0.5105 -6e-06 1e-06 4e-06</pose>
+          <velocity>1e-05 0 -0 0 4.9e-05 0</velocity>
+          <acceleration>-0.000136 0 -0 -6.46235e-27 -1.2e-05 -4e-06</acceleration>
+          <wrench>-0.000272 0 -0 0 -0 0</wrench>
+        </link>
+        <link name='lwr_4_link'>
+          <pose>0 5e-06 0.7105 -4e-06 2e-06 4e-06</pose>
+          <velocity>2e-05 0 -0 0 7.2e-05 0</velocity>
+          <acceleration>-9.2e-05 -0 -0 1.61559e-27 1.2e-05 1e-06</acceleration>
+          <wrench>-0.000184 -0 -0 0 -0 0</wrench>
+        </link>
+        <link name='lwr_5_link'>
+          <pose>1e-06 5e-06 0.9105 -3e-06 2e-06 5e-06</pose>
+          <velocity>3.4e-05 0 -0 0 7.2e-05 0</velocity>
+          <acceleration>8e-06 -0 -0 0 -0 0</acceleration>
+          <wrench>1.7e-05 -0 -0 0 -0 0</wrench>
+        </link>
+        <link name='lwr_6_link'>
+          <pose>1e-06 5e-06 1.1005 -4e-06 3e-06 5e-06</pose>
+          <velocity>4.8e-05 0 -0 0 7.3e-05 0</velocity>
+          <acceleration>3.5e-05 -0 -0 0 5e-06 0</acceleration>
+          <wrench>7e-06 -0 -0 0 -0 0</wrench>
+        </link>
+        <link name='lwr_7_link'>
+          <pose>2e-06 6e-06 1.1785 0 3e-06 2e-06</pose>
+          <velocity>5.4e-05 0 -0 0 7.3e-05 0</velocity>
+          <acceleration>3.4e-05 -0 -0 0 -6e-06 0</acceleration>
+          <wrench>7e-06 -0 -0 0 -0 0</wrench>
+        </link>
+        <link name='lwr_base_link'>
+          <pose>0 1e-06 0 4e-06 -0 0</pose>
+          <velocity>-0 0 0 0 -0 0.000719</velocity>
+          <acceleration>-1.4e-05 0 0 0 -0 0.002379</acceleration>
+          <wrench>-2.7e-05 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+    </state>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>5 -5 2 0 0.275643 2.35619</pose>
+        <view_controller>orbit</view_controller>
+      </camera>
+    </gui>
+  </world>
+</sdf>

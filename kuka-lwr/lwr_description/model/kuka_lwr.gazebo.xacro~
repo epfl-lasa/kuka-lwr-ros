@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+	<xacro:macro name="kuka_lwr_gazebo" params="name">
+
+		<gazebo>
+			<plugin name="${name}_lwr_hw_sim" filename="liblwr_hw_gazebo_plugin.so">
+				<robotNamespace>${name}</robotNamespace>
+			</plugin>
+		</gazebo>
+
+		<gazebo reference="${name}_base_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${name}_1_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${name}_2_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${name}_3_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${name}_4_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${name}_5_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Orange</material>
+		</gazebo>
+
+		<gazebo reference="${name}_6_link">
+			<gravity>true</gravity>
+			<!--material>Gazebo/White</material-->
+		</gazebo>
+
+		<gazebo reference="${name}_7_link">
+			<gravity>true</gravity>
+			<!--material>Gazebo/Grey</material-->
+		</gazebo>
+
+
+
+	</xacro:macro>
+
+</robot>

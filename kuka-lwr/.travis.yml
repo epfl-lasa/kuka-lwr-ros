@@ -1,0 +1,35 @@
+# travis beta feature
+dist: trusty
+
+language: generic
+
+compiler:
+  - gcc
+
+branches:
+  only:
+    - master
+
+before_install:
+  - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+  - sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-latest.list'
+  - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+  - wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+  - sudo apt-get update -qq
+
+install:
+  - sudo apt-get -qq install ros-indigo-ros-base ros-indigo-cmake-modules ros-indigo-orocos-kdl ros-indigo-kdl-parser ros-indigo-ros-control ros-indigo-ros-controllers ros-indigo-gazebo4-ros ros-indigo-gazebo4-ros-pkgs
+
+before_script:
+  - sudo rosdep init
+  - rosdep update
+  - source /opt/ros/indigo/setup.bash
+  - mkdir -p ~/catkin_ws/src
+  - export REPOSITORY_NAME=${PWD##*/}
+  - ln -s $(pwd) ~/catkin_ws/src/$REPOSITORY_NAME
+  - cd ~/catkin_ws/src
+  - catkin_init_workspace
+
+script:
+  - cd ~/catkin_ws/
+  - catkin_make

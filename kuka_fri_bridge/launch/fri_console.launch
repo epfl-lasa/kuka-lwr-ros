@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<launch>
+	<node name="kuka_fri_console" pkg="kuka_fri_bridge" type="kuka_fri_console_node" output="screen"/>
+</launch>
+
