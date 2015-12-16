@@ -13,6 +13,12 @@ Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR)
 
 ## Quick Start
 
+![alt text](readme/gazebo_rviz.png "Description goes here")
+
+
+![alt text](readme/console.png "Description goes here")
+
+
 ## Concept
 
 
