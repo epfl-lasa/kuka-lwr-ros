@@ -16,7 +16,18 @@ for this package are
 
 ## Dependencies
 
-
+* [**Gazebo**](http://gazebosim.org/), has been tested with gazebo version 6 but should work with higher
+```
+$ sudo apt-get install libgazebo6 gazebo6
+```
+* **ros_control** dependencies for ROS-Gazebo interfacing
+```
+$ sudo apt-get install ros-indigo-gazebo6-*
+```
+* **other ros dependencies**
+```
+$ sudo apt-get install ros-indigo-joint-trajectory-* ros-indigo-controller-manager* ros-indigo-joint-limits-interface ros-indigo-transmission-interfac
+```
 
 # Quick Start (Simulation)
 
