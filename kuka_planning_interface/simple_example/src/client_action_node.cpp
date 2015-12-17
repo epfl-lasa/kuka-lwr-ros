@@ -4,6 +4,21 @@
 #include "kuka_action_client/kuka_action_client.h"
 #include "kuka_action_client/ros_param_parser.h"
 
+/**
+  *     Client Action node (simple example)
+  *
+  *     This .cpp file encodes the client ROS node of the action server. It is in this node
+  *     that you the name of your actions with associated goal parameters. This list of
+  *     of tuples [name,goal] is can the be called via three methods;
+  *         1) service       : rosservice call /control_cmd_interface/kuka_cmd 'name'"
+  *         2) voice         :
+  *         3) cmd interface : terminal
+  *
+  *     When a name is selected the client contacts the Action server node with [goal] information.
+  *     The action server will then proceed to run the action with the goal parameters specified in
+  *     [goal].
+ */
+
 int main(int argc, char** argv)
 {
 
@@ -24,14 +39,14 @@ int main(int argc, char** argv)
     }
 
     std::string speech_topic          =  param_name_value[node_name + "/speech_topic"];
-    std::string action_serivce_name   = param_name_value[node_name  + "/action_service_name"];
-    std::string cmd_service_name      = param_name_value[node_name  + "/cmd_service_name"];
+    std::string action_serivce_name   =  param_name_value[node_name + "/action_service_name"];
+    std::string cmd_service_name      =  param_name_value[node_name + "/cmd_service_name"];
     std::string action_server_name    =  param_name_value[node_name + "/action_server_name"];
 
 
     /** ------------- Initialise Action Client & Set Action-Goals -------------
 
-      The Pour_client is initialsed. A set of actions and goals are defined
+      The Simple_action client is initialsed. A set of actions and goals are defined
       add added to the action clients container which is a map. The key of
       the map is the name of the action and the value is the Goal.
 
@@ -48,6 +63,20 @@ int main(int argc, char** argv)
     jointStateImpedance.velocity.resize(KUKA_DOF);
     jointStateImpedance.effort.resize(KUKA_DOF);
     jointStateImpedance.stiffness.resize(KUKA_DOF);
+
+    /** ------------- Defining goals -------------
+     *
+     *  The action client registers in a map, goals["action_name"] = goal.
+     *  The goal object holds sepcific variables for the policy that will
+     *  execut this goal.
+     *
+     *  For instance goal can hold a target cartesian position, a target
+     *  joint position, target stiffness values, etc..
+     *
+     *  It is important that in the action server node (server_action_node.cpp) there exists a
+     *  a policy which has been registered with a type matching that of goal.action_type.
+     *
+     */
 
     {
         ac::Goal goal;
@@ -91,11 +120,17 @@ int main(int argc, char** argv)
     }
 
 
+    /**
+      * Here we register all the goals with the action client. This wil make them available to
+      * be called with the three different methods mentioned above (service,voice,cmd interface)
+      *
+      **/
+
     kuka_action_client.push_back(goals);
 
 
 
-    /**  ------------- Initialise Control cmd  interface  -------------
+    /**  ------------- Initialise Service, Voice & Cmd interface  -------------
      *  The control command interface is an interface to the action client.
      *  It provied a ros service and a voice command interface such to
      *  command the client server to send desired action requests to the action server.
