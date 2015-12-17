@@ -20,6 +20,9 @@ for this package are
 ```
 $ sudo apt-get install libgazebo6 gazebo6
 ```
+```
+$ sudo apt-get install gazebo6
+```
 * **ROS-Gazebo** dependencies for interfacing ROS and Gazebo
 ```
 $ sudo apt-get install ros-indigo-gazebo6-*
@@ -66,8 +69,12 @@ simple example case are; **go_front**, **go_home**,
 
 # Concept
 
-This package was implemented according to the following design decisions
-*  Seperate user specific policy implementations (search policy, grasping policy) from the actual robot controllers.
+This package was implemented according to the following design decisions:
+*  Seperate user specific policy implementations (search policy, grasping policy, etc..) from the actual robot controllers.
+*  User policies send commands 
+
+There are a three different interfaces to control the robot those are; 1) position, 2) impedance, and 3) effort.
+To reliably control the robot these controllers have to be running at least 1000Hz.  
 
 
 ![alt text](readme/concept.png "Description goes here")
