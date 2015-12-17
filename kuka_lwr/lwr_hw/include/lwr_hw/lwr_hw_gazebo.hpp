@@ -22,11 +22,13 @@ public:
   LWRHWGazebo() : LWRHW() {}
   ~LWRHWGazebo() {}
 
-  void setParentModel(gazebo::physics::ModelPtr parent_model){parent_model_ = parent_model; parent_set_ = true;};
+  void setParentModel(gazebo::physics::ModelPtr parent_model){parent_model_ = parent_model; parent_set_ = true;}
 
   // Init, read, and write, with Gazebo hooks
   bool init()
   {
+      ROS_INFO("init gazebo_plugin");
+
     if( !(parent_set_) )
     {
       std::cout << "Did you forget to set the parent model?" << std::endl << "You must do that before init()" << std::endl << "Exiting..." << std::endl;
@@ -51,6 +53,8 @@ public:
 
   void read(ros::Time time, ros::Duration period)
   {
+     // ROS_INFO("read gazebo_plugin");
+
     for(int j=0; j < n_joints_; ++j)
     {
       joint_position_prev_[j] = joint_position_[j];
@@ -66,6 +70,8 @@ public:
 
   void write(ros::Time time, ros::Duration period)
   {
+     // ROS_INFO("write gazebo_plugin");
+
     enforceLimits(period);
 
     switch (getControlStrategy())
