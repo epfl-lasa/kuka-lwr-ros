@@ -1,6 +1,6 @@
 # KUKA LWR 4+ 
 
-This code has been forked from [CentroEPiaggio/kuka-lwr](https://github.com/CentroEPiaggio/kuka-lwr).
+**This code has been forked from** [CentroEPiaggio/kuka-lwr](https://github.com/CentroEPiaggio/kuka-lwr).
 
 [![In Progress](https://badge.waffle.io/CentroEPiaggio/kuka-lwr.svg?label=in progress&title=in%20progress)](http://waffle.io/CentroEPiaggio/kuka-lwr) [![In Review](https://badge.waffle.io/CentroEPiaggio/kuka-lwr.svg?label=in review&title=in%20review)](http://waffle.io/CentroEPiaggio/kuka-lwr) [![Build Status](https://travis-ci.org/CentroEPiaggio/kuka-lwr.svg?branch=master)](https://travis-ci.org/CentroEPiaggio/kuka-lwr)
 
