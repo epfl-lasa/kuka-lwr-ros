@@ -35,11 +35,6 @@ public:
 
   ~LWRRobot_FRI();
 
- // void setPort(int port);
-
- // void setIP(std::string hintToRemoteHost);
-
-  // Init, read, and write, with FRI hooks
   bool init();
 
   bool SetControlMode(ControlStrategy desiredMode);
@@ -50,8 +45,6 @@ public:
 
   void doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list);
 
-  void actual_switch();
-
 private:
 
   void safe_joint_target_update(ros::Time time, ros::Duration period);
@@ -59,25 +52,14 @@ private:
 private:
 
   boost::shared_ptr<FastResearchInterface> mFRI;
-  boost::shared_ptr<friRemote> device_;
-
 
   FRI_STATE                     mCurrentFRI_STATE;
   FRI_CTRL                      mCurrentFRI_Control;
   FRI_CTRL                      mDesiredFRI_Control;
   ControlStrategy               mDesired_control_strategy;
 
-  // Parameters
-  int port_;
-  bool port_set;
-  std::string hintToRemoteHost_;
-  bool ip_set;
+  int ResultValue;
 
-  float* measured_joint_position;
-
-
-  void startFRI();
-  void stopFRI();
 };
 
 }

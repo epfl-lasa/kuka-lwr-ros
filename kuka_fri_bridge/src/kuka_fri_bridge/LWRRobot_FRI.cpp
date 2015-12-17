@@ -33,8 +33,8 @@ void LWRRobot_FRI::safe_joint_target_update(ros::Time time, ros::Duration period
 void LWRRobot_FRI::read(ros::Time time, ros::Duration period)
 {
 
-   joint_damping_   = joint_damping_command_;
-   joint_stiffness_ = joint_stiffness_command_;
+    joint_damping_   = joint_damping_command_;
+    joint_stiffness_ = joint_stiffness_command_;
 
     mFRI->GetMeasuredJointPositions(joint_position_);
     mFRI->GetMeasuredJointTorques(joint_effort_);
@@ -59,7 +59,7 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
 {
 
     std::string tmp =  fri_state2str(mCurrentFRI_STATE);
-    ROS_INFO_DELAYED_THROTTLE(2.0,tmp.c_str());
+    //ROS_INFO_DELAYED_THROTTLE(2.0,tmp.c_str());
 
 
     if (mCurrentFRI_STATE != FRI_STATE_CMD){
@@ -79,7 +79,7 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
     switch (getControlStrategy())
     {
     case NONE:
-       break;
+        break;
     case JOINT_POSITION:
         for (int j = 0; j < n_joints_; j++)
         {
@@ -90,8 +90,8 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
         tmp = "JOINT_POSITION";
 
 
-        ROS_INFO_STREAM_THROTTLE(1.0,tmp.c_str());
-       // ROS_INFO_STREAM_THROTTLE(1.0,)
+        //ROS_INFO_STREAM_THROTTLE(1.0,tmp.c_str());
+        // ROS_INFO_STREAM_THROTTLE(1.0,)
         mFRI->SetCommandedJointPositions(newJntPosition);
         mFRI->SetCommandedJointStiffness(newJntStiff);
         mFRI->SetCommandedJointDamping(newJntDamp);
@@ -101,7 +101,7 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
         break;
 
     case JOINT_IMPEDANCE:
-        tmp = "JOINT_IMPEDANCE (no torques)";
+        //tmp = "JOINT_IMPEDANCE (no torques)";
 
         for(int j=0; j < n_joints_; j++)
         {
@@ -116,13 +116,13 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
 
         //position_interface_.getHandle()
 
-        ROS_INFO_STREAM_THROTTLE(1.0,tmp.c_str());
+        //  ROS_INFO_STREAM_THROTTLE(1.0,tmp.c_str());
 
         mFRI->SetCommandedJointPositions(newJntPosition);
         mFRI->SetCommandedJointStiffness(newJntStiff);
         mFRI->SetCommandedJointDamping(newJntDamp);
 
-          break;
+        break;
 
     case JOINT_EFFORT:
         for(int j=0; j < n_joints_; j++)
@@ -162,6 +162,14 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
 void LWRRobot_FRI::doSwitch(const std::list<hardware_interface::ControllerInfo> &start_list, const std::list<hardware_interface::ControllerInfo> &stop_list)
 {
 
+
+   /* ResultValue	=	mFRI->StopRobot();
+    if (ResultValue != EOK)
+    {
+        std::cout << "An error occurred during stopping the robot, couldn't switch mode...\n" << std::endl;
+        return;
+    }*/
+
     std::cout<< "DO_SWITCH" << std::endl;
     // If any of the controllers in the start list works on a velocity interface, the switch can't be done.
     for ( std::list<hardware_interface::ControllerInfo>::const_iterator it = start_list.begin(); it != start_list.end(); ++it )
@@ -199,268 +207,101 @@ void LWRRobot_FRI::doSwitch(const std::list<hardware_interface::ControllerInfo> 
     }
 
 
-  //  if(mCurrentFRI_STATE != FRI_STATE_CMD){
-        mFRI->WaitForKRCTick();
-   // }
+    //  if(mCurrentFRI_STATE != FRI_STATE_CMD){
+       //     mFRI->WaitForKRCTick();
+       // }
 
-    /// NONE| JOINT_POSITION | CARTESIAN_IMPEDANCE | JOINT_IMPEDANCE | JOINT_EFFORT | JOINT_STIFFNESS | GRAVITY_COMPENSATION
+        /// NONE| JOINT_POSITION | CARTESIAN_IMPEDANCE | JOINT_IMPEDANCE | JOINT_EFFORT | JOINT_STIFFNESS | GRAVITY_COMPENSATION
 
-    //if(mCurrentFRI_Control != mDesired_control_strategy){
-       std::cout<< "set control mode" << std::endl;
-       SetControlMode(mDesired_control_strategy);
-       setControlStrategy(mDesired_control_strategy);
-  //  }
+        //if(mCurrentFRI_Control != mDesired_control_strategy){
+           std::cout<< "set control mode" << std::endl;
+           SetControlMode(mDesired_control_strategy);
+           setControlStrategy(mDesired_control_strategy);
 
-
-    // if(desired_strategy == getControlStrategy())
-    // {
-    //     std::cout << "The ControlStrategy didn't changed, it is already: " << getControlStrategy() << std::endl;
-    // }
-    //else
-    // {
-    //mFRI->WaitForKRCTick();
-
-    //stopFRI();
-
-    // send to KRL the new strategy
-    //if( desired_strategy == JOINT_POSITION )
-    //device_->setToKRLInt(0, JOINT_POSITION);
-    // else if( desired_strategy >= JOINT_IMPEDANCE)
-    //device_->setToKRLInt(0, JOINT_IMPEDANCE);
-
-    // startFRI();
-
-
-    // std::cout << "The ControlStrategy changed to: " << getControlStrategy() << std::endl;
-    // }
-}
-
-void LWRRobot_FRI::actual_switch(){
-
-    mCurrentFRI_STATE = int2FRI_STATE(mFRI->GetFRIMode());
-    mCurrentFRI_Control   = int2FRI_CTRL(mFRI->GetCurrentControlScheme());
-
-    if(mCurrentFRI_STATE != FRI_STATE_CMD){
-        mFRI->WaitForKRCTick();
+   /* if(mDesired_control_strategy == getControlStrategy())
+    {
+        std::cout << "The ControlStrategy didn't changed, it is already: " << getControlStrategy() << std::endl;
     }
+    else
+    {
+         std::cout<< "just before swich" << std::endl;
+         mFRI->WaitForKRCTick();
 
-    if(mCurrentFRI_Control != mDesired_control_strategy){
+        if(SetControlMode(mDesired_control_strategy)){
 
-        for (int j = 0; j < n_joints_; ++j)
-        {
-            ///semantic Zero
-            joint_position_command_[j] = joint_position_[j];
-            joint_effort_command_[j] = 0.0;
-
-            ///call setCommand once so that the JointLimitsInterface receive the correct value on their getCommand()!
-            try{  position_interface_.getHandle(joint_names_[j]).setCommand(joint_position_command_[j]);  }
-            catch(const hardware_interface::HardwareInterfaceException&){}
-            try{  effort_interface_.getHandle(joint_names_[j]).setCommand(joint_effort_command_[j]);  }
-            catch(const hardware_interface::HardwareInterfaceException&){}
-
-            ///reset joint_limit_interfaces
-            pj_sat_interface_.reset();
-            pj_limits_interface_.reset();
+            // if sucess during the switch in FRI, set the ROS strategy
+            setControlStrategy(mDesired_control_strategy);
         }
 
-        SetControlMode(mDesired_control_strategy);
-        setControlStrategy(mDesired_control_strategy);
     }
 
-}
+    std::cout << "The ControlStrategy changed to: " << getControlStrategy() << std::endl;*/
 
+}
 
 bool LWRRobot_FRI::SetControlMode(ControlStrategy desiredMode){
-
     if(desiredMode ==  JOINT_POSITION){
+           mFRI->StopRobot();
+           mFRI-> WaitForKRCTick();
+           int result =  mFRI->StartRobot(FastResearchInterface::JOINT_POSITION_CONTROL, FRI_CONN_TIMEOUT_SEC);
+           if(result != EOK && result != EALREADY)
+           {
+               std::cout<<"Error: "<<result<<std::endl;
+               return false;
+           }
+           std::cout<< "Robot set in position control mode" << std::endl;
+       }
+       else if(desiredMode == CARTESIAN_IMPEDANCE){
+           std::cout<< "Waiting for script..." << std::endl;
+           mFRI->StopRobot();
+           mFRI-> WaitForKRCTick();
+           int result =  mFRI->StartRobot(FastResearchInterface::CART_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);
+           if(result != EOK && result != EALREADY)
+           {
+               std::cout<<"Error: "<<result<<std::endl;
+               return 1;
+           }
+       }
+       else if(desiredMode == JOINT_IMPEDANCE){
 
-        //  mNCConsole.Print("Waiting for script...");
-        //  mNCConsole.Render();
-        //  std::cout<< "Waiting for script..." << std::endl;
-        // mFRI->GetMeasuredJointPositions(jnt2);
-        // SetCommandedJPos(jnt2);
+           std::cout<< "desiredMode ==  JOINT_IMPEDANCE" << std::endl;
+           mFRI->SetKRLBoolValue(0,true);
+           std::cout<< "Waiting for script..." << std::endl;
+           mFRI-> WaitForKRCTick();
+           int result =  mFRI->StartRobot(FastResearchInterface::JOINT_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);
+           if(result != EOK && result != EALREADY)
+           {
+               std::cout<<"Error: "<<result<<std::endl;
+               return 1;
+           }
+           std::cout<< "Robot set in joint impedance mode." << std::endl;
+       }
+       else if(desiredMode == JOINT_EFFORT){
+           mFRI->SetKRLBoolValue(0,true);
+           std::cout<< "Waiting for script..." << std::endl;
+           mFRI-> WaitForKRCTick();
+           int result =  mFRI->StartRobot(FastResearchInterface::JOINT_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);
+           if(result != EOK && result != EALREADY)
+           {
+               std::cout<<"Error: "<<result<<std::endl;
+               return 1;
+           }
+           std::cout<< "Robot set in torque control mode." << std::endl;
+       }
+       else if(desiredMode == GRAVITY_COMPENSATION){
+           std::cout<< "Waiting for script..." << std::endl;
+           mFRI->SetKRLBoolValue(0,true);
+           mFRI-> WaitForKRCTick();
+           int result =  mFRI->StartRobot(FastResearchInterface::JOINT_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);
+           if(result != EOK && result != EALREADY)
+           {
+               std::cout<<"Error: "<<result<<std::endl;
+               return 1;
+           }
 
-        std::cout<< "desiredMode ==  JOINT_POSITION" << std::endl;
-
-        mFRI-> WaitForKRCTick();
-        int result =  mFRI->StartRobot(FastResearchInterface::JOINT_POSITION_CONTROL, FRI_CONN_TIMEOUT_SEC);
-        if(result != EOK && result != EALREADY)
-        {
-            std::cout<<"Error: "<<result<<std::endl;
-            return false;
-        }
-        //mNCConsole.Print("Robot set in position control mode");
-        std::cout<< "Robot set in position control mode" << std::endl;
-
-        //  nControl = Robot::CTRLMODE_POSITION;
-    }
-    else if(desiredMode == CARTESIAN_IMPEDANCE){
-        //mNCConsole.Print("Waiting for script...");
-        //mNCConsole.Render();
-        std::cout<< "Waiting for script..." << std::endl;
-        mFRI->StopRobot();
-        //mFRI->GetMeasuredCartPose(cart2);
-        // mFRI->SetCommandedCartPose(cart2);
-        mFRI-> WaitForKRCTick();
-        int result =  mFRI->StartRobot(FastResearchInterface::CART_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);
-        if(result != EOK && result != EALREADY)
-        {
-            std::cout<<"Error: "<<result<<std::endl;
-            return 1;
-        }
-        /*  for(int i=0;i<3; i++)
-      cart_imp_params[i] =  mCurrCStiff_pos;
-    for(int i=3;i<6; i++)
-      cart_imp_params[i] =  mCurrCStiff_or;
-
-    mFRI->SetCommandedCartStiffness(cart_imp_params);
-
-    for(int i=0;i<3; i++)
-      cart_imp_params[i] =  mCurrCDamp_pos;
-    for(int i=3;i<6; i++)
-      cart_imp_params[i] =  mCurrCDamp_or;
-
-    mFRI->SetCommandedCartDamping(cart_imp_params);
-
-
-    mNCConsole.Print("Robot set in cartesian impedance control mode");
-
-
-    nControl = Robot::CTRLMODE_CARTIMPEDANCE;*/
-
-    }
-    else if(desiredMode == JOINT_IMPEDANCE){
-
-        std::cout<< "desiredMode ==  JOINT_IMPEDANCE" << std::endl;
-        mFRI->SetKRLBoolValue(0,true);
-        std::cout<< "Waiting for script..." << std::endl;
-        mFRI-> WaitForKRCTick();
-        int result =  mFRI->StartRobot(FastResearchInterface::JOINT_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);
-        if(result != EOK && result != EALREADY)
-        {
-            std::cout<<"Error: "<<result<<std::endl;
-            return 1;
-        }
-        /*
-    for(int i=0;i<LBR_MNJ; i++)
-      jnt2[i] =  mCurrJDamp;
-    mFRI->SetCommandedJointDamping(jnt2);
-
-    for(int i=0;i<LBR_MNJ; i++)
-      jnt2[i] =  mCurrJStiff;
-    mFRI->SetCommandedJointStiffness(jnt2);
-
-    for(int i=0;i<LBR_MNJ; i++)
-      jnt2[i]=0.;
-    mFRI->SetCommandedJointTorques(jnt2);
-
-    nControl = Robot::CTRLMODE_JOINTIMPEDANCE;
-    mNCConsole.Print("Robot set in joint impedance mode.");*/
-        std::cout<< "Robot set in joint impedance mode." << std::endl;
-    }
-    else if(desiredMode == JOINT_EFFORT){
-        mFRI->SetKRLBoolValue(0,true);
-        std::cout<< "Waiting for script..." << std::endl;
-        mFRI-> WaitForKRCTick();
-        int result =  mFRI->StartRobot(FastResearchInterface::JOINT_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);
-        if(result != EOK && result != EALREADY)
-        {
-            std::cout<<"Error: "<<result<<std::endl;
-            return 1;
-        }
-        /*
-    for(int i=0;i<LBR_MNJ; i++)
-      jnt2[i] =  0.0;
-    mFRI->SetCommandedJointDamping(jnt2);
-
-    for(int i=0;i<LBR_MNJ; i++)
-      jnt2[i] =  0.0;
-    mFRI->SetCommandedJointStiffness(jnt2);
-
-    for(int i=0;i<LBR_MNJ; i++)
-      jnt2[i]=0.0;
-    mFRI->SetCommandedJointTorques(jnt2);
-
-    nControl = Robot::CTRLMODE_TORQUE;
-    mNCConsole.Print("Robot set in torque control mode.");*/
-        std::cout<< "Robot set in torque control mode." << std::endl;
-
-    }
-    else if(desiredMode == GRAVITY_COMPENSATION){
-        std::cout<< "Waiting for script..." << std::endl;
-        mFRI->SetKRLBoolValue(0,true);
-        mFRI-> WaitForKRCTick();
-        int result =  mFRI->StartRobot(FastResearchInterface::JOINT_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);
-        if(result != EOK && result != EALREADY)
-        {
-            std::cout<<"Error: "<<result<<std::endl;
-            return 1;
-        }
-        /*
-    Vector v = mLWRRobot-> GetJointStiffness();
-    for(int i=0;i<LBR_MNJ; i++)
-      if(mLWRRobot->GetGravComp(i))
-        jnt2[i] = 0;
-      else
-        jnt2[i] = v(i);
-
-    v = mLWRRobot-> GetJointDamping();
-    float jdamp[LBR_MNJ];
-    for(int i=0;i<LBR_MNJ; i++)
-      if(mLWRRobot->GetGravComp(i))
-        jdamp[i] = 0;
-      else
-        jdamp[i] = v(i);
-
-
-    mFRI->SetCommandedJointStiffness(jnt2);
-    mFRI->SetCommandedJointDamping(jdamp);
-
-    nControl = Robot::CTRLMODE_GRAVITYCOMPENSATION;
-    mNCConsole.Print("Robot set in grav. comp. mode");*/
-
-        std::cout<< "Robot set in grav. comp. mode" << std::endl;
-    }
-    // nMode = MODE_NONE;
-    return true;
-}
-
-
-void LWRRobot_FRI::startFRI()
-{
-    // wait until FRI enters in command mode
-    std::cout << "Waiting for good communication quality..." << std::endl;
-    // while( device_->getQuality() != FRI_QUALITY_OK ){};
-    // device_->setToKRLInt(1, 1);
-
-    // std::cout << "Waiting for command mode..." << std::endl;
-    // while ( device_->getFrmKRLInt(1) != 1 )
-    // {
-    // std::cout << "device_->getState(): " << device_->getState() << std::endl;
-    // device_->setToKRLInt(1, 1);
-    // usleep(1000000);
-    // }
-    return;
-}
-
-void LWRRobot_FRI::stopFRI()
-{
-    // wait until FRI enters in command mode
-    mFRI->SetKRLIntValue(1,0);
-
-    // device_->setToKRLInt(1, 0);
-    std::cout << "Waiting for monitor mode..." << std::endl;
-    mFRI->WaitForKRCTick();
-    // while ( device_->getFrmKRLInt(1) != 0 ){}
-    // {
-    // std::cout << "device_->getState(): " << device_->getState() << std::endl;
-    // std::cout << "Waiting for monitor mode..." << std::endl;
-    // device_->setToKRLInt(1, 0);
-    // usleep(1000000);
-    // }
-    //return;
-    //}
-
+           std::cout<< "Robot set in grav. comp. mode" << std::endl;
+       }
+       return true;
 }
 
 }
