@@ -18,10 +18,9 @@ actionlib
 lwr_controllers
 robot_motion_generation
 kuka_fri_bridge)
+#-std=c++14
+set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -fext-numeric-literals -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
 
-set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -std=c++14 -fext-numeric-literals -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
-
-find_package(Armadillo)
 
 
 add_action_files(DIRECTORY action
@@ -33,7 +32,7 @@ generate_messages(DEPENDENCIES std_msgs geometry_msgs actionlib_msgs kuka_fri_br
 
 catkin_package(
    INCLUDE_DIRS include
-   LIBRARIES ${PROJECT_NAME} optitrack_rviz
+   LIBRARIES ${PROJECT_NAME}
    CATKIN_DEPENDS tf lwr_controllers message_runtime std_msgs trajectory_msgs kuka_fri_bridge
 #  DEPENDS system_lib
 )
@@ -74,6 +73,6 @@ set(SRC_FILES   ${SRC_DIR}/base_ee_action.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${H_FILES} ${SRC_FILES})
-target_link_libraries(${PROJECT_NAME}  ${catkin_LIBRARIES} armadillo )
+target_link_libraries(${PROJECT_NAME}  ${catkin_LIBRARIES})
 
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})

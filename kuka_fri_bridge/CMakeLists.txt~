@@ -109,13 +109,13 @@ set(S_FILES  ${SRC_DIR}/kuka_fri_bridge/LWRRobot_FRI.cpp
 include_directories(${catkin_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} ${H_FILES} ${S_FILES} )
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${ARMADILLO_LIBRARIES})
 
 add_executable(kuka_fri_bridge_node ${SRC_DIR}/kuka_fri_bridge_node.cpp )
-target_link_libraries(kuka_fri_bridge_node ${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(kuka_fri_bridge_node ${PROJECT_NAME} ${catkin_LIBRARIES} ${ARMADILLO_LIBRARIES})
 
 add_executable(kuka_fri_console_node ${SRC_DIR}/kuka_fri_console_node.cpp)
-target_link_libraries(kuka_fri_console_node ${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(kuka_fri_console_node ${PROJECT_NAME} ${catkin_LIBRARIES} ${ARMADILLO_LIBRARIES})
 
 
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)

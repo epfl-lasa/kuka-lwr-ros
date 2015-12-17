@@ -24,7 +24,7 @@
 #include "lwr_controllers/PoseRPY.h"
 
 //#include "MathLib/MathLib.h"
-
+#include <armadillo>
 
 #include <tf/LinearMath/Transform.h>
 

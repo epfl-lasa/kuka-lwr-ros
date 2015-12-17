@@ -8,6 +8,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <armadillo>
 #include "std_msgs/Float64MultiArray.h"
 
 namespace asrv{

@@ -8,7 +8,6 @@
 #include <std_msgs/Float64MultiArray.h>
 #include <boost/scoped_ptr.hpp>
 #include <robot_motion_generation/CDDynamics.h>
-#include <position_controllers/joint_position_controller.h>
 
 
 namespace lwr_controllers

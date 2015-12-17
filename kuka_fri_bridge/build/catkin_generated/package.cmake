@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "kuka_fri_bridge")
-set(kuka_fri_bridge_MAINTAINER "ashukla <ashukla@todo.todo>")
-set(kuka_fri_bridge_DEPRECATED "")
-set(kuka_fri_bridge_VERSION "0.0.0")
-set(kuka_fri_bridge_BUILD_DEPENDS "mathlib" "std_tools" "robotlib" "roscpp" "geomtry_msgs" "sensor_msgs" "kuka_robot_model" "motion_generators" "message_generation")
-set(kuka_fri_bridge_RUN_DEPENDS "mathlib" "std_tools" "robotlib" "roscpp" "geomtry_msgs" "sensor_msgs" "kuka_robot_model" "motion_generators" "message_runtime")
-set(kuka_fri_bridge_BUILDTOOL_DEPENDS "catkin")

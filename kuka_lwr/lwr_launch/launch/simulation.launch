@@ -49,12 +49,12 @@
     <group ns="lwr">
 	<!-- spawn only desired controllers in current namespace -->
 	<node name="controller_spawner_js" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="kuka_joint_state_controller"/>
-	<node name="controller_spawner"    pkg="controller_manager" type="spawner" respawn="false" output="screen" args="--stopped $(arg controllers)"/>
+	<!--node name="controller_spawner"    pkg="controller_manager" type="spawner" respawn="false" output="screen" args="-stopped $(arg controllers)"/-->
 	<!--node name="controller_stopper"    pkg="controller_manager" type="spawner" args="-stopped $(arg stopped_controllers)" /-->
     </group>
 
   <!-- LAUNCH RVIZ -->
 
-  <node name="lwr_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rviz_config)" output="screen"/>
+  <!--node name="lwr_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rviz_config)" output="screen"/-->
 
 </launch>

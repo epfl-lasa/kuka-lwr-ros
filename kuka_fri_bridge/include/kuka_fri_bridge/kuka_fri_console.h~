@@ -27,6 +27,7 @@
 #include <controller_manager/controller_manager.h>
 #include "kuka_fri_bridge/FRI.h"
 
+#include <armadillo>
 
 #define MEASUREMENT_HISTORY_LENGTH 20
 

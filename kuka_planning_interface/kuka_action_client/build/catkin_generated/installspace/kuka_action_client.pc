@@ -1,8 +1,0 @@
-prefix=/usr/local
-
-Name: kuka_action_client
-Description: Description of kuka_action_client
-Version: 0.0.0
-Cflags: -I/usr/local/include
-Libs: -L/usr/local/lib -lkuka_action_client
-Requires: roscpp tf std_msgs message_runtime
