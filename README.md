@@ -66,5 +66,20 @@ simple example case are; **go_front**, **go_home**,
 
 # Concept
 
+This package was implemented according to the following design decisions
+*  Seperate user specific policy implementations (search policy, grasping policy) from the actual robot controllers.
+
 
 ![alt text](readme/concept.png "Description goes here")
+
+
+[**ros_control**](http://gazebosim.org/tutorials?tut=ros_control)  
+
+
+<ol>
+  <li>Action client node</li>
+  <li>Action server node</li>
+  <li>Controller manager</li>
+  <li>Gazebo/Real robot</li>
+  <li>Rviz</li>
+</ol>
