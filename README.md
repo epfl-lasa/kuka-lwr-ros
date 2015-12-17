@@ -29,7 +29,7 @@ $ sudo apt-get install ros-indigo-gazebo6-*
 ```
 * **other ros dependencies**
 ```
-$ sudo apt-get install ros-indigo-joint-trajectory-* ros-indigo-controller-manager* ros-indigo-joint-limits-interface ros-indigo-transmission-interfac
+$ sudo apt-get install ros-indigo-joint-trajectory-* ros-indigo-controller-manager* ros-indigo-joint-limits-interface ros-indigo-transmission-interface
 ```
 * [**fri-library-ros**](https://github.com/epfl-lasa/fri-library-ros) Fast research interface used to communicate 
  with the physical robot.
