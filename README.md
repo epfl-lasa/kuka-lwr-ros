@@ -16,11 +16,11 @@ for this package are
 
 ## Dependencies
 
-* [**Gazebo**](http://gazebosim.org/), has been tested with gazebo version 6 but should work with higher
+* [**Gazebo**](http://gazebosim.org/) 
 ```
 $ sudo apt-get install libgazebo6 gazebo6
 ```
-* **ros_control** dependencies for ROS-Gazebo interfacing
+* **ROS-Gazebo** dependencies for interfacing ROS and Gazebo
 ```
 $ sudo apt-get install ros-indigo-gazebo6-*
 ```
@@ -28,6 +28,8 @@ $ sudo apt-get install ros-indigo-gazebo6-*
 ```
 $ sudo apt-get install ros-indigo-joint-trajectory-* ros-indigo-controller-manager* ros-indigo-joint-limits-interface ros-indigo-transmission-interfac
 ```
+* [**fri-library-ros**](https://github.com/epfl-lasa/fri-library-ros) Fast research interface used to communicate 
+ with the physical robot.
 
 # Quick Start (Simulation)
 
