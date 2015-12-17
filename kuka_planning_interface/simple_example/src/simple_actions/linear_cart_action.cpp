@@ -68,6 +68,11 @@ bool Linear_cart_action::execute_CB(asrv::alib_server& as_,asrv::alib_feedback& 
 
         sendVel(ee_vel_msg);
 
+
+
+        sendPose(ee_pos_msg);
+
+
         feedback.progress = 0;
         as_.publishFeedback(feedback);
         if (as_.isPreemptRequested() || !ros::ok())
