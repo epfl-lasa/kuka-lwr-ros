@@ -4,8 +4,14 @@ namespace asrv{
 
 Base_ee_action::Base_ee_action(ros::NodeHandle&   nh){
 
-    position_pub = nh.advertise<geometry_msgs::Pose>("/lwr/one_task_inverse_kinematics/command_pos", 1);
-    velocity_pub = nh.advertise<geometry_msgs::Twist>("/lwr/one_task_inverse_kinematics/command_vel", 1);
+    position_pub  = nh.advertise<geometry_msgs::Pose>("/lwr/one_task_inverse_kinematics/command_pos", 1);
+    velocity_pub  = nh.advertise<geometry_msgs::Twist>("/lwr/one_task_inverse_kinematics/command_vel", 1);
+    stiffness_pub = nh.advertise<std_msgs::Float64MultiArray>("/lwr/one_task_inverse_kinematics/stiffness",1);
+    damping_pub   = nh.advertise<std_msgs::Float64MultiArray>("/lwr/one_task_inverse_kinematics/damping",1);
+
+    ee_damp_msg.data.resize(KUKA_NUM_JOINTS);
+    ee_stiff_msg.data.resize(KUKA_NUM_JOINTS);
+
     pose_sub     = nh.subscribe("/lwr/ee_pose",1,&Base_ee_action::pose_callback,this);
     b_received   = false;
 

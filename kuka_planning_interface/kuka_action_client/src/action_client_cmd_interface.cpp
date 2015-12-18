@@ -11,8 +11,8 @@ Action_client_cmd_interface::Action_client_cmd_interface(ros::NodeHandle    &nh,
     :
     nh(nh),
     kuka_action_client(kuka_action_client),
-    curr_action_state(action_states::PENDING),
-    console(nh,kuka_action_client)
+    console(nh,kuka_action_client),
+    curr_action_state(action_states::PENDING)
 {
     action_service             = nh.advertiseService(action_service_name,&Action_client_cmd_interface::action_service_callback,this);
     cmd_interface_service      = nh.advertiseService(cmd_service_name,&Action_client_cmd_interface::cmd_interface_callback,this);

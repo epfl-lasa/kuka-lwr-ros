@@ -4,7 +4,7 @@ project(kuka_action_client)
 
 find_package(catkin REQUIRED tf roscpp std_msgs message_runtime message_generation joint_trajectory_action std_tools_fri)
 
-set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -mtune=native -fPIC -Wall -Wno-deprecated-declarations -Wno-reorder")
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -17,7 +17,6 @@ set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -mtune=native -fPIC -Wall -Wno-deprecate
 add_service_files(FILES
     String_cmd.srv
 )
-
 
 generate_messages(DEPENDENCIES std_msgs)
 
@@ -36,14 +35,11 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${INCLUDE_DIR} )
 set(H_FILES     ${INCLUDE_DIR}/kuka_action_client/kuka_action_client.h
                 ${INCLUDE_DIR}/kuka_action_client/action_client_cmd_interface.h
                 ${INCLUDE_DIR}/kuka_action_client/kuka_action_console.h
-             #   ${INCLUDE_DIR}/kuka_action_client/common_action_client/joint_position_ac.h
                 ${INCLUDE_DIR}/kuka_action_client/ros_param_parser.h)
 
 set(SRC_FILES   ${SRC_DIR}/kuka_action_client.cpp
                 ${SRC_DIR}/action_client_cmd_interface.cpp
                 ${SRC_DIR}/kuka_action_console.cpp
-            #    ${SRC_DIR}/common_action_client/joint_position_ac.cpp
-
 )
 
 

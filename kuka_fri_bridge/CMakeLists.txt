@@ -7,7 +7,7 @@ find_package(catkin REQUIRED fri_library_ros std_tools_fri message_generation se
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -Wall -Wno-deprecated-declarations -Wno-unused-variable -Wno-reorder")
+set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -Wall -Wno-deprecated-declarations -Wno-unused-variable -Wno-reorder")
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed

@@ -33,6 +33,7 @@ private:
     tf::Vector3     target_origin;
     tf::Vector3     target_p1, target_p2;
     tf::Vector3     first_origin;
+    tf::Quaternion  target_R_p1, target_R_p2;
     tf::Quaternion  target_orientation;
     bool bFirst;
 

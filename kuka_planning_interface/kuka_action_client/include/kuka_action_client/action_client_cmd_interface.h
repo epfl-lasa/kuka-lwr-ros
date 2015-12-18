@@ -50,13 +50,13 @@ private:
 
     ros::NodeHandle&                   nh;
     ac::Kuka_action_client&            kuka_action_client;
+    actionlib::SimpleClientGoalState   curr_action_state;
+
+
     std::vector<ros::Subscriber>       subs;
     boost::thread                      worker_thread;
     ros::ServiceServer                 action_service;
     ros::ServiceServer                 cmd_interface_service;
-
-
-    actionlib::SimpleClientGoalState   curr_action_state;
     std_msgs::String                   server_msg;
 };
 

@@ -5,8 +5,10 @@ namespace kfb{
 
 Fri_interface::Fri_interface(ros::NodeHandle& nh){
 
-    fri_pub             = nh.advertise<kuka_fri_bridge::FRI>("FRI_data", 10);
-    joint_state_pub     = nh.advertise<sensor_msgs::JointState>("joint_states",10);
+    fri_pub                 = nh.advertise<kuka_fri_bridge::FRI>("FRI_data", 10);
+    joint_state_pub         = nh.advertise<sensor_msgs::JointState>("joint_states",10);
+    cart_force_torque_pub   = nh.advertise<std_msgs::Float64MultiArray>("ee_ft",10);
+    joint_external_ft_pub   = nh.advertise<std_msgs::Float64MultiArray>("j_ext_ft",10);
 
     fri_data.stiffness.resize(NB_JOINTS);
     fri_data.damping.resize(NB_JOINTS);
@@ -17,10 +19,13 @@ Fri_interface::Fri_interface(ros::NodeHandle& nh){
     joint_states_msg.position.resize(NB_JOINTS);
     joint_states_msg.velocity.resize(NB_JOINTS);
     joint_states_msg.effort.resize(NB_JOINTS);
+
+    j_ext_ft_msg.data.resize(LBR_MNJ);
+    ee_ft_msg.data.resize(FRI_CART_VEC);
+
     for(std::size_t i = 0; i < NB_JOINTS;i++){
         joint_states_msg.name[i] = "lwr_" + boost::lexical_cast<std::string>(i) + "_joint";
     }
-
 
     if(!nh.getParam("/fri_drivers",fri_drivers_path))
     {
@@ -28,8 +33,6 @@ Fri_interface::Fri_interface(ros::NodeHandle& nh){
     }else{
         std::cout<< "fri_drivers: " << fri_drivers_path << std::endl;
     }
-
-
 
 }
 
@@ -50,6 +53,9 @@ void Fri_interface::publish(const kfb::LWRRobot_FRI& kuka_robot){
     fri_data.damping                   = kuka_robot.joint_damping_;
     fri_data.stiffness                 = kuka_robot.joint_stiffness_;
 
+    mFRI->GetEstimatedExternalJointTorques(j_ext_ft_msg.data);
+    mFRI->GetEstimatedExternalCartForcesAndTorques(ee_ft_msg.data);
+
     joint_states_msg.header.stamp      = ros::Time::now();
     joint_states_msg.position          = kuka_robot.joint_position_;
     joint_states_msg.velocity          = kuka_robot.joint_velocity_;
@@ -57,6 +63,8 @@ void Fri_interface::publish(const kfb::LWRRobot_FRI& kuka_robot){
 
     fri_pub.publish(fri_data);
     joint_state_pub.publish(joint_states_msg);
+    cart_force_torque_pub.publish(ee_ft_msg);
+    joint_external_ft_pub.publish(ee_ft_msg);
 }
 
 }

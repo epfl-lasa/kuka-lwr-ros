@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     kfb::Fri_console fri_console(nh);
     fri_console.start();
 
-    ros::Rate r(60);
+    ros::Rate r(50);
     while(ros::ok())
     {
 

@@ -47,6 +47,7 @@ void LWRRobot_FRI::read(ros::Time time, ros::Duration period)
         joint_stiffness_[j]         = joint_stiffness_command_[j];
     }
 
+
     /// FRI_STATE_MON || FRI_STATE_CMD
     mCurrentFRI_STATE = int2FRI_STATE(mFRI->GetFRIMode());
 
@@ -58,14 +59,13 @@ void LWRRobot_FRI::read(ros::Time time, ros::Duration period)
 void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
 {
 
-    std::string tmp =  fri_state2str(mCurrentFRI_STATE);
+    //std::string tmp =  fri_state2str(mCurrentFRI_STATE);
     //ROS_INFO_DELAYED_THROTTLE(2.0,tmp.c_str());
 
 
-    if (mCurrentFRI_STATE != FRI_STATE_CMD){
+ /*   if (mCurrentFRI_STATE != FRI_STATE_CMD){
         return;
-    }
-
+    }*/
 
     enforceLimits(period);
 
@@ -73,7 +73,6 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
     float newJntStiff[n_joints_];
     float newJntDamp[n_joints_];
     float newJntAddTorque[n_joints_];
-
 
 
     switch (getControlStrategy())
@@ -87,41 +86,22 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
             newJntStiff[j]    = joint_stiffness_command_[j];
             newJntDamp[j]     = joint_damping_command_[j];
         }
-        tmp = "JOINT_POSITION";
-
-
-        //ROS_INFO_STREAM_THROTTLE(1.0,tmp.c_str());
-        // ROS_INFO_STREAM_THROTTLE(1.0,)
         mFRI->SetCommandedJointPositions(newJntPosition);
         mFRI->SetCommandedJointStiffness(newJntStiff);
         mFRI->SetCommandedJointDamping(newJntDamp);
-
         break;
     case CARTESIAN_IMPEDANCE:
         break;
-
     case JOINT_IMPEDANCE:
-        //tmp = "JOINT_IMPEDANCE (no torques)";
-
         for(int j=0; j < n_joints_; j++)
         {
             newJntPosition[j]     = joint_position_command_[j];
             newJntStiff[j]        = joint_stiffness_command_[j];
             newJntDamp[j]         = joint_damping_command_[j];
-
-            /*if(std::fabs(newJntPosition[j] - joint_position_[j])/period.toSec() > 0.1  ){
-                ROS_INFO("joint update too fast");
-            }*/
         }
-
-        //position_interface_.getHandle()
-
-        //  ROS_INFO_STREAM_THROTTLE(1.0,tmp.c_str());
-
         mFRI->SetCommandedJointPositions(newJntPosition);
         mFRI->SetCommandedJointStiffness(newJntStiff);
         mFRI->SetCommandedJointDamping(newJntDamp);
-
         break;
 
     case JOINT_EFFORT:
@@ -129,31 +109,14 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
         {
             newJntAddTorque[j] = joint_effort_command_[j];
         }
-        tmp = "JOINT_EFFORT";
-        ROS_INFO_DELAYED_THROTTLE(1.0,tmp.c_str());
-
         // mirror the position
         mFRI->GetMeasuredJointPositions(joint_position_);
         mFRI->SetCommandedJointPositions(joint_position_);
         mFRI->SetCommandedJointTorques(newJntAddTorque);
-        // device_->doJntImpedanceControl(device_->getMsrMsrJntPosition(), NULL, NULL, newJntAddTorque, false);
         break;
-
-    case JOINT_STIFFNESS:
-        for(int j=0; j < n_joints_; j++)
-        {
-            newJntPosition[j] = joint_position_command_[j];
-            newJntStiff[j] = joint_stiffness_command_[j];
-        }
-        mFRI->SetCommandedJointDamping(newJntPosition);
-        mFRI->SetCommandedJointStiffness(newJntStiff);
-        //        device_->doJntImpedanceControl(newJntPosition, newJntStiff, NULL, NULL, false);
-        break;
-
     case GRAVITY_COMPENSATION:
         mFRI->GetMeasuredJointPositions(joint_position_);
         mFRI->SetCommandedJointPositions(joint_position_);
-        // device_->doJntImpedanceControl(device_->getMsrMsrJntPosition(), NULL, NULL, NULL, false);
         break;
     }
     return;

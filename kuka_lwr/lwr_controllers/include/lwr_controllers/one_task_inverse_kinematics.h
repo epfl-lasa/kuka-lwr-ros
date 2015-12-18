@@ -18,6 +18,9 @@
 #include <geometry_msgs/Pose.h>
 #include <tf/transform_broadcaster.h>
 
+#include <std_msgs/Float64MultiArray.h>
+
+
 namespace lwr_controllers
 {
 	class OneTaskInverseKinematics: public controller_interface::KinematicChainControllerBase<hardware_interface::PositionJointInterface>
@@ -41,10 +44,14 @@ namespace lwr_controllers
 
         void command_pos(const geometry_msgs::PoseConstPtr& msg);
         void command_vel(const geometry_msgs::TwistConstPtr& msg);
+        void setStiffness(const std_msgs::Float64MultiArray::ConstPtr &msg);
+        void setDamping(const std_msgs::Float64MultiArray::ConstPtr &msg);
 
 	private:
         ros::Subscriber sub_command_pose_;
         ros::Subscriber sub_command_vel_;
+        ros::Subscriber sub_stiff_;
+        ros::Subscriber sub_damp_;
         tf::Transform transform;
 
         ros::Subscriber sub_gains_;
@@ -53,6 +60,7 @@ namespace lwr_controllers
 		KDL::Frame x_des_;	//desired pose
 
         KDL::Vector x_v_des_; // desired linear velocity
+        KDL::Twist  x_des_vel_;
 
 		KDL::Twist x_err_;
 
@@ -62,6 +70,14 @@ namespace lwr_controllers
 
 		Eigen::MatrixXd J_pinv_;
 		Eigen::Matrix<double,3,3> skew_;
+
+        KDL::JntArray K_, D_; // stiffness and damping
+
+
+
+        ros::Time           last_publish_time_;
+        double              publish_rate_;
+
 
 		struct quaternion_
 		{
@@ -73,10 +89,13 @@ namespace lwr_controllers
 		
         bool cmd_flag_;
 		
-		boost::scoped_ptr<KDL::ChainJntToJacSolver> jnt_to_jac_solver_;
-		boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
-		boost::scoped_ptr<KDL::ChainIkSolverVel_pinv> ik_vel_solver_;
-		boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL> ik_pos_solver_;
+        boost::scoped_ptr<KDL::ChainJntToJacSolver>         jnt_to_jac_solver_;
+        boost::scoped_ptr<KDL::ChainFkSolverPos_recursive>  fk_pos_solver_;
+        boost::scoped_ptr<KDL::ChainIkSolverVel_pinv>       ik_vel_solver_;
+        boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL>      ik_pos_solver_;
+
+        std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_stiffness;
+
 
         Ctrl_type ctrl_type;
 	};

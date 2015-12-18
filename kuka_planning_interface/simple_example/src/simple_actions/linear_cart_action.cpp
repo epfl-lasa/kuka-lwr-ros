@@ -33,10 +33,26 @@ bool Linear_cart_action::execute_CB(asrv::alib_server& as_,asrv::alib_feedback& 
     tf::Quaternion  current_orient  = ee_pose_current.getRotation();
 
     first_origin        = current_origin;
-    target_p1           = first_origin + tf::Vector3(0,0.05,0);
-    target_p2           = first_origin - tf::Vector3(0,0.05,0);
+    target_p1           = first_origin + tf::Vector3(0,0.1,0);
+    target_p2           = first_origin - tf::Vector3(0,0.1,0);
+    tf::Matrix3x3 tmp1,tmp2;
+    double roll, pitch, yaw;
+
+
+    tmp2.setRPY(M_PI/10,0,0);
+    tmp1.setRotation(current_orient);
+    tmp1 = tmp2 * tmp1;
+    tmp1.getRPY(roll,pitch,yaw);
+    target_R_p1.setRPY(roll,pitch,yaw);
+
+    tmp2.setRPY(-M_PI/10,0,0);
+    tmp1.setRotation(current_orient);
+    tmp1 = tmp2 * tmp1;
+    tmp1.getRPY(roll,pitch,yaw);
+    target_R_p2.setRPY(roll,pitch,yaw);
+
     target_origin       = target_p1;
-    target_orientation  = current_orient;
+    target_orientation  = target_R_p1;
 
     Eigen::Vector3d linear_velocity;
     Eigen::Vector3d angular_velocity;
@@ -67,10 +83,6 @@ bool Linear_cart_action::execute_CB(asrv::alib_server& as_,asrv::alib_feedback& 
         ee_vel_msg.angular.z = angular_velocity(2);
 
         sendVel(ee_vel_msg);
-
-
-
-        sendPose(ee_pos_msg);
 
 
         feedback.progress = 0;
@@ -109,7 +121,7 @@ void Linear_cart_action::simple_line_policy(Eigen::Vector3d& linear_velocity,
 {
 
    tf::Vector3 velocity = (target_origin - current_origin);
-              velocity  = (velocity.normalize()) * 1; // 0.1 ms^-1
+              velocity  = (velocity.normalize()) * 0.05; // 0.05 ms^-1
 
      linear_velocity(0) = velocity.x();
      linear_velocity(1) = velocity.y();
@@ -127,15 +139,15 @@ void Linear_cart_action::simple_line_policy(Eigen::Vector3d& linear_velocity,
 
      if((current_origin - target_p1).length() < 0.005)
      {
-         target_origin = target_p2;
+         target_origin      = target_p2;
+         target_orientation = target_R_p2;
      }
 
      if((current_origin - target_p2).length() < 0.005)
      {
-         target_origin = target_p1;
+         target_origin      = target_p1;
+         target_orientation = target_R_p1;
      }
-
-
 
 }
 

@@ -8,22 +8,22 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
 
     KinematicChainControllerBase<hardware_interface::JointStateInterface>::init(robot, root_nh);
 
-    std::cout<< "before fk_pose_solver_";
+   // std::cout<< "before fk_pose_solver_";
 
-    std::cout<< "N segments: " << kdl_chain_.getNrOfSegments() << std::endl;
+    //std::cout<< "N segments: " << kdl_chain_.getNrOfSegments() << std::endl;
 
     fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
     K_.resize(7);
     D_.resize(7);
 
-    std::cout<< "#1" << std::endl;
+   // std::cout<< "#1" << std::endl;
 
     // get all joint names from the hardware interface
     const std::vector<std::string>& joint_names = robot->getNames();
     for (unsigned i=0; i<joint_names.size(); i++)
         ROS_DEBUG("Got joint %s", joint_names[i].c_str());
 
-    std::cout<< "#2" << std::endl;
+    //std::cout<< "#2" << std::endl;
 
     // get publishing period
     if (!controller_nh.getParam("publish_rate", publish_rate_)){
@@ -31,7 +31,7 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
         return false;
     }
 
-    std::cout<< "#3" << std::endl;
+    //std::cout<< "#3" << std::endl;
 
     // realtime publisher
     realtime_pub_.reset(new realtime_tools::RealtimePublisher<sensor_msgs::JointState>(root_nh, "joint_states", 4));
@@ -45,7 +45,7 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
         realtime_pub_->msg_.effort.push_back(0.0);
     }
 
-    std::cout<< "#4" << std::endl;
+    //std::cout<< "#4" << std::endl;
 
 
     for (unsigned i=0; i<=7; i++){
@@ -56,14 +56,14 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
       }
 
 
-    std::cout<< "#5" << std::endl;
+    //std::cout<< "#5" << std::endl;
 
     realtime_pose_pub_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Pose>(root_nh,"ee_pose",4));
 
-    std::cout<< "#6" << std::endl;
+    //std::cout<< "#6" << std::endl;
 
-    std::cout<< "joint_handles_.size(): " << joint_handles_.size() << std::endl;
-    std::cout<< "joint_msr_states_.q.size(): " << joint_msr_states_.q.columns() << std::endl;
+   // std::cout<< "joint_handles_.size(): " << joint_handles_.size() << std::endl;
+   // std::cout<< "joint_msr_states_.q.size(): " << joint_msr_states_.q.columns() << std::endl;
 
     //joint_msr_states_.q.resize(joint_handles_.size());
 
@@ -86,7 +86,7 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
     realtime_pose_pub_->msg_.orientation.z = qz;
     realtime_pose_pub_->msg_.orientation.w = qw;
 
-    std::cout<< "#6" << std::endl;
+    //std::cout<< "#6" << std::endl;
 
 
     // Get joint handles for all of the joints in the chain

@@ -11,30 +11,22 @@
   **/
 
 #include <ros/ros.h>
-//-- TF Stuff --//
-#include <tf/transform_broadcaster.h>
-#include <tf/transform_datatypes.h>
-#include <tf/tf.h>
 #include <tf/transform_listener.h>
-
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/WrenchStamped.h"
 
-#include "lwr_controllers/PoseRPY.h"
-
-//#include "MathLib/MathLib.h"
-
-
-#include <tf/LinearMath/Transform.h>
-
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-
+#include "std_msgs/Float64MultiArray.h"
 
 namespace asrv{
 
 class Base_ee_action{
+
+private:
+
+    enum KUKA_PARAM {
+        KUKA_NUM_JOINTS = 7
+    };
 
 public:
 
@@ -44,25 +36,31 @@ public:
 
     void sendVel(const geometry_msgs::Twist& twist_);
 
+    void sendStiff(const std_msgs::Float64MultiArray& stiff_msg);
+
+    void sendDamp(const std_msgs::Float64MultiArray& damp_msg);
+
 private:
 
     void pose_callback(const geometry_msgs::PoseConstPtr& msg);
 
 private:
 
-    // ros::Subscriber                     sub_, sub_ft_;
-    ros::Publisher                        position_pub;//pub_, pub_ft_, pub_vel_;
-    ros::Publisher                        velocity_pub;
-    ros::Subscriber                       pose_sub;
-    tf::Matrix3x3                         tmp;
-
+    ros::Publisher                          position_pub;
+    ros::Publisher                          velocity_pub;
+    ros::Publisher                          stiffness_pub;
+    ros::Publisher                          damping_pub;
+    ros::Subscriber                         pose_sub;
 
 protected:
 
-    geometry_msgs::Pose             ee_pos_msg;
-    geometry_msgs::Twist            ee_vel_msg;
-    tf::Pose                        ee_pose_current;
-    bool                            b_received;
+    geometry_msgs::Pose                     ee_pos_msg;
+    geometry_msgs::Twist                    ee_vel_msg;
+    std_msgs::Float64MultiArray             ee_stiff_msg;
+    std_msgs::Float64MultiArray             ee_damp_msg;
+
+    tf::Pose                                ee_pose_current;
+    bool                                    b_received;
 
 };
 

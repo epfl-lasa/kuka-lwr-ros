@@ -12,8 +12,6 @@ typedef kuka_action_server::PLAN2CTRLFeedback                                 al
 typedef kuka_action_server::PLAN2CTRLResult                                   alib_result;
 typedef kuka_action_server::PLAN2CTRLGoalConstPtr                             cptrGoal;
 
-//typedef arma::colvec Vector;
-
 }
 
 #endif

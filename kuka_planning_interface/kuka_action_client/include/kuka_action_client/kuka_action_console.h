@@ -56,19 +56,20 @@ public:
 
 private:
 
-
-    NCConsole               mNCConsole;
-    Console                 mConsole;
-
-    ros::NodeHandle&                   nh;
-    ac::Kuka_action_client&            kuka_action_client;
-    std::vector<ros::Subscriber>       subs;
-    boost::thread                      worker_thread;
-    ros::ServiceServer                 action_service;
-    ros::ServiceServer                 cmd_interface_service;
+       ros::NodeHandle&                     nh;
+       ac::Kuka_action_client&              kuka_action_client;
+       actionlib::SimpleClientGoalState     curr_action_state;
 
 
-    actionlib::SimpleClientGoalState   curr_action_state;
+        NCConsole                           mNCConsole;
+        Console                             mConsole;
+
+        std::vector<ros::Subscriber>        subs;
+        boost::thread                       worker_thread;
+        ros::ServiceServer                  action_service;
+        ros::ServiceServer                  cmd_interface_service;
+
+
 
 
     streambuf *mStdout;

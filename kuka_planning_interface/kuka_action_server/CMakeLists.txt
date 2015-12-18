@@ -19,7 +19,7 @@ lwr_controllers
 robot_motion_generation
 kuka_fri_bridge)
 #-std=c++14
-set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -fext-numeric-literals -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -fext-numeric-literals -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
 
 
 

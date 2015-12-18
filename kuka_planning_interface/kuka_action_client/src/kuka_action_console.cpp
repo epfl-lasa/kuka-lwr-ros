@@ -22,8 +22,8 @@ int Console_Interface::Execute(string args){
 Action_client_console::Action_client_console(ros::NodeHandle &nh,
                                              ac::Kuka_action_client  &kuka_action_client)
     :nh(nh),
-      curr_action_state(action_states::PENDING),
-      kuka_action_client(kuka_action_client)
+      kuka_action_client(kuka_action_client),
+      curr_action_state(action_states::PENDING)
 {
 
 }
