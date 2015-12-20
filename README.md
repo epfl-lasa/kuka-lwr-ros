@@ -78,6 +78,13 @@ press tab (in this console window) a list of possible actions (robot policies) w
 simple example case are; **go_front**, **go_home**,
 **go_left**, **grav_comp** and **linear** (note that grav_comp only works on the real physical robot).
 
+# Quick start (real robot)
+
+Once the robot is turned on and you have loaded your script, open the FRI such that the you see in the KUKA interface
+pannel: **FRI-Ctrl FRI successfully opened**
+
+
+
 # Concept
 
 This package was implemented according to the following design decisions:
