@@ -110,6 +110,12 @@ that you have to press the green button on the KUKA interface panel until you he
 
 ![alt text](readme/command_mode.png "fri in command mode")
 
+Once this is down you will see in the FRI terminal that the FRI State is now in COMMAND mode and that the 
+Drives are GO.
+
+To send actions to the robot proceed as in Quick start (**simulation**). Essentially open two new terminals and launch
+the simple client and server nodes.
+
 # Concept
 
 This package was implemented according to the following design decisions:
