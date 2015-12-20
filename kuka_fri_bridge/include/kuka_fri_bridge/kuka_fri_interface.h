@@ -9,6 +9,7 @@
 #include "kuka_fri_bridge/LWRRobot_FRI.h"
 #include "sensor_msgs/JointState.h"
 #include "std_msgs/Float64MultiArray.h"
+#include "geometry_msgs/WrenchStamped.h"
 
 
 namespace kfb {
@@ -37,10 +38,12 @@ private:
     kuka_fri_bridge::FRI    fri_data;
     sensor_msgs::JointState joint_states_msg;
 
-    std_msgs::Float64MultiArray ee_ft_msg;
     std_msgs::Float64MultiArray j_ext_ft_msg;
+    geometry_msgs::WrenchStamped       ee_ft_msg;
+    std::vector<double>     tmp;
 
     std::string             fri_drivers_path;
+
 
 
 };

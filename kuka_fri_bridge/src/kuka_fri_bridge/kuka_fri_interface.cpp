@@ -7,7 +7,7 @@ Fri_interface::Fri_interface(ros::NodeHandle& nh){
 
     fri_pub                 = nh.advertise<kuka_fri_bridge::FRI>("FRI_data", 10);
     joint_state_pub         = nh.advertise<sensor_msgs::JointState>("joint_states",10);
-    cart_force_torque_pub   = nh.advertise<std_msgs::Float64MultiArray>("ee_ft",10);
+    cart_force_torque_pub   = nh.advertise<geometry_msgs::WrenchStamped>("ee_ft",10);
     joint_external_ft_pub   = nh.advertise<std_msgs::Float64MultiArray>("j_ext_ft",10);
 
     fri_data.stiffness.resize(NB_JOINTS);
@@ -21,7 +21,7 @@ Fri_interface::Fri_interface(ros::NodeHandle& nh){
     joint_states_msg.effort.resize(NB_JOINTS);
 
     j_ext_ft_msg.data.resize(LBR_MNJ);
-    ee_ft_msg.data.resize(FRI_CART_VEC);
+    tmp.resize(FRI_CART_VEC);
 
     for(std::size_t i = 0; i < NB_JOINTS;i++){
         joint_states_msg.name[i] = "lwr_" + boost::lexical_cast<std::string>(i) + "_joint";
@@ -54,8 +54,18 @@ void Fri_interface::publish(const kfb::LWRRobot_FRI& kuka_robot){
     fri_data.stiffness                 = kuka_robot.joint_stiffness_;
 
     mFRI->GetEstimatedExternalJointTorques(j_ext_ft_msg.data);
-    mFRI->GetEstimatedExternalCartForcesAndTorques(ee_ft_msg.data);
+    mFRI->GetEstimatedExternalCartForcesAndTorques(tmp);
 
+    ee_ft_msg.header.frame_id  = "lwr_7_link";
+    ee_ft_msg.header.stamp     = ros::Time::now();
+    ee_ft_msg.wrench.force.x   = tmp[0];
+    ee_ft_msg.wrench.force.y   = tmp[1];
+    ee_ft_msg.wrench.force.z   = tmp[2];
+    ee_ft_msg.wrench.torque.x  = tmp[3];
+    ee_ft_msg.wrench.torque.y  = tmp[4];
+    ee_ft_msg.wrench.torque.z  = tmp[5];
+
+    joint_states_msg.header.frame_id   = "world";
     joint_states_msg.header.stamp      = ros::Time::now();
     joint_states_msg.position          = kuka_robot.joint_position_;
     joint_states_msg.velocity          = kuka_robot.joint_velocity_;
@@ -64,7 +74,7 @@ void Fri_interface::publish(const kfb::LWRRobot_FRI& kuka_robot){
     fri_pub.publish(fri_data);
     joint_state_pub.publish(joint_states_msg);
     cart_force_torque_pub.publish(ee_ft_msg);
-    joint_external_ft_pub.publish(ee_ft_msg);
+    joint_external_ft_pub.publish(j_ext_ft_msg);
 }
 
 }
