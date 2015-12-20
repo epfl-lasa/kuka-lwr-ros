@@ -15,6 +15,15 @@ Of these packages only the first three are important, the last contain utilities
 for this package are
 
 ## Dependencies
+* [**Eigen**](http://eigen.tuxfamily.org/index.php?title=Main_Page)
+```
+$ sudo apt-get install libeigen3-dev 
+```
+It could happen that during the building of other libraries the #include <Eigen/Eigen> is not found. To resolve this 
+problem you should create a symbolic link 
+```
+$ sudo ln -s /usr/include/eigen3/Eigen /usr/include/Eigen
+```
 
 * [**Gazebo**](http://gazebosim.org/) 
 ```
@@ -40,7 +49,9 @@ Go to your catking workspace folder and git the repository:
 ```sh
 $ git clone git@github.com:epfl-lasa/kuka-lwr-ros.git
 ```
-Rebuild your catking workspace and once everything built properly you are ready to run an example. Open 
+Rebuild your catking workspace. It could be that you get an error relating to an Eigen header file not found.
+
+you are ready to run an example. Open 
 a new terminal and run the following:
 ```sh
 $ roslaunch simple_example sim.launch
