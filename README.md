@@ -19,7 +19,7 @@ for this package are
 ```
 $ sudo apt-get install libeigen3-dev 
 ```
-It could happen that during the building of other libraries the #include <Eigen/Eigen> is not found. To resolve this 
+It could happen that during the building of other libraries the #include "Eigen/Eigen" is not found. To resolve this 
 problem you should create a symbolic link 
 ```
 $ sudo ln -s /usr/include/eigen3/Eigen /usr/include/Eigen
