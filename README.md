@@ -108,6 +108,7 @@ FRI> control 3
 In the terminal where you run real.lauch you will see the ligns: **Waiting for script...**. This statement means
 that you have to press the green button on the KUKA interface panel until you hear a click originating from the robot.
 
+![alt text](readme/command_mode.png "fri in command mode")
 
 # Concept
 
