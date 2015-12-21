@@ -107,8 +107,15 @@ FRI> control 3
 ```
 In the terminal where you run real.lauch you will see the ligns: **Waiting for script...**. This statement means
 that you have to press the green button on the KUKA interface panel until you hear a click originating from the robot.
+The control 3 cmd sets the robot to **control impedance** mode. 
 
 ![alt text](readme/command_mode.png "fri in command mode")
+
+Once this is down you will see in the FRI terminal that the FRI State is now in COMMAND mode and that the 
+Drives are GO.
+
+To send actions to the robot proceed as in Quick start (**simulation**). Essentially open two new terminals and launch
+the simple client and server nodes.
 
 # Concept
 
