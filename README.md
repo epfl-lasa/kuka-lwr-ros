@@ -80,8 +80,8 @@ simple example case are; **go_front**, **go_home**,
 
 # Quick start (real robot)
 
-Once the robot is turned on and you have loaded your script open the FRI such that the you see in the KUKA interface
-pannel: **FRI-Ctrl FRI successfully opened**.
+Once the robot is turned on and you have loaded your script open the FRI such that in the KUKA interface
+ you see the following message: **FRI-Ctrl FRI successfully opened**.
 
 In a terminal run the following:
 ```sh
@@ -98,21 +98,21 @@ In the terminal you should see the following:
 
 Here you can see all the different state information of the robot. You can notice that 
 the FRI State is in MONITOR mode which means that you cannot control the robot for the moment.
-Next go the this console and press tab.  You will see that a **control** cmd is avaiable.
+Next go to this console and press tab.  You will see that a **control** cmd is avaiable.
 Now we are going to change the FRI State to COMMAND which will allow use to run the simple 
 example (see quick start simulation).
 In the terminal type the follwoing:
 ```sh
 FRI> control 3
 ```
-In the terminal where you run real.lauch you will see the ligns: **Waiting for script...**. This statement means
+In the terminal where you run real.lauch you will see the lign: **Waiting for script...**. This statement means
 that you have to press the green button on the KUKA interface panel until you hear a click originating from the robot.
 The control 3 cmd sets the robot to **control impedance** mode. 
 
 ![alt text](readme/command_mode.png "fri in command mode")
 
 Once this is down you will see in the FRI terminal that the FRI State is now in COMMAND mode and that the 
-Drives are GO.
+Drives are in state GO.
 
 To send actions to the robot proceed as in Quick start (**simulation**). Essentially open two new terminals and launch
 the simple client and server nodes.
