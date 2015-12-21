@@ -61,6 +61,11 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        dummy_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         lwr_1_link:
           Alpha: 1
           Show Axes: false
@@ -129,6 +134,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        lwr_peg_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         world:
           Alpha: 1
           Show Axes: false
@@ -144,21 +154,53 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        average_table_link:
+          Value: true
+        dummy_link:
+          Value: true
+        front_left_leg:
+          Value: true
+        front_right_leg:
+          Value: true
+        link_socket:
+          Value: true
+        link_wall:
+          Value: true
         lwr_1_link:
+          Value: true
+        lwr_1_link_dummy:
           Value: true
         lwr_2_link:
           Value: true
+        lwr_2_link_dummy:
+          Value: true
         lwr_3_link:
+          Value: true
+        lwr_3_link_dummy:
           Value: true
         lwr_4_link:
           Value: true
+        lwr_4_link_dummy:
+          Value: true
         lwr_5_link:
+          Value: true
+        lwr_5_link_dummy:
           Value: true
         lwr_6_link:
           Value: true
+        lwr_6_link_dummy:
+          Value: true
         lwr_7_link:
           Value: true
+        lwr_7_link_dummy:
+          Value: true
         lwr_base_link:
+          Value: true
+        lwr_peg_link:
+          Value: true
+        rear_left_leg:
+          Value: true
+        rear_right_leg:
           Value: true
         world:
           Value: true
@@ -169,6 +211,17 @@ Visualization Manager:
       Show Names: true
       Tree:
         world:
+          link_socket:
+            link_wall:
+              average_table_link:
+                front_left_leg:
+                  {}
+                front_right_leg:
+                  {}
+                rear_left_leg:
+                  {}
+                rear_right_leg:
+                  {}
           lwr_base_link:
             lwr_1_link:
               lwr_2_link:
@@ -177,7 +230,23 @@ Visualization Manager:
                     lwr_5_link:
                       lwr_6_link:
                         lwr_7_link:
+                          dummy_link:
+                            lwr_peg_link:
+                              {}
+                        lwr_7_link_dummy:
                           {}
+                      lwr_6_link_dummy:
+                        {}
+                    lwr_5_link_dummy:
+                      {}
+                  lwr_4_link_dummy:
+                    {}
+                lwr_3_link_dummy:
+                  {}
+              lwr_2_link_dummy:
+                {}
+            lwr_1_link_dummy:
+              {}
       Update Interval: 0
       Value: true
     - Class: rviz/Axes
@@ -211,7 +280,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.28775
+      Distance: 2.74756
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -223,10 +292,10 @@ Visualization Manager:
         Z: 0.353507
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.5904
+      Pitch: 0.710401
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.53859
+      Yaw: 2.3836
     Saved: ~
 Window Geometry:
   Displays:
@@ -244,5 +313,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1200
-  X: 761
+  X: 478
   Y: 83

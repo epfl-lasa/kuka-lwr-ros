@@ -9,6 +9,7 @@
     	<arg name="stopped_controllers" default="gravity_compensation_controller"/>
 	<arg name="rviz_config" 	default="$(find lwr_launch)/launch/rviz/rviz_config.rviz"/>
 
+
 	<!-- ROBOT -->
 	
     	<group ns="lwr">
