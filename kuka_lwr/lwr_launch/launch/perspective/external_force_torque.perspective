@@ -1,0 +1,331 @@
+{
+  "keys": {}, 
+  "groups": {
+    "pluginmanager": {
+      "keys": {
+        "running-plugins": {
+          "type": "repr", 
+          "repr": "{u'rqt_plot/Plot': [2, 1]}"
+        }
+      }, 
+      "groups": {
+        "plugin__rqt_rviz__RViz__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "u'true'"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_reconfigure__Param__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget___plugincontainer_top_widget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "u'false'"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }, 
+            "plugin": {
+              "keys": {
+                "splitter": {
+                  "type": "repr(QByteArray.hex)", 
+                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff0000000000000002000001720000021d01000000060100000001')", 
+                  "pretty-print": "       r       "
+                }, 
+                "_splitter": {
+                  "type": "repr(QByteArray.hex)", 
+                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000000000020000012c0000006401000000090100000002')", 
+                  "pretty-print": "       , d     "
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_plot__Plot__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__DataPlotWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "True"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }, 
+            "plugin": {
+              "keys": {
+                "autoscroll": {
+                  "type": "repr", 
+                  "repr": "True"
+                }, 
+                "plot_type": {
+                  "type": "repr", 
+                  "repr": "1"
+                }, 
+                "topics": {
+                  "type": "repr", 
+                  "repr": "[u'/lwr/ee_ft/wrench/force/z', u'/lwr/ee_ft/wrench/force/y', u'/lwr/ee_ft/wrench/force/x']"
+                }, 
+                "y_limits": {
+                  "type": "repr", 
+                  "repr": "[0.0, 1.0]"
+                }, 
+                "x_limits": {
+                  "type": "repr", 
+                  "repr": "[1188.458475112915, 1189.458475112915]"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_plot__Plot__2": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__DataPlotWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "True"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }, 
+            "plugin": {
+              "keys": {
+                "autoscroll": {
+                  "type": "repr", 
+                  "repr": "True"
+                }, 
+                "plot_type": {
+                  "type": "repr", 
+                  "repr": "1"
+                }, 
+                "topics": {
+                  "type": "repr", 
+                  "repr": "[u'/lwr/ee_ft/wrench/torque/z', u'/lwr/ee_ft/wrench/torque/y', u'/lwr/ee_ft/wrench/torque/x']"
+                }, 
+                "y_limits": {
+                  "type": "repr", 
+                  "repr": "[-0.256746768951416, 1.0]"
+                }, 
+                "x_limits": {
+                  "type": "repr", 
+                  "repr": "[203.9200210571289, 204.9200210571289]"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_publisher__Publisher__2": {
+          "keys": {}, 
+          "groups": {
+            "plugin": {
+              "keys": {
+                "publishers": {
+                  "type": "repr", 
+                  "repr": "u'[]'"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_publisher__Publisher__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__PublisherWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "u'true'"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }, 
+            "plugin": {
+              "keys": {
+                "publishers": {
+                  "type": "repr", 
+                  "repr": "u\"[{'type_name': 'std_msgs/Float64', 'topic_name': '/lwr/joint1/command', 'enabled': False, 'rate': 50.0, 'expressions': {u'/lwr/joint1/command/data': 'sin(i)'}, 'publisher_id': 0, 'counter': 0}, {'type_name': 'std_msgs/Float64', 'topic_name': '/lwr/joint2/command', 'enabled': False, 'rate': 50.0, 'expressions': {u'/lwr/joint2/command/data': 'i'}, 'publisher_id': 1, 'counter': 0}, {'type_name': 'std_msgs/Float64', 'topic_name': '/lwr/joint3/command', 'enabled': False, 'rate': 50.0, 'expressions': {}, 'publisher_id': 2, 'counter': 0}, {'type_name': 'std_msgs/Float64', 'topic_name': '/lwr/joint4/command', 'enabled': False, 'rate': 50.0, 'expressions': {}, 'publisher_id': 3, 'counter': 0}, {'type_name': 'std_msgs/Float64', 'topic_name': '/lwr/joint5/command', 'enabled': False, 'rate': 50.0, 'expressions': {}, 'publisher_id': 4, 'counter': 0}, {'type_name': 'std_msgs/Float64', 'topic_name': '/lwr/joint6/command', 'enabled': False, 'rate': 50.0, 'expressions': {}, 'publisher_id': 5, 'counter': 0}]\""
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_dep__RosPackGraph__1": {
+          "keys": {}, 
+          "groups": {
+            "plugin": {
+              "keys": {
+                "filter_line_edit_text": {
+                  "type": "repr", 
+                  "repr": "u'(Separate pkgs by comma)'"
+                }, 
+                "highlight_connections_check_box_state": {
+                  "type": "repr", 
+                  "repr": "u'true'"
+                }, 
+                "with_stacks_state": {
+                  "type": "repr", 
+                  "repr": "u'true'"
+                }, 
+                "depth_combo_box_index": {
+                  "type": "repr", 
+                  "repr": "u'1'"
+                }, 
+                "hide_transitives_state": {
+                  "type": "repr", 
+                  "repr": "u'false'"
+                }, 
+                "package_type_combo_box": {
+                  "type": "repr", 
+                  "repr": "u'0'"
+                }, 
+                "directions_combo_box_index": {
+                  "type": "repr", 
+                  "repr": "u'0'"
+                }, 
+                "colorize_state": {
+                  "type": "repr", 
+                  "repr": "u'false'"
+                }, 
+                "mark_state": {
+                  "type": "repr", 
+                  "repr": "u'true'"
+                }, 
+                "auto_fit_graph_check_box_state": {
+                  "type": "repr", 
+                  "repr": "u'true'"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_service_caller__ServiceCaller__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__ServiceCallerWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "u'true'"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }, 
+            "plugin": {
+              "keys": {
+                "splitter_orientation": {
+                  "type": "repr", 
+                  "repr": "u'2'"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_action__ActionPlugin__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__messages.ui": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "u'true'"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_bhand__BHandGUI__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__BHandGUI": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "u'true'"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }
+      }
+    }, 
+    "mainwindow": {
+      "keys": {
+        "geometry": {
+          "type": "repr(QByteArray.hex)", 
+          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb00010000000006900000001800000d1f00000401000006900000003400000d1f00000401000000000000')", 
+          "pretty-print": "               4       "
+        }, 
+        "state": {
+          "type": "repr(QByteArray.hex)", 
+          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd0000000100000003000006900000039ffc0100000007fb00000030005f005f0044006f0063006b0057006900640067006500740043006f006e007400610069006e00650072005f005f00310100000000000005d90000000000000000fb00000040007200710074005f006200680061006e0064005f005f004200480061006e0064004700550049005f005f0031005f005f004200480061006e00640047005500490100000000000003f70000000000000000fb00000050007200710074005f006400650070005f005f0052006f0073005000610063006b00470072006100700068005f005f0031005f005f0052006f0073005000610063006b0047007200610070006800550069030000000000000063000006900000039ffb00000042007200710074005f0070006c006f0074005f005f0050006c006f0074005f005f0031005f005f00440061007400610050006c006f007400570069006400670065007401000000000000033f0000017700fffffffb00000026007200710074005f007200760069007a005f005f005200560069007a005f005f0031005f005f01000000000000068e0000000000000000fb00000072007200710074005f0073006500720076006900630065005f00630061006c006c00650072005f005f005300650072007600690063006500430061006c006c00650072005f005f0031005f005f005300650072007600690063006500430061006c006c006500720057006900640067006500740100000000000006900000000000000000fb00000042007200710074005f0070006c006f0074005f005f0050006c006f0074005f005f0032005f005f00440061007400610050006c006f007400570069006400670065007401000003450000034b0000017700ffffff000006900000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')", 
+          "pretty-print": "                 0__DockWidgetContainer__1          @rqt_bhand__BHandGUI__1__BHandGUI          Prqt_dep__RosPackGraph__1__RosPackGraphUi          Brqt_plot__Plot__1__DataPlotWidget          &rqt_rviz__RViz__1__          rrqt_service_caller__ServiceCaller__1__ServiceCallerWidget          Brqt_plot__Plot__2__DataPlotWidget                            6MinimizedDockWidgetsToolbar        "
+        }
+      }, 
+      "groups": {
+        "toolbar_areas": {
+          "keys": {
+            "MinimizedDockWidgetsToolbar": {
+              "type": "repr", 
+              "repr": "8"
+            }
+          }, 
+          "groups": {}
+        }
+      }
+    }
+  }
+}

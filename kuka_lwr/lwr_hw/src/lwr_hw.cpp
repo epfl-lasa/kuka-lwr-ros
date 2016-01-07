@@ -342,7 +342,11 @@ namespace lwr_hw
       root_name = kdl_tree.getRootSegment()->first; // default
     
     std::string tip_name;
-    ros::param::get(std::string("/") + robot_namespace_ + std::string("/tip_name"), tip_name);
+    if(!ros::param::get(std::string("/") + robot_namespace_ + std::string("/tip_name"), tip_name))
+    {
+        std::cout<< "Failed to get tip_name" << std::endl;
+    }
+
     if( root_name.empty() )
       tip_name = robot_namespace_ + std::string("_7_link"); ; // default
 

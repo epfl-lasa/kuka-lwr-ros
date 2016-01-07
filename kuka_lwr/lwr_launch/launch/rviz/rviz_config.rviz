@@ -250,7 +250,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.12286
+      Distance: 0.988117
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -262,10 +262,10 @@ Visualization Manager:
         Z: 0.263056
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.345399
+      Pitch: 0.245399
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.2354
+      Yaw: 3.0604
     Saved: ~
 Window Geometry:
   Displays:
