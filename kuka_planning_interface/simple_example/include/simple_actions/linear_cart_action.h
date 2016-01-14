@@ -7,6 +7,8 @@
 #include <kuka_common_action_server/action_initialiser.h>
 #include <std_msgs/Float64MultiArray.h>
 
+#include <robot_motion_generation/CDDynamics.h>
+#include <memory>
 
 namespace simple_actions {
 
@@ -35,6 +37,12 @@ private:
     tf::Vector3     first_origin;
     tf::Quaternion  target_R_p1, target_R_p2;
     tf::Quaternion  target_orientation;
+
+    std::unique_ptr<motion::CDDynamics> linear_cddynamics;
+    std::unique_ptr<motion::CDDynamics> angular_cddynamics;
+
+
+
     bool bFirst;
 
 

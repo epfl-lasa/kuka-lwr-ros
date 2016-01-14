@@ -1,5 +1,7 @@
 #include "kuka_fri_bridge/kuka_fri_console.h"
 #include "kuka_fri_bridge/utilities.h"
+#include <future>
+#include <thread>
 
 namespace kfb{
 
@@ -52,6 +54,7 @@ void Fri_console::fri_callback(const kuka_fri_bridge::FRI::ConstPtr& msg){
     mFRI_STATE                  = int2FRI_STATE(msg->FRI_STATE);
     mFRI_QUALITY                = int2FRI_QUALITY(msg->FRI_QUALITY);
     mFRI_CTRL                   = int2FRI_CTRL(msg->FRI_CTRL);
+    mROBOT_CTRL_MODE            = int2CTRL_STRATEGY(msg->ROBOT_CTRL_MODE);
 
     IsRobotArmPowerOn           = msg->IsRobotArmPowerOn;
     DoesAnyDriveSignalAnError   = msg->DoesAnyDriveSignalAnError;
@@ -171,19 +174,43 @@ void Fri_console::ConsoleUpdate(){
 
     mNCConsole.SetTopStaticLine(index, static_txt);
     index++;
-
-    switch (mFRI_CTRL) {
-    case FRI_CTRL_POSITION:
+//  typedef enum ControlStrategy {NONE=0, JOINT_POSITION = 10, CARTESIAN_IMPEDANCE = 20, JOINT_IMPEDANCE = 30, JOINT_EFFORT = 40, JOINT_STIFFNESS = 50, GRAVITY_COMPENSATION = 90} ControlStrategy;
+    switch (mROBOT_CTRL_MODE) {
+    case lwr_hw::LWRHW::ControlStrategy::NONE:
+        sprintf(static_txt, "Control Mode    :  NONE");
+        break;
+    case lwr_hw::LWRHW::ControlStrategy::JOINT_POSITION:
         sprintf(static_txt, "Control Mode    :  JOINT POSITION");
         break;
-    case FRI_CTRL_JNT_IMP:
-        sprintf(static_txt, "Control Mode    :  JOINT IMPEDANCE");
+    case lwr_hw::LWRHW::ControlStrategy::CARTESIAN_IMPEDANCE:
+        sprintf(static_txt, "Control Mode    :  CARTESIAN_IMPEDANCE");
         break;
-    case FRI_CTRL_CART_IMP:
-        sprintf(static_txt, "Control Mode    :  CARTESIAN IMPDEANCE");
+    case lwr_hw::LWRHW::ControlStrategy::JOINT_IMPEDANCE:
+        sprintf(static_txt, "Control Mode    :  JOINT_IMPEDANCE");
+        break;
+    case lwr_hw::LWRHW::ControlStrategy::JOINT_EFFORT:
+        sprintf(static_txt, "Control Mode    :  JOINT_EFFORT");
         break;
     default:
         sprintf(static_txt, "Control Mode    :  UNKNOWN");
+        break;
+    }
+
+    mNCConsole.SetTopStaticLine(index, static_txt);
+    index++;
+
+    switch (mFRI_CTRL) {
+    case FRI_CTRL_POSITION:
+        sprintf(static_txt, "FRI CTRL Mode   :  JOINT POSITION");
+        break;
+    case FRI_CTRL_JNT_IMP:
+        sprintf(static_txt, "FRI CTRL Mode   :  JOINT IMPEDANCE");
+        break;
+    case FRI_CTRL_CART_IMP:
+        sprintf(static_txt, "FRI CTRL Mode   :  CARTESIAN IMPDEANCE");
+        break;
+    default:
+        sprintf(static_txt, "FRI CTRL Mode   :  UNKNOWN");
         break;
     }
 
@@ -221,11 +248,11 @@ int Fri_console::RespondToConsoleCommand(const string command, const vector<stri
             case 2:
             {
 
-                switch_msg.request.start_controllers = {{"joint_impedance_controller"}};
+                switch_msg.request.start_controllers = {{"joint_kinematics_torq"}};
                 switch_msg.request.stop_controllers.resize(0);
-                switch_msg.request.strictness        = controller_manager_msgs::SwitchController::Request::BEST_EFFORT;
-                service_client.call(switch_msg);
-
+                switch_msg.request.strictness        = controller_manager_msgs::SwitchController::Request::STRICT;
+                //service_client.call(switch_msg);
+                std::thread(&Fri_console::call_service_async,this).detach();
                 break;
             }
             case 3:
@@ -234,8 +261,7 @@ int Fri_console::RespondToConsoleCommand(const string command, const vector<stri
                 switch_msg.request.start_controllers = {{"joint_position_impedance_controller"}};
                 switch_msg.request.stop_controllers.resize(0);
                 switch_msg.request.strictness        = controller_manager_msgs::SwitchController::Request::STRICT;
-                service_client.call(switch_msg);
-
+                std::thread(&Fri_console::call_service_async,this).detach();
                 break;
             }
             }
@@ -248,6 +274,10 @@ int Fri_console::RespondToConsoleCommand(const string command, const vector<stri
     }
 
     return true;
+}
+
+void Fri_console::call_service_async(){
+    service_client.call(switch_msg);
 }
 
 

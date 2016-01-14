@@ -75,11 +75,15 @@ void Action_server::add_default_actions(ros::NodeHandle &nh){
          push_back(ptr_kuka_goto_joint_as.get(),"goto_joint");
 
     }
-
     // Goto cartesian (joint position impedance)
     {
          ptr_kuka_goto_cart_as = std::shared_ptr<asrv::Kuka_goto_cart_as>(new asrv::Kuka_goto_cart_as(nh));
          push_back(ptr_kuka_goto_cart_as.get(),"goto_cart");
+    }
+    // action to set damping and impedance values
+    {
+        ptr_kuka_imp_damp_as = std::shared_ptr<asrv::Kuka_imp_damp>(new asrv::Kuka_imp_damp(nh));
+        push_back(ptr_kuka_imp_damp_as.get(),"set_imp_damp");
     }
 
 }

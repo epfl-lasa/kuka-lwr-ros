@@ -38,6 +38,13 @@
   <build_depend>    robot_motion_generation     </build_depend>
   <run_depend>      robot_motion_generation     </run_depend>
 
+  <build_depend>    dynamic_reconfigure     </build_depend>
+  <run_depend>      dynamic_reconfigure     </run_depend>
+
+  <build_depend>    passive_ds_control     </build_depend>
+  <run_depend>      passive_ds_control      </run_depend>
+
+
   <build_depend>    tf     </build_depend>
   <run_depend>      tf     </run_depend>
 

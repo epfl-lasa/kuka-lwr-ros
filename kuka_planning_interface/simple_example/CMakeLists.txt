@@ -17,7 +17,7 @@ set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -mtune=native -fPIC -Wall -Wno-deprecate
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- # INCLUDE_DIRS include
+  INCLUDE_DIRS include
   LIBRARIES simple_example
   CATKIN_DEPENDS kuka_action_server kuka_action_client
 #  DEPENDS system_lib
@@ -34,18 +34,18 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 # --- Create Some Simple Actions
 
-add_library(simple_actions ${SRC_DIR}/simple_actions/linear_cart_action.cpp
+add_library(simple_example ${SRC_DIR}/simple_actions/linear_cart_action.cpp
                            ${INCLUDE_DIR}/simple_actions/linear_cart_action.h)
 
-target_link_libraries(simple_actions ${catkin_LIBRARIES} )
+target_link_libraries(simple_example ${catkin_LIBRARIES} )
 # --- Create Action Server Node
 
 add_executable(server_action_node  ${SRC_DIR}/server_action_node.cpp                )
-target_link_libraries(server_action_node simple_actions  ${catkin_LIBRARIES}        )
+target_link_libraries(server_action_node simple_example  ${catkin_LIBRARIES}        )
 
 # --- Create Action Client Node Pour action
 
 add_executable(client_action_node  ${SRC_DIR}/client_action_node.cpp	)
-target_link_libraries(client_action_node  simple_actions ${catkin_LIBRARIES})
+target_link_libraries(client_action_node  simple_example ${catkin_LIBRARIES})
 
 

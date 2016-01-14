@@ -20,6 +20,7 @@
 
 
 #include <memory>
+#include <deque>
 
 #define FRI_CONN_TIMEOUT_SEC	30
 
@@ -28,6 +29,16 @@ namespace kfb
 
 class LWRRobot_FRI : public lwr_hw::LWRHW
 {
+
+public:
+
+    struct LWRMeasurement{
+      std::vector<double> JointPositions;
+      std::vector<double> JointVelocities;
+      std::vector<double> JointAccelerations;
+      std::vector<double> JointTorques;
+      double t;
+    };
 
 public:
 
@@ -57,6 +68,9 @@ private:
   FRI_CTRL                      mCurrentFRI_Control;
   FRI_CTRL                      mDesiredFRI_Control;
   ControlStrategy               mDesired_control_strategy;
+  volatile bool                 mSwitched;
+
+   std::deque<LWRMeasurement> MeasurementHistory;
 
   int ResultValue;
 

@@ -38,7 +38,7 @@ namespace controller_interface
 
 		KDL::Chain kdl_chain_;
         KDL::Vector gravity_; 
-        KDL::JntArrayAcc joint_msr_states_, joint_des_states_;  // joint states (measured and desired)
+        KDL::JntArrayAcc joint_msr_, joint_des_;  // joint states (measured and desired)
 
 		struct limits_
 		{
@@ -59,7 +59,11 @@ namespace controller_interface
         std::string robot_description, root_name, tip_name;
 
         std::string name_space = nh_.getNamespace();
-        std::cout<< "--------------------> name_space: " << name_space << std::endl;
+        std::string naemspace_2 = n.getNamespace();
+        std::cout<< "--------------------> name_space:  " << name_space << std::endl;
+        std::cout<< "--------------------> name_space2: " << naemspace_2 << std::endl;
+
+
         //exit(0);
 
         if (!ros::param::search(n.getNamespace(),"robot_description", robot_description))
@@ -79,6 +83,7 @@ namespace controller_interface
             ROS_ERROR_STREAM("KinematicChainControllerBase: No tip name found on parameter server ("<<n.getNamespace()<<"/tip_name)");
             return false;
         }
+        //tip_name = "lwr_peg_link";
      
         // Get the gravity vector (direction and magnitude)
         gravity_ = KDL::Vector::Zero();
@@ -141,8 +146,15 @@ namespace controller_interface
             return false;
         }
 
+        ROS_INFO("tip_name:  %s",tip_name.c_str());
+        ROS_INFO("root_name: %s",root_name.c_str());
         ROS_INFO("Number of segments: %d", kdl_chain_.getNrOfSegments());
         ROS_INFO("Number of joints in chain: %d", kdl_chain_.getNrOfJoints());
+        for(std::size_t i = 0; i < kdl_chain_.getNrOfSegments(); i++){
+            ROS_INFO_STREAM("segment("<<i<<"): " << kdl_chain_.getSegment(i).getName());
+        }
+
+
         
         // Parsing joint limits from urdf model along kdl chain
         boost::shared_ptr<const urdf::Link> link_ = model.getLink(tip_name);
@@ -173,20 +185,22 @@ namespace controller_interface
         }
         ROS_INFO("Getting joint handles");
         // Get joint handles for all of the joints in the chain
+        int count=0;
         for(std::vector<KDL::Segment>::const_iterator it = kdl_chain_.segments.begin(); it != kdl_chain_.segments.end(); ++it)
         {
 
             ROS_INFO("%s type: %s", it->getJoint().getName().c_str(),it->getJoint().getTypeName().c_str() );
-            if(it->getJoint().getTypeName() != "None"){
+            if(it->getJoint().getTypeName() != "None" && count < 7){
                 joint_handles_.push_back(robot->getHandle(it->getJoint().getName()));
             }
+            count++;
         }
 
         ROS_INFO("Number of joints in handle = %lu", joint_handles_.size() );
         ROS_INFO_STREAM("kdl_chain.getNrOfJoints: " << kdl_chain_.getNrOfJoints());
         
-        joint_msr_states_.resize(kdl_chain_.getNrOfJoints());
-        joint_des_states_.resize(kdl_chain_.getNrOfJoints());
+        joint_msr_.resize(kdl_chain_.getNrOfJoints());
+        joint_des_.resize(kdl_chain_.getNrOfJoints());
 
         ROS_INFO("Finished Kinematic Base init");
 

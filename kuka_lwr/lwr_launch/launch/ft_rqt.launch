@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<launch>
+	<node name="lwr_ft_rqt" pkg="lwr_launch" type="rqt_viz.sh"/>
+</launch>

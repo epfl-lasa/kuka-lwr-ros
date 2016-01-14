@@ -1,4 +1,5 @@
 #include "lwr_controllers/kuka_joint_state_controller.h"
+#include <tf/transform_broadcaster.h>
 
 namespace lwr_controllers
 {
@@ -6,24 +7,28 @@ namespace lwr_controllers
 bool KUKAJointStateController::init(hardware_interface::JointStateInterface* robot, ros::NodeHandle &root_nh, ros::NodeHandle& controller_nh)
 {
 
-    KinematicChainControllerBase<hardware_interface::JointStateInterface>::init(robot, root_nh);
+    std::cout<<"   "<<std::endl;
+    ROS_INFO("init KUKAJointStateController");
+    std::cout<<"   "<<std::endl;
+    if( !(KinematicChainControllerBase<hardware_interface::JointStateInterface>::init(robot, controller_nh)) )
+    {
+        ROS_ERROR("Couldn't initilize OneTaskInverseKinematics controller.");
+        return false;
+    }
 
-   // std::cout<< "before fk_pose_solver_";
-
-    //std::cout<< "N segments: " << kdl_chain_.getNrOfSegments() << std::endl;
 
     fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
     K_.resize(7);
     D_.resize(7);
 
-   // std::cout<< "#1" << std::endl;
+    // std::cout<< "#1" << std::endl;
 
     // get all joint names from the hardware interface
     const std::vector<std::string>& joint_names = robot->getNames();
     for (unsigned i=0; i<joint_names.size(); i++)
         ROS_DEBUG("Got joint %s", joint_names[i].c_str());
 
-    //std::cout<< "#2" << std::endl;
+   // std::cout<< "#2" << std::endl;
 
     // get publishing period
     if (!controller_nh.getParam("publish_rate", publish_rate_)){
@@ -59,6 +64,16 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
     //std::cout<< "#5" << std::endl;
 
     realtime_pose_pub_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Pose>(root_nh,"ee_pose",4));
+
+    std::string name_space = nh_.getNamespace();
+
+
+    std::string tip_name;
+    if (!nh_.getParam(name_space + "/tip_name", tip_name))
+    {
+        ROS_ERROR_STREAM("kuka_joint_state_controller: No tip name found on parameter server ("<<nh_.getNamespace()<<"/tip_name)");
+        return false;
+    }
 
     //std::cout<< "#6" << std::endl;
 
@@ -145,6 +160,16 @@ void KUKAJointStateController::update(const ros::Time& time, const ros::Duration
 
             ROS_INFO_STREAM_THROTTLE(2.0,"kdl_chain_.nrOfJoints:   " << kdl_chain_.getNrOfJoints());
             ROS_INFO_STREAM_THROTTLE(2.0,"kdl_chain_.nrOfSegments: " << kdl_chain_.getNrOfSegments());*/
+
+
+            static tf::TransformBroadcaster br1;
+            tf::Transform transform;
+            double x,y,z,w;
+            x_.M.GetQuaternion(x,y,z,w);
+            transform.setRotation(tf::Quaternion(x,y,z,w));
+            transform.setOrigin(tf::Vector3(x_.p.x(),x_.p.y(),x_.p.z()));
+            br1.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "EOF"));
+
 
 
             realtime_pose_pub_->msg_.position.x = x_.p.x();

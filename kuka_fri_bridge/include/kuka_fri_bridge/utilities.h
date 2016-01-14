@@ -3,6 +3,7 @@
 
 #include "fricomm.h"
 #include "FastResearchInterface.h"
+#include "lwr_hw/lwr_hw.h"
 
 
 namespace kfb {
@@ -122,6 +123,49 @@ inline FRI_CTRL int2FRI_CTRL(int i){
         return FRI_CTRL_JNT_IMP;
     }else{
         return FRI_CTRL_OTHER;
+    }
+}
+
+inline lwr_hw::LWRHW::ControlStrategy int2CTRL_STRATEGY(int i)
+{
+    switch(i)
+    {
+    case 0:
+    {
+        return lwr_hw::LWRHW::NONE;
+    }
+    case 10:
+    {
+        return lwr_hw::LWRHW::JOINT_POSITION;
+
+    }
+    case 20:
+    {
+        return lwr_hw::LWRHW::CARTESIAN_IMPEDANCE;
+    }
+    case 30:
+    {
+        return lwr_hw::LWRHW::JOINT_IMPEDANCE;
+
+    }
+    case 40:
+    {
+        return lwr_hw::LWRHW::JOINT_EFFORT;
+
+    }
+    case 50:
+    {
+        return lwr_hw::LWRHW::JOINT_STIFFNESS;
+
+    }
+    case 90:
+    {
+        return lwr_hw::LWRHW::GRAVITY_COMPENSATION;
+    }
+    default:
+    {
+        return lwr_hw::LWRHW::NONE;
+    }
     }
 }
 

@@ -26,10 +26,18 @@ bool Kuka_grav_as::execute_CB(alib_server& as_,alib_feedback& feedback_,const cp
         return false;
     }
 
+    activate_controller("joint_position_impedance_controller");
+
+
+    ROS_INFO("Kuka_grav_as");
+
     for(std::size_t i = 0; i < KUKA_NUM_JOINTS;i++)
     {
-        des_j_stiffness(i) = goal->JointStates.stiffness[i];
+
+        des_j_stiffness(i)      = goal->JointStates.stiffness[i];
+        joint_stiff_msg.data[i] = des_j_stiffness(i);
     }
+    ROS_INFO_STREAM("des_stiffness(0): " << des_j_stiffness(0));
 
     // save initial stiffness before going to gravity compensation
     first_stiffness = stiffness;
@@ -41,7 +49,7 @@ bool Kuka_grav_as::execute_CB(alib_server& as_,alib_feedback& feedback_,const cp
     ros::Rate rate(100);
     while(ros::ok()) {
         update_position(joint_sensed);
-        update_stiffness(des_j_stiffness);
+        sendStiff(joint_stiff_msg);
         if (as_.isPreemptRequested() || !ros::ok())
         {
             ROS_INFO("Preempted");
@@ -55,7 +63,11 @@ bool Kuka_grav_as::execute_CB(alib_server& as_,alib_feedback& feedback_,const cp
     }
 
     update_position(joint_sensed);
-    update_stiffness(first_stiffness);
+    for(std::size_t i = 0; i < KUKA_NUM_JOINTS;i++)
+    {
+        joint_stiff_msg.data[i] = first_stiffness(i);
+    }
+    sendStiff(joint_stiff_msg);
     ROS_INFO("Stopping GRAV_COMP");
     return success;
 }

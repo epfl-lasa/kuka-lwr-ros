@@ -38,33 +38,22 @@ void Base_j_action::update_position(const Eigen::VectorXd &joint_position){
 
 
 
-void Base_j_action::update_stiffness(const Eigen::VectorXd& joint_stiffness){
-
-    if(joint_stiffness.size() != KUKA_NUM_JOINTS){
-        ROS_ERROR("Base_j_action::update joint_stiffness.n_elem != 7");
-        return;
-    }
-
-    for(std::size_t i = 0; i < KUKA_NUM_JOINTS;i++){
-        joint_stiff_msg.data[i] = joint_stiffness(i);
-    }
-
-    joint_stiff_pub.publish(joint_stiff_msg);
-
+void Base_j_action::sendStiff(const std_msgs::Float64MultiArray& stiff_msg){
+    joint_stiff_pub.publish(stiff_msg);
 }
 
-void Base_j_action::update_damping(const Eigen::VectorXd& joint_damping){
-
-    if(joint_damping.size() != KUKA_NUM_JOINTS){
+void Base_j_action::sendDamp(const std_msgs::Float64MultiArray &damp_msg){
+/*
+    if(damp_msg.size() != KUKA_NUM_JOINTS){
         ROS_ERROR("Base_j_action::update joint_damping.n_elem != 7");
         return;
     }
 
     for(std::size_t i = 0; i < KUKA_NUM_JOINTS;i++){
-        joint_damp_msg.data[i] = joint_damping(i);
-    }
+        joint_damp_msg.data[i] = damp_msg(i);
+    }*/
 
-    joint_damp_pub.publish(joint_damp_msg);
+    joint_damp_pub.publish(damp_msg);
 
 }
 

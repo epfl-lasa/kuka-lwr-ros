@@ -41,6 +41,7 @@ private:
     boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
     KDL::Frame x_;		//current pose
     KDL::JntArray K_, D_;
+    KDL::JntArrayVel joint_msr_states_;
 
 
     std::vector<hardware_interface::JointStateInterface::ResourceHandleType> joint_handles_stiffness;

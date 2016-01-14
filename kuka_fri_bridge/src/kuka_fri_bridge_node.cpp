@@ -109,7 +109,7 @@ int main(int argc, char** argv){
     ros::Duration period(1.0);
 
 
-    ROS_INFO("Before update loop");
+    ROS_INFO("==== READY TO START ====");
     double elapsed_time = 0;
     while( !g_quit )
     {

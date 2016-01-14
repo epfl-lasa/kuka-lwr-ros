@@ -2,12 +2,20 @@
 <launch>
 	<!-- LAUNCH INTERFACE -->
 
-	<arg name="robot_name" 		default="single_lwr_robot"/>
-	<arg name="robot_path" 		default="$(find single_lwr_robot)/robot"/>
-   	<arg name="t1_limits" 		default="false"/>
-    	<arg name="controllers" 	default="one_task_inverse_kinematics joint_position_impedance_controller"/>
-    	<arg name="stopped_controllers" default="gravity_compensation_controller"/>
-	<arg name="rviz_config" 	default="$(find lwr_launch)/launch/rviz/rviz_config.rviz"/>
+	<arg name="robot_name" 			default="single_lwr_robot"/>
+	<arg name="robot_path" 			default="$(find single_lwr_robot)/robot"/>
+
+   	<arg name="controllers" 		default="one_task_inverse_kinematics joint_position_impedance_controller"/>
+    	<arg name="stopped_controllers" 	default="gravity_compensation_controller"/>
+	
+	<arg name="t1_limits" 			default="false"/>
+    	
+	<arg name="rviz_config" 		default="$(find lwr_launch)/launch/rviz/rviz_config.rviz"/>
+
+	<arg name="hw_interface_file" 		default="$(find single_lwr_robot)/config/hw_interface.yaml"/>
+	<arg name="controller_config_file"	default="$(find single_lwr_robot)/config/controllers.yaml"/>
+	<arg name="gazebo_world_file"		default="$(find single_lwr_robot)/worlds/simple_environment.world"/>	
+	<arg name="t1_limits_file"		default="$(find single_lwr_robot)/config/t1_joint_limits.yaml"/>
 
 	<!-- ROBOT -->
 	
@@ -20,7 +28,7 @@
 	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param /lwr/robot_description -urdf -model $(arg robot_name)"  respawn="false" output="screen" />
 	<!-- enable/disable gui at will, the rviz listens to the simulation -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
-		<arg name="world_name" 		value="$(find single_lwr_robot)/worlds/simple_environment.world"/>
+		<arg name="world_name" 		value="$(arg gazebo_world_file)"/>
 		<arg name="paused" 		value="false"/>
 		<arg name="use_sim_time" 	value="true"/>
 		<arg name="gui" 		value="true"/>
@@ -30,14 +38,14 @@
     
     <!-- Load updated joint limits (override information from single_lwr_moveit) to respect T1 mode limits -->
     <group if="$(arg t1_limits)" ns="robot_description_planning">
-        <rosparam command="load" file="$(find single_lwr_robot)/config/t1_joint_limits.yaml"/>
+        <rosparam command="load" file="$(arg t1_limits_file)"/>
     </group>
 
     <!-- load robotHW configurations to rosparam server -->
-    <rosparam command="load" file="$(find single_lwr_robot)/config/hw_interface.yaml"/>
+    <rosparam command="load" file="$(arg hw_interface_file)"/>
 
     <!-- load all controller configurations to rosparam server -->
-    <rosparam file="$(find single_lwr_robot)/config/controllers.yaml" command="load"/>
+    <rosparam command="load" file="$(arg controller_config_file)"/>
 
     <!-- real robot and controllers -->
     <group ns="lwr">

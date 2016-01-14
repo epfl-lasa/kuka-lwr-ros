@@ -10,6 +10,7 @@
 #include "std_msgs/Empty.h"
 
 #include "kuka_fri_bridge/utilities.h"
+#include "lwr_hw/lwr_hw.h"
 
 #include "std_tools/Console.h"
 #include "std_tools/NCConsole.h"
@@ -82,6 +83,8 @@ private:
 
     void fri_callback(const kuka_fri_bridge::FRI::ConstPtr& msg);
 
+    void call_service_async();
+
 private:
 
     ros::ServiceClient                          service_client;
@@ -91,6 +94,7 @@ private:
     FRI_STATE                                   mFRI_STATE;
     FRI_QUALITY                                 mFRI_QUALITY;
     FRI_CTRL                                    mFRI_CTRL;
+    lwr_hw::LWRHW::ControlStrategy              mROBOT_CTRL_MODE;
 
     std::vector<double>                         position, effort, damping, stiffness;
 

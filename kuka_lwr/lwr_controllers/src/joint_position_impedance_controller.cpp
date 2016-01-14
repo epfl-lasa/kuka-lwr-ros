@@ -38,15 +38,13 @@ bool JointPositionImpedanceController::init(hardware_interface::PositionJointInt
     K_.resize(num_ctrl_joints);
     D_.resize(num_ctrl_joints);
 
-    ROS_DEBUG(" Number of joints in handle = %lu", joint_handles_.size() );
-
     for (int i = 0; i < joint_handles_.size(); ++i){
-        if ( !nh_.getParam("stiffness_gains", K_(i) ) ){
+        if ( !n.getParam("stiffness_gains", K_(i) ) ){
             ROS_WARN("Stiffness gain not set in yaml file, Using %f", K_(i));
         }
     }
     for (int i = 0; i < joint_handles_.size(); ++i){
-        if ( !nh_.getParam("damping_gains", D_(i)) ){
+        if ( !n.getParam("damping_gains", D_(i)) ){
             ROS_WARN("Damping gain not set in yaml file, Using %f", D_(i));
         }
     }
@@ -78,8 +76,6 @@ void JointPositionImpedanceController::starting(const ros::Time& time){
 
     // get joint positions
     for(size_t i=0; i<joint_handles_.size(); i++) {
-        K_(i)             = 500.0;
-        D_(i)             = 0.7;
         q_msr_(i)         = joint_handles_[i].getPosition();
         q_target_(i)      = q_msr_(i);
         q_des_(i)         = q_msr_(i);

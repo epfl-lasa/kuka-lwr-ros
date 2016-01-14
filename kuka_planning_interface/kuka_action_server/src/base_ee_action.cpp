@@ -25,6 +25,14 @@ void Base_ee_action::sendVel(const geometry_msgs::Twist& twist_){
     velocity_pub.publish(twist_);
 }
 
+void Base_ee_action::sendStiff(const std_msgs::Float64MultiArray& stiff_msg){
+    stiffness_pub.publish(stiff_msg);
+}
+
+void Base_ee_action::sendDamp(const std_msgs::Float64MultiArray& damp_msg){
+    damping_pub.publish(damp_msg);
+}
+
 void Base_ee_action::pose_callback(const geometry_msgs::PoseConstPtr &msg){
 
     ee_pose_current.setOrigin(tf::Vector3(msg->position.x,msg->position.y,msg->position.z));

@@ -63,6 +63,9 @@
   <build_depend>lwr_hw</build_depend>
   <run_depend>lwr_hw</run_depend>
 
+  <build_depend>passive_ds_control</build_depend>
+  <run_depend>passive_ds_control</run_depend>
+
 
 
   <!-- The export tag contains other, unspecified, tags -->

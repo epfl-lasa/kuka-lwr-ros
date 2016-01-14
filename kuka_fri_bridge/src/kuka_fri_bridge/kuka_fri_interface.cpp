@@ -52,6 +52,7 @@ void Fri_interface::publish(const kfb::LWRRobot_FRI& kuka_robot){
     fri_data.effort                    = kuka_robot.joint_effort_;
     fri_data.damping                   = kuka_robot.joint_damping_;
     fri_data.stiffness                 = kuka_robot.joint_stiffness_;
+    fri_data.ROBOT_CTRL_MODE           = kuka_robot.current_strategy_;
 
     mFRI->GetEstimatedExternalJointTorques(j_ext_ft_msg.data);
     mFRI->GetEstimatedExternalCartForcesAndTorques(tmp);

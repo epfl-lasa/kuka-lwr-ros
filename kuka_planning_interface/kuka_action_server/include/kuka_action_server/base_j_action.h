@@ -26,9 +26,9 @@ public:
 
    void update_position(const Eigen::VectorXd& joint_position);
 
-   void update_stiffness(const Eigen::VectorXd& joint_stiffness);
+   void sendStiff(const std_msgs::Float64MultiArray& stiff_msg);
 
-   void update_damping(const Eigen::VectorXd& joint_damping);
+   void sendDamp(const std_msgs::Float64MultiArray& damp_msg);
 
 private:
 
@@ -47,6 +47,8 @@ private:
     ros::Publisher                          joint_cmd_pub;
     ros::Publisher                          joint_stiff_pub;
     ros::Publisher                          joint_damp_pub;
+
+protected:
 
     std_msgs::Float64MultiArray             joint_cmd_msg;
     std_msgs::Float64MultiArray             joint_stiff_msg;

@@ -14,7 +14,14 @@ find_package(catkin REQUIRED COMPONENTS
   cmake_modules
   robot_motion_generation
   tf
+  dynamic_reconfigure
+  passive_ds_control
 )
+
+#add_definitions(-DUSE_DOUBLE_PRECISION)
+
+set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
+
 
 include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
 
@@ -33,6 +40,14 @@ generate_messages(
   geometry_msgs
 )
 
+generate_dynamic_reconfigure_options(
+    cfg/damping_param.cfg
+    cfg/damping_param_all.cfg
+    cfg/stiffness_param.cfg
+    cfg/stiffness_param_all.cfg
+    cfg/passive_ds_param.cfg
+)
+
 catkin_package(
   CATKIN_DEPENDS
     controller_interface
@@ -44,6 +59,7 @@ catkin_package(
     kdl_parser
     message_runtime
     robot_motion_generation
+    passive_ds_control
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
 )
@@ -51,9 +67,10 @@ catkin_package(
 add_library(${PROJECT_NAME}
   include/lwr_controllers/KinematicChainControllerBase.h
   include/lwr_controllers/one_task_inverse_kinematics.h
- # include/lwr_controllers/joint_impedance_controller.h
   include/lwr_controllers/kuka_joint_state_controller.h
   include/lwr_controllers/joint_position_impedance_controller.h
+  include/lwr_controllers/joint_kinematics_torq.h
+  include/lwr_controllers/joint_kinematics_imp.h
   include/lwr_controllers/PIDKinematicChainControllerBase.h
 
   #src/joint_impedance_controller.cpp
@@ -64,6 +81,8 @@ add_library(${PROJECT_NAME}
   #src/inverse_dynamics_controller.cpp
   #src/computed_torque_controller.cpp
   src/one_task_inverse_kinematics.cpp
+  src/joint_kinematics_imp.cpp
+  src/joint_kinematics_torq.cpp
   #src/multi_task_priority_inverse_kinematics.cpp
   #src/multi_task_priority_inverse_dynamics.cpp
   #src/minimum_effort_inverse_dynamics.cpp
@@ -74,7 +93,7 @@ add_library(${PROJECT_NAME}
   src/gravity_compensation.cpp
 )
 
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp ${PROJECT_NAME}_gencfg)
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 

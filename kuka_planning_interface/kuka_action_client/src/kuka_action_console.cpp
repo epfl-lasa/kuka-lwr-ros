@@ -74,6 +74,9 @@ int Action_client_console::RespondToConsoleCommand(const string cmd, const vecto
         }
     }
 
+    // command is a sub-action
+
+
     return 1;
 }
 

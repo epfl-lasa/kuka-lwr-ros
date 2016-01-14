@@ -143,6 +143,9 @@ namespace lwr_hw
       state_interface_stiff.registerHandle(hardware_interface::JointStateHandle(
           joint_names_[j]+std::string("_stiffness"),&joint_stiffness_[j], &joint_stiffness_[j], &joint_stiffness_[j]));
 
+      state_interface_damp.registerHandle(hardware_interface::JointStateHandle(
+           joint_names_[j]+std::string("_damping"),&joint_damping_[j], &joint_damping_[j], &joint_damping_[j]));
+
       // Decide what kind of command interface this actuator/joint has
       /// Effort interface
       hardware_interface::JointHandle joint_handle_effort;
@@ -162,6 +165,14 @@ namespace lwr_hw
       joint_handle_stiffness = hardware_interface::JointHandle(state_interface_stiff.getHandle(joint_names_[j]+std::string("_stiffness")),
                                                        &joint_stiffness_command_[j]);
       position_interface_.registerHandle(joint_handle_stiffness);
+
+      /// Damping interface
+      hardware_interface::JointHandle joint_handle_damping;
+      joint_handle_damping = hardware_interface::JointHandle(state_interface_damp.getHandle(joint_names_[j]+std::string("_damping")),
+                                                        &joint_damping_command_[j]
+                                                             );
+      position_interface_.registerHandle(joint_handle_damping);
+
    
      // velocity command handle, recall it is fake, there is no actual velocity interface
       hardware_interface::JointHandle joint_handle_velocity;

@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(kuka_fri_bridge)
 
-find_package(catkin REQUIRED fri_library_ros std_tools_fri message_generation sensor_msgs geometry_msgs lwr_hw)
+find_package(catkin REQUIRED
+fri_library_ros
+std_tools_fri
+message_generation
+sensor_msgs
+geometry_msgs
+lwr_hw
+passive_ds_control
+)
 
 
 ## System dependencies are found with CMake's conventions

@@ -14,6 +14,7 @@
 #include "kuka_common_action_server/kuka_grav_as.h"
 #include "kuka_common_action_server/kuka_goto_joint_as.h"
 #include "kuka_common_action_server/kuka_goto_cart_as.h"
+#include "kuka_common_action_server/kuka_imp_damp.h"
 
 #include <memory>
 
@@ -86,6 +87,7 @@ private:
     std::shared_ptr<asrv::Kuka_grav_as>                 ptr_kuka_grav_as;
     std::shared_ptr<asrv::Kuka_goto_joint_as>           ptr_kuka_goto_joint_as;
     std::shared_ptr<asrv::Kuka_goto_cart_as>            ptr_kuka_goto_cart_as;
+    std::shared_ptr<asrv::Kuka_imp_damp>                ptr_kuka_imp_damp_as;
 
 };
 
