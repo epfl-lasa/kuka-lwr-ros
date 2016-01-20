@@ -1,6 +1,6 @@
 - git:
     local-name: fri-library-ros
-    uri: https://github.com/epfl-lasa/fri-library-ros.git
+    uri: git@github.com:epfl-lasa/fri-library-ros.git
 - git:
     local-name: passive-ds-control
     uri: https://github.com/epfl-lasa/passive-ds-control.git
