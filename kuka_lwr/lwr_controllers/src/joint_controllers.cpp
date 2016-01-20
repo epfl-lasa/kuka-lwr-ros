@@ -258,7 +258,6 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     }
     }
 
-
       if(robot_ctrl_mode == TORQUE_IMP)
     {
         ROS_INFO_STREAM_THROTTLE(1.0,"   TORQUE_IMP    ");

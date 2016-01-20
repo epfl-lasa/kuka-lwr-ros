@@ -51,20 +51,9 @@ void LWRRobot_FRI::read(ros::Time time, ros::Duration period)
         joint_position_[j]      = (double)msrJntPos[j];
         joint_position_kdl_(j)  = joint_position_[j];
         joint_effort_[j]        = (double)msrJntTrq[j];
-
-
         joint_velocity_[j]      = filters::exponentialSmoothing((joint_position_[j]-joint_position_prev_[j])/period.toSec(), joint_velocity_[j], 0.2);
         joint_stiffness_[j]     = joint_stiffness_command_[j];
-
-        /*  joint_position_prev_[j]     = joint_position_[j];
-        joint_position_kdl_(j)      = joint_position_[j];
-        joint_velocity_[j]          = filters::exponentialSmoothing((joint_position_[j]-joint_position_prev_[j])/period.toSec(), joint_velocity_[j], 0.2);
-        joint_stiffness_[j]         = joint_stiffness_command_[j];*/
     }
-
-    // ROS_INFO_STREAM_THROTTLE(0.1,"period.toSec(): " << period.toSec());
-    // ROS_INFO_STREAM_THROTTLE(0.1,"LWR qdot: " << joint_velocity_[0] << " " << joint_velocity_[1] << " " << joint_velocity_[2] << " " << joint_velocity_[3] << " " << joint_velocity_[4] << " " << joint_velocity_[5] << " " << joint_velocity_[6]);
-
 
     /// FRI_STATE_MON || FRI_STATE_CMD
     mCurrentFRI_STATE = int2FRI_STATE(mFRI->GetFRIMode());
@@ -121,35 +110,10 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
                 newJntStiff[j]        = joint_stiffness_command_[j];
                 newJntDamp[j]         = joint_damping_command_[j];
             }
-
-           // ROS_INFO_STREAM_THROTTLE(1.0,"D: " << newJntDamp[0]);
-           // ROS_INFO_STREAM_THROTTLE(1.0,"K: " << newJntStiff[0]);
-
             mFRI->SetCommandedJointPositions(newJntPosition);
             mFRI->SetCommandedJointStiffness(newJntStiff);
             mFRI->SetCommandedJointDamping(newJntDamp);
             mFRI->SetCommandedJointTorques(newJntTorque);
-            break;
-
-        case JOINT_EFFORT:
-            ROS_INFO_STREAM_THROTTLE(1.0,"case ==> JOINT_EFFORT:");
-            for(int j=0; j < n_joints_; j++)
-            {
-                 newJntTorque[j] = joint_effort_command_[j];
-                 newJntStiff[j]  = 0;
-                 newJntDamp[j]   = 0;
-            }
-            ROS_INFO_STREAM_THROTTLE(1.0,"newJntTorque: " << newJntTorque[0] << " "
-                                                                             << newJntTorque[1] << " "
-                                                                             << newJntTorque[2] << " "
-                                                                             << newJntTorque[3]
-                                                                                );
-            // mirror the position
-            //mFRI->GetMeasuredJointPositions(joint_position_);
-            //mFRI->SetCommandedJointPositions(joint_position_);
-            mFRI->SetCommandedJointTorques(newJntTorque);
-            mFRI->SetCommandedJointStiffness(newJntStiff);
-            mFRI->SetCommandedJointDamping(newJntDamp);
             break;
         case GRAVITY_COMPENSATION:
             mFRI->GetMeasuredJointPositions(joint_position_);
@@ -247,7 +211,7 @@ bool LWRRobot_FRI::SetControlMode(ControlStrategy desiredMode){
             return 1;
         }
         std::cout<< "Robot set in joint impedance mode." << std::endl;
-    }
+    }/*
     else if(desiredMode == JOINT_EFFORT){
         mFRI->SetKRLBoolValue(0,true);
         std::cout<< "Waiting for script..." << std::endl;
@@ -272,7 +236,7 @@ bool LWRRobot_FRI::SetControlMode(ControlStrategy desiredMode){
         mFRI->SetCommandedJointStiffness(newJntStiff);
         mFRI->SetCommandedJointTorques(newJntTorque);
         std::cout<< "Robot set in torque control mode." << std::endl;
-    }
+    }*/
     else if(desiredMode == GRAVITY_COMPENSATION){
         std::cout<< "Waiting for script..." << std::endl;
         int result =  mFRI->StartRobot(FastResearchInterface::JOINT_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);

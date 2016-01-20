@@ -18,7 +18,6 @@ int Console_Interface::Execute(string args){
     return fri_console->RespondToConsoleCommand(m_Name,Tokenize(args));
 }
 
-
 Fri_console::Fri_console(ros::NodeHandle &nh)
 {
 
@@ -33,7 +32,6 @@ Fri_console::Fri_console(ros::NodeHandle &nh)
 
      IsRobotArmPowerOn          = false;
      DoesAnyDriveSignalAnError  = false;
-
 }
 
 void Fri_console::fri_callback(const kuka_fri_bridge::FRI::ConstPtr& msg){
@@ -59,7 +57,6 @@ void Fri_console::fri_callback(const kuka_fri_bridge::FRI::ConstPtr& msg){
     IsRobotArmPowerOn           = msg->IsRobotArmPowerOn;
     DoesAnyDriveSignalAnError   = msg->DoesAnyDriveSignalAnError;
 }
-
 
 int Fri_console::start(){
     mStdout = cout.rdbuf();
@@ -87,6 +84,7 @@ int Fri_console::stop()
 void Fri_console::addConsole(Console& console){
     mConsole.AddConsole(&console);
 }
+
 void Fri_console::ConsoleUpdate(){
     std::string s    = mOutputStream.str();
     std::size_t cpos = 0;
@@ -242,19 +240,8 @@ int Fri_console::RespondToConsoleCommand(const string command, const vector<stri
         if(args.size() > 0){
             int ctrl_type = boost::lexical_cast<int>(args[0]);
             std::cout<< "ctrl_type: "<< ctrl_type << std::endl;
-
             switch(ctrl_type)
             {
-            case 2:
-            {
-
-                switch_msg.request.start_controllers = {{"joint_controllers"}};
-                switch_msg.request.stop_controllers.resize(0);
-                switch_msg.request.strictness        = controller_manager_msgs::SwitchController::Request::STRICT;
-                //service_client.call(switch_msg);
-                std::thread(&Fri_console::call_service_async,this).detach();
-                break;
-            }
             case 3:
             {
 
@@ -265,7 +252,6 @@ int Fri_console::RespondToConsoleCommand(const string command, const vector<stri
                 break;
             }
             }
-
         }else{
             mConsole.Print("should specify a control type!");
         }
@@ -279,7 +265,5 @@ int Fri_console::RespondToConsoleCommand(const string command, const vector<stri
 void Fri_console::call_service_async(){
     service_client.call(switch_msg);
 }
-
-
 
 }
