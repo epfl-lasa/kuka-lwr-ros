@@ -1,0 +1,3 @@
+- git:
+    local-name: passive-ds-control
+    uri: https://github.com/epfl-lasa/passive-ds-control.git
