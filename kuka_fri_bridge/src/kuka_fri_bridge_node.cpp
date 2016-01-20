@@ -17,7 +17,7 @@
 #include <controller_manager/controller_manager.h>
 #include <std_msgs/Bool.h>
 // the lwr hw fri interface
-#include "lwr_hw/lwr_hw_fri.hpp"
+//#include "lwr_hw/lwr_hw_fri.hpp"
 
 #include "kuka_fri_bridge/kuka_fri_interface.h"
 #include "kuka_fri_bridge/LWRRobot_FRI.h"

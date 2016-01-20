@@ -2,7 +2,14 @@ cmake_minimum_required(VERSION 2.8.3)
 project(kuka_action_client)
 
 
-find_package(catkin REQUIRED tf roscpp std_msgs message_runtime message_generation joint_trajectory_action std_tools_fri)
+find_package(catkin REQUIRED
+tf
+roscpp
+std_msgs
+message_runtime
+message_generation
+joint_trajectory_action
+std_tools_fri)
 
 set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -mtune=native -fPIC -Wall -Wno-deprecated-declarations -Wno-reorder")
 

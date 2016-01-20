@@ -46,6 +46,7 @@ generate_dynamic_reconfigure_options(
     cfg/stiffness_param.cfg
     cfg/stiffness_param_all.cfg
     cfg/passive_ds_param.cfg
+    cfg/rot_stiffness.cfg
 )
 
 catkin_package(
@@ -69,7 +70,7 @@ add_library(${PROJECT_NAME}
   include/lwr_controllers/one_task_inverse_kinematics.h
   include/lwr_controllers/kuka_joint_state_controller.h
   include/lwr_controllers/joint_position_impedance_controller.h
-  include/lwr_controllers/joint_kinematics_torq.h
+  include/lwr_controllers/joint_controllers.h
   include/lwr_controllers/joint_kinematics_imp.h
   include/lwr_controllers/PIDKinematicChainControllerBase.h
 
@@ -82,7 +83,7 @@ add_library(${PROJECT_NAME}
   #src/computed_torque_controller.cpp
   src/one_task_inverse_kinematics.cpp
   src/joint_kinematics_imp.cpp
-  src/joint_kinematics_torq.cpp
+  src/joint_controllers.cpp
   #src/multi_task_priority_inverse_kinematics.cpp
   #src/multi_task_priority_inverse_dynamics.cpp
   #src/minimum_effort_inverse_dynamics.cpp
@@ -90,7 +91,7 @@ add_library(${PROJECT_NAME}
   #src/dynamic_sliding_mode_controller.cpp
   #src/dynamic_sliding_mode_controller_task_space.cpp
   #src/one_task_inverse_dynamics_jl.cpp
-  src/gravity_compensation.cpp
+  #src/gravity_compensation.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp ${PROJECT_NAME}_gencfg)

@@ -92,8 +92,17 @@
 			<child link="${name}_1_link_damping"/>
 		</joint>
 
+		<joint name="${name}_0_joint_torque" type="revolute">
+			<axis xyz="0 0 1"/>
+			<limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}" effort="176" velocity="${velocity_scale * 110 * M_PI / 180}" />
+			<dynamics friction="10.0" damping="1.0"/>
+			<parent link="${name}_base_link"/>
+			<child link="${name}_1_link_torque"/>
+		</joint>
+
 		<link name="${name}_1_link_dummy"/>
 		<link name="${name}_1_link_damping"/>
+		<link name="${name}_1_link_torque"/>
 
 
 		<link name="${name}_1_link">
@@ -156,8 +165,18 @@
 			<child link="${name}_2_link_damping"/>
 		</joint>
 
+
+		<joint name="${name}_1_joint_torque" type="revolute">
+			<axis xyz="0 -1 0"/>
+			<limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="176" velocity="${velocity_scale * 110 * M_PI / 180}" />
+			<dynamics friction="10.0" damping="1.0"/>
+			<parent link="${name}_1_link"/>
+			<child link="${name}_2_link_torque"/>
+		</joint>
+
 		<link name="${name}_2_link_dummy"/>
 		<link name="${name}_2_link_damping"/>
+		<link name="${name}_2_link_torque"/>
 
 		<link name="${name}_2_link">
 			<inertial>
@@ -220,8 +239,17 @@
 			<child link="${name}_3_link_damping"/>
 		</joint>
 
+		<joint name="${name}_2_joint_torque" type="revolute">
+			<axis xyz="0 0 1"/>
+			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
+			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="30" k_velocity="30"/>
+			<parent link="${name}_2_link"/>
+			<child link="${name}_3_link_torque"/>
+		</joint>
+
 		<link name="${name}_3_link_dummy"/>
 		<link name="${name}_3_link_damping"/>
+		<link name="${name}_3_link_torque"/>
 
 		<link name="${name}_3_link">
 			<inertial>
@@ -284,8 +312,17 @@
 			<child link="${name}_4_link_damping"/>
 		</joint>
 
+		<joint name="${name}_3_joint_torque" type="revolute">
+			<axis xyz="0 1 0"/>
+			<limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}" effort="100" velocity="${velocity_scale * 128 * M_PI / 180}" />
+			<dynamics friction="10.0" damping="1.0"/>
+			<parent link="${name}_3_link"/>
+			<child link="${name}_4_link_torque"/>
+		</joint>
+
 		<link name="${name}_4_link_dummy"/>
 		<link name="${name}_4_link_damping"/>
+		<link name="${name}_4_link_torque"/>
 
 		<link name="${name}_4_link">
 			<inertial>
@@ -348,8 +385,17 @@
 			<child link="${name}_5_link_damping"/>
 		</joint>
 
+		<joint name="${name}_4_joint_torque" type="revolute">
+			<axis xyz="0 0 1"/>
+			<limit lower="${min_damping}" upper="${max_damping}" effort="0" velocity="${rate_daming}" />
+			<safety_controller soft_lower_limit="${min_damping}" soft_upper_limit="${max_damping}" k_position="30" k_velocity="30"/>
+			<parent link="${name}_4_link"/>
+			<child link="${name}_5_link_torque"/>
+		</joint>
+
 		<link name="${name}_5_link_dummy"/>
 		<link name="${name}_5_link_damping"/>
+		<link name="${name}_5_link_torque"/>
 
 		<link name="${name}_5_link">
 			<inertial>
@@ -413,8 +459,17 @@
 			<child link="${name}_6_link_damping"/>
 		</joint>
 
+		<joint name="${name}_5_joint_torque" type="revolute">
+			<axis xyz="0 0 1"/>
+			<limit lower="${min_damping}" upper="${max_damping}" effort="0" velocity="${rate_daming}" />
+			<safety_controller soft_lower_limit="${min_damping}" soft_upper_limit="${max_damping}" k_position="30" k_velocity="30"/>
+			<parent link="${name}_5_link"/>
+			<child link="${name}_6_link_torque"/>
+		</joint>
+
 		<link name="${name}_6_link_dummy"/>
 		<link name="${name}_6_link_damping"/>
+		<link name="${name}_6_link_torque"/>
 
 		<link name="${name}_6_link">
 			<inertial>
@@ -463,8 +518,18 @@
 			<parent link="${name}_6_link"/>
 			<child link="${name}_7_link_damping"/>
 		</joint>
+
+		<joint name="${name}_6_joint_torque" type="revolute">
+			<axis xyz="0 0 1"/>
+			<limit lower="${min_damping}" upper="${max_damping}" effort="0" velocity="${rate_daming}" />
+			<safety_controller soft_lower_limit="${min_damping}" soft_upper_limit="${max_damping}" k_position="30" k_velocity="30"/>
+			<parent link="${name}_6_link"/>
+			<child link="${name}_7_link_torque"/>
+		</joint>
+
 		<link name="${name}_7_link_dummy"/>
 		<link name="${name}_7_link_damping"/>
+		<link name="${name}_7_link_torque"/>
 
 		<link name="${name}_7_link">
 			<inertial>

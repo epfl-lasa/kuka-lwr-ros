@@ -44,8 +44,6 @@ private:
     KDL::JntArrayVel joint_msr_states_;
 
 
-    std::vector<hardware_interface::JointStateInterface::ResourceHandleType> joint_handles_stiffness;
-
 
 };
 

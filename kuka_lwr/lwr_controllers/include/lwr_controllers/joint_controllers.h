@@ -13,6 +13,7 @@
 #include <lwr_controllers/stiffness_paramConfig.h>
 #include <lwr_controllers/stiffness_param_allConfig.h>
 #include <lwr_controllers/damping_param_allConfig.h>
+#include <lwr_controllers/rot_stiffnessConfig.h>
 
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Bool.h>
@@ -31,7 +32,6 @@
 
 #include <robot_motion_generation/CDDynamics.h>
 
-
 #include <boost/scoped_ptr.hpp>
 
 #include <passive_ds_controller.h>
@@ -44,7 +44,7 @@
 namespace lwr_controllers
 {
 
-    class JointKinematicsTorq: public controller_interface::KinematicChainControllerBase<hardware_interface::EffortJointInterface>
+    class JointControllers: public controller_interface::KinematicChainControllerBase<hardware_interface::PositionJointInterface>
 	{
     public:
 
@@ -60,19 +60,23 @@ namespace lwr_controllers
            VELOCITY_PASSIVE_DS=1
         }CART_TYPE;
 
+        typedef enum ROBOT_CTRL_MODE
+        {
+            POSITION_IMP,
+            TORQUE_IMP
+        } ROBOT_CTRL_MODE;
+
 
 	public:
 
-        JointKinematicsTorq();
-        ~JointKinematicsTorq();
+        JointControllers();
+        ~JointControllers();
 
-		bool init(hardware_interface::EffortJointInterface *robot, ros::NodeHandle &n);
+        bool init(hardware_interface::PositionJointInterface *robot, ros::NodeHandle &n);
 
 		void starting(const ros::Time& time);
 
 		void update(const ros::Time& time, const ros::Duration& period);
-		void command(const std_msgs::Float64MultiArray::ConstPtr &msg);
-
     private:
 
         void velocity_open_loop_update(const ros::Duration& period);
@@ -86,7 +90,7 @@ namespace lwr_controllers
         void command_cart_vel(const geometry_msgs::TwistConstPtr& msg);
         void command_grav(const std_msgs::Bool& msg);
         void command_set_cart_type(const std_msgs::Int32& msg);
-        void command_orient(const std_msgs::Float64MultiArray::ConstPtr &msg);
+        void command_orient(const geometry_msgs::Quaternion &msg);
 
         void setStiffness(const std_msgs::Float64MultiArray::ConstPtr &msg);
         void setDamping(const std_msgs::Float64MultiArray::ConstPtr &msg);
@@ -102,6 +106,8 @@ namespace lwr_controllers
         void stiffness_all_callback(lwr_controllers::stiffness_param_allConfig& config, uint32_t level);
 
         void ds_param_callback(lwr_controllers::passive_ds_paramConfig& config,uint32_t level);
+
+        void rot_stiffness_callback(lwr_controllers::rot_stiffnessConfig& config,uint32_t level);
 
 	private:
 
@@ -120,17 +126,23 @@ namespace lwr_controllers
         std_msgs::Float64MultiArray qdot_msg;
 
         KDL::JntArray    tau_cmd_;
-        KDL::JntArray    K_, D_, K_tmp,D_tmp;
+        KDL::JntArray    pos_cmd_;
+        KDL::JntArray    q_target_;
+        KDL::JntArray    K_, D_, K_tmp,D_tmp,K_cmd,D_cmd;
         KDL::JntArrayVel joint_filt_;
+
+        tf::Matrix3x3    err_orient;
 
 
         std::size_t      num_ctrl_joints;
 
         KDL::Frame       x_;		//current pose
         tf::Matrix3x3    x_orient_;
-        tf::Matrix3x3    x_des_orient_;
+        tf::Quaternion   x_des_orient_;
+        tf::Matrix3x3    x_des_orient_rot_;
 
 
+        double rot_stiffness;
 
         KDL::Twist      x_des_vel_;
 
@@ -173,17 +185,19 @@ namespace lwr_controllers
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::stiffness_paramConfig> >       dynamic_server_K_param;
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::damping_param_allConfig> >     dynamic_server_D_all_param;
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::stiffness_param_allConfig> >   dynamic_server_K_all_param;
+        boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::rot_stiffnessConfig> >         dynamic_server_rot_stiffness_param;
 
 
-        ros::NodeHandle nd1, nd2, nd3,nd4,nd5;
+        ros::NodeHandle nd1, nd2, nd3,nd4,nd5, nd6;
 
-        CTRL_MODE   ctrl_mode;
-        CART_TYPE   cart_type;
+        CTRL_MODE       ctrl_mode;
+        CART_TYPE       cart_type;
+        ROBOT_CTRL_MODE robot_ctrl_mode, robot_ctrl_mode_tmp;
 
         /// Extra handles
+        std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_damping;
         std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_stiffness;
-
-       // std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_position;
+        std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_torque;
 
 
 

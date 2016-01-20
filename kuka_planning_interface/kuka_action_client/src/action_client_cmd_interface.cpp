@@ -25,7 +25,7 @@ Action_client_cmd_interface::Action_client_cmd_interface(ros::NodeHandle    &nh,
 }
 
 void Action_client_cmd_interface::init_nl_subscriber(std::string topic_name){
-    subs.push_back(nh.subscribe(topic_name,1,&Action_client_cmd_interface::nl_command_callback,this));
+    nl_sub_ = nh.subscribe(topic_name,1,&Action_client_cmd_interface::nl_command_callback,this);
 }
 
 void Action_client_cmd_interface::nl_command_callback(const std_msgs::String::ConstPtr& msg){

@@ -8,7 +8,6 @@ message_generation
 sensor_msgs
 geometry_msgs
 lwr_hw
-passive_ds_control
 )
 
 

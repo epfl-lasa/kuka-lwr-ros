@@ -40,33 +40,32 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
- <build_depend>std_tools_fri</build_depend>
- <build_depend>roscpp</build_depend>
- <build_depend>geomtry_msgs</build_depend>
- <build_depend>sensor_msgs</build_depend>
- <build_depend>message_generation</build_depend>
 
- <run_depend>std_tools_fri</run_depend>
- <run_depend>roscpp</run_depend>
- <run_depend>geomtry_msgs</run_depend>
- <run_depend>sensor_msgs</run_depend>
- <run_depend>message_runtime</run_depend>
+ <build_depend> std_tools_fri   </build_depend>
+ <run_depend>   std_tools_fri   </run_depend>
 
-  <build_depend>roscpp</build_depend>
+ <build_depend> roscpp          </build_depend>
+ <run_depend>   roscpp          </run_depend>
 
-  <build_depend>fri_library_ros</build_depend>
-  <run_depend>fri_library_ros</run_depend>
-
-  <build_depend>roslib</build_depend>
-  <run_depend>roslib</run_depend>
-
-  <build_depend>lwr_hw</build_depend>
-  <run_depend>lwr_hw</run_depend>
-
-  <build_depend>passive_ds_control</build_depend>
-  <run_depend>passive_ds_control</run_depend>
+ <build_depend> sensor_msgs     </build_depend>
+ <run_depend>   sensor_msgs     </run_depend>
 
 
+ <build_depend>     message_generation  </build_depend>
+ <run_depend>       message_runtime     </run_depend>
+
+ <build_depend> geomtry_msgs    </build_depend>
+ <run_depend>   geomtry_msgs    </run_depend>
+
+
+  <build_depend>    fri_library_ros </build_depend>
+  <run_depend>      fri_library_ros </run_depend>
+
+  <build_depend>    roslib  </build_depend>
+  <run_depend>      roslib  </run_depend>
+
+  <build_depend>    lwr_hw  </build_depend>
+  <run_depend>      lwr_hw  </run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

@@ -53,7 +53,7 @@ private:
     actionlib::SimpleClientGoalState   curr_action_state;
 
 
-    std::vector<ros::Subscriber>       subs;
+    ros::Subscriber                    nl_sub_;
     boost::thread                      worker_thread;
     ros::ServiceServer                 action_service;
     ros::ServiceServer                 cmd_interface_service;
