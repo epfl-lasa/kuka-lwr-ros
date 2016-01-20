@@ -71,6 +71,7 @@ public:
   hardware_interface::JointStateInterface       state_interface_;
   hardware_interface::JointStateInterface       state_interface_stiff;
   hardware_interface::JointStateInterface       state_interface_damp;
+  hardware_interface::JointStateInterface       state_interface_torque;
 
   hardware_interface::EffortJointInterface      effort_interface_;
   hardware_interface::PositionJointInterface    position_interface_;

@@ -36,9 +36,6 @@ int Action_client_console::start(){
     mStdout = cout.rdbuf();
     cout.rdbuf(mOutputStream.rdbuf());
     mConsole.SetName("Cmd");
-
-    mConsole.AddCommand(new Console_Interface("stop",this));
-
     mNCConsole.SetConsole(&mConsole);
     mNCConsole.InitNCurses();
     mNCConsole.SetTopStaticLinesCount(2);

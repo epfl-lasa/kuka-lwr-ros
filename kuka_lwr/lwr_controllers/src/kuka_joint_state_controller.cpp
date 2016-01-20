@@ -50,9 +50,6 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
         realtime_pub_->msg_.effort.push_back(0.0);
     }
 
-    //std::cout<< "#4" << std::endl;
-
-
     for (unsigned i=0; i<=7; i++){
           realtime_pub_->msg_.name.push_back("lwr_" + boost::lexical_cast<std::string>(i) + "_joint_stiffness");
           realtime_pub_->msg_.position.push_back(0.0);
@@ -60,8 +57,20 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
           realtime_pub_->msg_.effort.push_back(0.0);
       }
 
+    for (unsigned i=0; i<=7; i++){
+          realtime_pub_->msg_.name.push_back("lwr_" + boost::lexical_cast<std::string>(i) + "_joint_damping");
+          realtime_pub_->msg_.position.push_back(0.0);
+          realtime_pub_->msg_.velocity.push_back(0.0);
+          realtime_pub_->msg_.effort.push_back(0.0);
+      }
 
-    //std::cout<< "#5" << std::endl;
+    for (unsigned i=0; i<=7; i++){
+          realtime_pub_->msg_.name.push_back("lwr_" + boost::lexical_cast<std::string>(i) + "_joint_torque");
+          realtime_pub_->msg_.position.push_back(0.0);
+          realtime_pub_->msg_.velocity.push_back(0.0);
+          realtime_pub_->msg_.effort.push_back(0.0);
+      }
+
 
     realtime_pose_pub_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Pose>(root_nh,"ee_pose",4));
 

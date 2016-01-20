@@ -15,7 +15,7 @@ Kuka_action_client::Kuka_action_client(const std::string& name)
     b_action_running    = false;
     current_action_name = "NONE";
 
-    add_default_actions();
+   // add_default_actions();
 }
 
 void Kuka_action_client::push_back(std::map<std::string,Goal>& goals){

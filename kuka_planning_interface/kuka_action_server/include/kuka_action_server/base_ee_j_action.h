@@ -15,6 +15,7 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/WrenchStamped.h"
+#include "geometry_msgs/Vector3.h"
 #include "std_msgs/Float64MultiArray.h"
 #include "std_msgs/Bool.h"
 
@@ -45,6 +46,8 @@ public:
 
     void sendGrav(const std_msgs::Bool& grav_msg);
 
+    void sendOrient(const geometry_msgs::Quaternion &orient_msg);
+
 private:
 
     void pose_callback(const geometry_msgs::PoseConstPtr& msg);
@@ -57,6 +60,7 @@ private:
     ros::Publisher                          stiffness_pub;
     ros::Publisher                          damping_pub;
     ros::Publisher                          grav_pub;
+    ros::Publisher                          orient_pub;
     ros::Subscriber                         pose_sub;
 
 protected:
@@ -67,6 +71,7 @@ protected:
     std_msgs::Float64MultiArray             joint_pos_msg;
     std_msgs::Float64MultiArray             stiff_msg;
     std_msgs::Float64MultiArray             damp_msg;
+    geometry_msgs::Quaternion               orient_msg;
 
     std_msgs::Bool                          grav_msg;
 

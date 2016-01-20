@@ -117,18 +117,18 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
             for(int j=0; j < n_joints_; j++)
             {
                 newJntPosition[j]     = joint_position_command_[j];
-             //   newJntTorque[j]       = joint_effort_command_[j];
+                newJntTorque[j]       = joint_effort_command_[j];
                 newJntStiff[j]        = joint_stiffness_command_[j];
                 newJntDamp[j]         = joint_damping_command_[j];
             }
 
-            ROS_INFO_STREAM_THROTTLE(1.0,"D: " << newJntDamp[0]);
-            ROS_INFO_STREAM_THROTTLE(1.0,"K: " << newJntStiff[0]);
+           // ROS_INFO_STREAM_THROTTLE(1.0,"D: " << newJntDamp[0]);
+           // ROS_INFO_STREAM_THROTTLE(1.0,"K: " << newJntStiff[0]);
 
             mFRI->SetCommandedJointPositions(newJntPosition);
             mFRI->SetCommandedJointStiffness(newJntStiff);
             mFRI->SetCommandedJointDamping(newJntDamp);
-            //mFRI->SetCommandedJointTorques(newJntTorque);
+            mFRI->SetCommandedJointTorques(newJntTorque);
             break;
 
         case JOINT_EFFORT:

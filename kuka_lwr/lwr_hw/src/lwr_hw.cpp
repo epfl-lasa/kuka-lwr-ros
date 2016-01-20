@@ -146,6 +146,10 @@ namespace lwr_hw
       state_interface_damp.registerHandle(hardware_interface::JointStateHandle(
            joint_names_[j]+std::string("_damping"),&joint_damping_[j], &joint_damping_[j], &joint_damping_[j]));
 
+      state_interface_torque.registerHandle(hardware_interface::JointStateHandle(
+           joint_names_[j]+std::string("_torque"),&joint_effort_[j], &joint_effort_[j], &joint_effort_[j]));
+
+
       // Decide what kind of command interface this actuator/joint has
       /// Effort interface
       hardware_interface::JointHandle joint_handle_effort;
@@ -158,6 +162,13 @@ namespace lwr_hw
       joint_handle_position = hardware_interface::JointHandle(state_interface_.getHandle(joint_names_[j]),
                                                        &joint_position_command_[j]);
       position_interface_.registerHandle(joint_handle_position);
+
+
+      /// Torque interface (for position interface)
+      hardware_interface::JointHandle joint_handle_effort_position;
+      joint_handle_effort_position = hardware_interface::JointHandle(state_interface_torque.getHandle(joint_names_[j]+std::string("_torque")),
+                                                       &joint_effort_command_[j]);
+      position_interface_.registerHandle(joint_handle_effort_position);
 
       // the stiffness is not actually a different joint, so the state handle is only used for handle
       /// Stiffneess interface
@@ -172,6 +183,8 @@ namespace lwr_hw
                                                         &joint_damping_command_[j]
                                                              );
       position_interface_.registerHandle(joint_handle_damping);
+
+
 
    
      // velocity command handle, recall it is fake, there is no actual velocity interface
@@ -381,7 +394,7 @@ namespace lwr_hw
 
     joint_position_kdl_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
     gravity_effort_ = KDL::JntArray(lwr_chain_.getNrOfJoints());
-
+    ROS_INFO("initKDLdescription (end)");
     return true;
   }
 

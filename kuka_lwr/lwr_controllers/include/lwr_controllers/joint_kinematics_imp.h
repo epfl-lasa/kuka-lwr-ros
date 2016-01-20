@@ -110,9 +110,9 @@ namespace lwr_controllers
         boost::scoped_ptr<KDL::ChainIkSolverVel_pinv>       ik_vel_solver_;
         boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL>      ik_pos_solver_;
 
-       // std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_stiffness;
         std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_damping;
         std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_stiffness;
+        std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_torque;
 
         Ctrl_type ctrl_type;
     };

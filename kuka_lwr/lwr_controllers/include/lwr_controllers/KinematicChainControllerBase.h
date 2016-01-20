@@ -40,6 +40,7 @@ namespace controller_interface
         KDL::Vector gravity_; 
         KDL::JntArrayAcc joint_msr_, joint_des_;  // joint states (measured and desired)
 
+
 		struct limits_
 		{
 			KDL::JntArray min;

@@ -248,7 +248,7 @@ int Fri_console::RespondToConsoleCommand(const string command, const vector<stri
             case 2:
             {
 
-                switch_msg.request.start_controllers = {{"joint_kinematics_torq"}};
+                switch_msg.request.start_controllers = {{"joint_controllers"}};
                 switch_msg.request.stop_controllers.resize(0);
                 switch_msg.request.strictness        = controller_manager_msgs::SwitchController::Request::STRICT;
                 //service_client.call(switch_msg);
@@ -258,7 +258,7 @@ int Fri_console::RespondToConsoleCommand(const string command, const vector<stri
             case 3:
             {
 
-                switch_msg.request.start_controllers = {{"joint_position_impedance_controller"}};
+                switch_msg.request.start_controllers = {{"joint_controllers"}};
                 switch_msg.request.stop_controllers.resize(0);
                 switch_msg.request.strictness        = controller_manager_msgs::SwitchController::Request::STRICT;
                 std::thread(&Fri_console::call_service_async,this).detach();

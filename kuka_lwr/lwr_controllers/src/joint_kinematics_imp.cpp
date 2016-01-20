@@ -98,9 +98,9 @@ void JointKinematiscImp::starting(const ros::Time& time)
     // get joint positions
     for(unsigned int i=0; i < joint_handles_.size(); i++)
     {
-        joint_msr_.q(i)      = joint_handles_[i].getPosition();
-        joint_des_.q(i)      = joint_msr_.q(i);
-        joint_des_.qdot(i)   = 0.0;
+        joint_msr_.q(i)             = joint_handles_[i].getPosition();
+        joint_des_.q(i)             = joint_msr_.q(i);
+        joint_des_.qdot(i)          = 0.0;
         q_target_(i)                = joint_msr_.q(i);
         D_(i)                       = 2;
         K_tmp(i)                    = K_(i);
