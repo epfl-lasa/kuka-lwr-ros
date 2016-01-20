@@ -41,21 +41,21 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
- <build_depend> std_tools_fri   </build_depend>
- <run_depend>   std_tools_fri   </run_depend>
+ <build_depend>     std_tools_fri   </build_depend>
+ <run_depend>       std_tools_fri   </run_depend>
 
- <build_depend> roscpp          </build_depend>
- <run_depend>   roscpp          </run_depend>
+ <build_depend>     roscpp          </build_depend>
+ <run_depend>       roscpp          </run_depend>
 
- <build_depend> sensor_msgs     </build_depend>
- <run_depend>   sensor_msgs     </run_depend>
+ <build_depend>     sensor_msgs     </build_depend>
+ <run_depend>       sensor_msgs     </run_depend>
 
 
  <build_depend>     message_generation  </build_depend>
  <run_depend>       message_runtime     </run_depend>
 
- <build_depend> geomtry_msgs    </build_depend>
- <run_depend>   geomtry_msgs    </run_depend>
+ <build_depend>     geomtry_msgs    </build_depend>
+ <run_depend>       geomtry_msgs    </run_depend>
 
 
   <build_depend>    fri_library_ros </build_depend>
