@@ -42,7 +42,7 @@ catkin_package(
     gazebo_ros
     std_msgs
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME} lwr_hw_gazebo_plugin friremote
+  LIBRARIES ${PROJECT_NAME} lwr_hw_gazebo_plugin
   DEPENDS gazebo
 )
 
@@ -63,26 +63,6 @@ add_library(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
-
-## REAL 
-# KUKA FRI library
-#add_library(friremote
-#  src/fri/friremote.cpp
-#  src/fri/friudp.cpp
-#)
-# lwr hw fri node
-#add_executable(lwr_hw_fri_node  src/lwr_hw_fri_node.cpp
-#  include/${PROJECT_NAME}/lwr_hw_fri.hpp
-#)
-#add_dependencies(lwr_hw_fri_node
-#  friremote
-#  ${PROJECT_NAME}
-#)
-#target_link_libraries(lwr_hw_fri_node
-#  friremote
-#  ${PROJECT_NAME}
-#  ${catkin_LIBRARIES}
-#)
 
 # Standford FRILibrary support in PROGRESS
 message(WARNING "ATTENTION: This project supports the fork of the Standford library found in https://github.com/iocroblab/fril, and install the libraries in your catkin workspace, not in the system")

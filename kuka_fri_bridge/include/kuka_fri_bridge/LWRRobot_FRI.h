@@ -12,10 +12,6 @@
 #include <thread>
 
 #include "FastResearchInterface.h"
-#include "friudp.h"
-#include "friremote.h"
-#include "fricomm.h"
-
 #include "utilities.h"
 
 
