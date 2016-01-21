@@ -9,7 +9,7 @@ std_msgs
 message_runtime
 message_generation
 joint_trajectory_action
-std_tools_fri)
+console)
 
 set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -mtune=native -fPIC -Wall -Wno-deprecated-declarations -Wno-reorder")
 
@@ -30,7 +30,7 @@ generate_messages(DEPENDENCIES std_msgs)
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${PROJECT_NAME}
-   CATKIN_DEPENDS roscpp tf std_msgs message_runtime std_tools_fri
+   CATKIN_DEPENDS roscpp tf std_msgs message_runtime console
    DEPENDS system_lib
 )
 

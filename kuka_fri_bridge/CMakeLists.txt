@@ -3,7 +3,7 @@ project(kuka_fri_bridge)
 
 find_package(catkin REQUIRED
 fri_library_ros
-std_tools_fri
+console
 message_generation
 sensor_msgs
 geometry_msgs
@@ -82,9 +82,9 @@ set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -Wall -Wno-deprecated-declarati
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES robot_publisher
-  CATKIN_DEPENDS message_runtime fri_library_ros
+  CATKIN_DEPENDS message_runtime fri_library_ros console
 #  DEPENDS system_lib
 )
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(std_tools_fri)
+project(console)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -97,7 +97,7 @@ find_package(catkin REQUIRED roscpp)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES std_tools_fri
+  LIBRARIES console
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
@@ -110,34 +110,16 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${INCLUDE_DIR})
 
-
-
-set(H_FILES 	${INCLUDE_DIR}/std_tools/BaseObject.h
-		${INCLUDE_DIR}/std_tools/Console.h		
-		${INCLUDE_DIR}/std_tools/DataLogger.h		
-		${INCLUDE_DIR}/std_tools/LogStream.h	
-		${INCLUDE_DIR}/std_tools/NCConsole.h
-		${INCLUDE_DIR}/std_tools/SlotsAndBoxes.h
-		${INCLUDE_DIR}/std_tools/Streamable.h		
-		${INCLUDE_DIR}/std_tools/Timer.h
-		${INCLUDE_DIR}/std_tools/TTree.h	
-		${INCLUDE_DIR}/std_tools/Various.h
-		${INCLUDE_DIR}/std_tools/WrapMallocs.h
-		${INCLUDE_DIR}/std_tools/XmlTree.h
+set(H_FILES	${INCLUDE_DIR}/console/ConsoleInterface.h
+                ${INCLUDE_DIR}/console/Console.h
+		${INCLUDE_DIR}/console/NCConsole.h
+		${INCLUDE_DIR}/console/Various.h
 )
 
-set(S_FILES     ${SRC_DIR}/BaseObject.cpp
-		${SRC_DIR}/Console.cpp		
-		${SRC_DIR}/DataLogger.cpp		
-		${SRC_DIR}/LogStream.cpp	
-		${SRC_DIR}/NCConsole.cpp
-		${SRC_DIR}/SlotsAndBoxes.cpp
-		${SRC_DIR}/Streamable.cpp		
-		${SRC_DIR}/Timer.cpp
-		${SRC_DIR}/TTree.cpp	
-		${SRC_DIR}/Various.cpp
-		${SRC_DIR}/WrapMallocs.cpp
-		${SRC_DIR}/XmlTree.cpp
+set(S_FILES 	${SRC_DIR}/ConsoleInterface.cpp
+                ${SRC_DIR}/Console.cpp
+            	${SRC_DIR}/NCConsole.cpp
+           	${SRC_DIR}/Various.cpp
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

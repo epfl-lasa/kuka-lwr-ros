@@ -14,9 +14,9 @@
  * Public License for more details
  */
 
-#include "std_tools/Console.h"
+#include "console/Console.h"
 
-#include "std_tools/Various.h"
+#include "console/Various.h"
 
 
 // Switch console mode (at least in the viewer)

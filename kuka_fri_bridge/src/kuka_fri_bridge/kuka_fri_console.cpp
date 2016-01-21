@@ -2,6 +2,7 @@
 #include "kuka_fri_bridge/utilities.h"
 #include <future>
 #include <thread>
+#include <chrono>
 
 namespace kfb{
 
@@ -25,13 +26,22 @@ Fri_console::Fri_console(ros::NodeHandle &nh)
 
     fri_sub = nh.subscribe("/lwr/FRI_data",1,&Fri_console::fri_callback,this);
 
+
+    if(!ros::param::get("/start_controller",start_controller))
+    {
+        mConsole.Print("No start controller parameter set [Fri_console::Fri_console]!\nYou should set it via the fri_bridge.launch file.");
+        std::this_thread::sleep_for (std::chrono::seconds(5));
+        ROS_ERROR("No start controller parameter set [Fri_console::Fri_console]!\nYou should set it via the fri_bridge.launch file.");
+        exit(0);
+    }
+
     position.resize(NB_JOINTS);
     effort.resize(NB_JOINTS);
     damping.resize(NB_JOINTS);
     stiffness.resize(NB_JOINTS);
 
-     IsRobotArmPowerOn          = false;
-     DoesAnyDriveSignalAnError  = false;
+    IsRobotArmPowerOn          = false;
+    DoesAnyDriveSignalAnError  = false;
 }
 
 void Fri_console::fri_callback(const kuka_fri_bridge::FRI::ConstPtr& msg){
@@ -172,7 +182,7 @@ void Fri_console::ConsoleUpdate(){
 
     mNCConsole.SetTopStaticLine(index, static_txt);
     index++;
-//  typedef enum ControlStrategy {NONE=0, JOINT_POSITION = 10, CARTESIAN_IMPEDANCE = 20, JOINT_IMPEDANCE = 30, JOINT_EFFORT = 40, JOINT_STIFFNESS = 50, GRAVITY_COMPENSATION = 90} ControlStrategy;
+    //  typedef enum ControlStrategy {NONE=0, JOINT_POSITION = 10, CARTESIAN_IMPEDANCE = 20, JOINT_IMPEDANCE = 30, JOINT_EFFORT = 40, JOINT_STIFFNESS = 50, GRAVITY_COMPENSATION = 90} ControlStrategy;
     switch (mROBOT_CTRL_MODE) {
     case lwr_hw::LWRHW::ControlStrategy::NONE:
         sprintf(static_txt, "Control Mode    :  NONE");
@@ -234,27 +244,13 @@ int Fri_console::RespondToConsoleCommand(const string command, const vector<stri
 
     if(command == "stop")
     {
-        std::cout<< "stop" << std::endl;
+        mConsole.Print("stopping...");
         stop();
     }else if(command == "control"){
-        if(args.size() > 0){
-            int ctrl_type = boost::lexical_cast<int>(args[0]);
-            std::cout<< "ctrl_type: "<< ctrl_type << std::endl;
-            switch(ctrl_type)
-            {
-            case 3:
-            {
-
-                switch_msg.request.start_controllers = {{"joint_controllers"}};
-                switch_msg.request.stop_controllers.resize(0);
-                switch_msg.request.strictness        = controller_manager_msgs::SwitchController::Request::STRICT;
-                std::thread(&Fri_console::call_service_async,this).detach();
-                break;
-            }
-            }
-        }else{
-            mConsole.Print("should specify a control type!");
-        }
+        switch_msg.request.start_controllers = {{start_controller}};
+        switch_msg.request.stop_controllers.resize(0);
+        switch_msg.request.strictness        = controller_manager_msgs::SwitchController::Request::STRICT;
+        std::thread(&Fri_console::call_service_async,this).detach();
     }else{
         mConsole.Print("no such command: [" + command + "] supported!");
     }

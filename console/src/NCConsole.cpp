@@ -14,7 +14,7 @@
  * Public License for more details
  */
 
-#include "std_tools/NCConsole.h"
+#include "console/NCConsole.h"
 
 #include <ncurses.h>
 #include <string.h>
