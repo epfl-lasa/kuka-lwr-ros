@@ -10,15 +10,15 @@
 
 namespace lwr_controllers
 {
+double Kp = 30.0;
+double Kd = 0.8;
+double Ki = 0.0;
+
 OneTaskInverseKinematics::OneTaskInverseKinematics() {}
 OneTaskInverseKinematics::~OneTaskInverseKinematics() {}
 
 bool OneTaskInverseKinematics::init(hardware_interface::PositionJointInterface *robot, ros::NodeHandle &n)
 {
-
-    std::cout<<"   "<<std::endl;
-    ROS_INFO("init OneTaskInverseKinematics");
-    std::cout<<"   "<<std::endl;
     if( !(KinematicChainControllerBase<hardware_interface::PositionJointInterface>::init(robot, n)) )
     {
         ROS_ERROR("Couldn't initilize OneTaskInverseKinematics controller.");
@@ -27,27 +27,15 @@ bool OneTaskInverseKinematics::init(hardware_interface::PositionJointInterface *
 
     K_.resize(7);
     D_.resize(7);
-    for (int i = 0; i < joint_handles_.size(); ++i){
-        if ( !n.getParam("stiffness_gains", K_(i) ) ){
-            ROS_WARN("Stiffness gain not set in yaml file, Using %f", K_(i));
-        }
-    }
-    for (int i = 0; i < joint_handles_.size(); ++i){
-        if ( !n.getParam("damping_gains", D_(i)) ){
-            ROS_WARN("Damping gain not set in yaml file, Using %f", D_(i));
-        }
-    }
-
-
-
     // Get joint handles for all of the joints in the chain
     for(std::size_t i = 0; i < 7; i++)
     {
-        joint_handles_stiffness.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()+ "_stiffness"));
+        joint_handles_stiffness.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()  + "_stiffness"));
+        joint_handles_damping.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()    + "_damping"));
+        joint_handles_torque.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()     + "_torque"));
     }
 
-
-    ctrl_type   = VELOCITIY;
+    ctrl_type   = POSITION;
 
     jnt_to_jac_solver_.reset(new KDL::ChainJntToJacSolver(kdl_chain_));
     fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
@@ -70,6 +58,7 @@ bool OneTaskInverseKinematics::init(hardware_interface::PositionJointInterface *
 
     //Desired posture is the current one
     x_des_ = x_;
+    I_err.p.Zero();
 
     cmd_flag_ = false;
 
@@ -77,7 +66,7 @@ bool OneTaskInverseKinematics::init(hardware_interface::PositionJointInterface *
     sub_command_vel_  = nh_.subscribe("command_vel", 1, &OneTaskInverseKinematics::command_vel,     this);
     sub_stiff_        = nh_.subscribe("stiffness",   1, &OneTaskInverseKinematics::setStiffness,    this);
     sub_damp_         = nh_.subscribe("damping",     1, &OneTaskInverseKinematics::setDamping,      this);
-    publish_rate_     = 50;
+    publish_rate_     = 500;
 
     return true;
 }
@@ -89,17 +78,15 @@ void OneTaskInverseKinematics::starting(const ros::Time& time)
     // get joint positions
     for(int i=0; i < joint_handles_.size(); i++)
     {
-        joint_msr_.q(i)      = joint_handles_[i].getPosition();
-        joint_des_.q(i)      =  joint_msr_.q(i);
-        joint_des_.qdot(i)   = 0.0;
-        D_(i)                       = 0.7;
-        joint_handles_[i].setCommand(joint_des_.q(i));
+        joint_msr_.q(i) = joint_handles_[i].getPosition();
+        joint_des_.q(i) =  joint_msr_.q(i);
+        K_(i)                  = 500.0;
+        D_(i)                  = 0.7;
+        joint_handles_[i].setCommand(joint_msr_.q(i));
         joint_handles_stiffness[i].setCommand(K_(i));
     }
 
-    x_des_vel_ = KDL::Twist::Zero();
-
-    ctrl_type   = VELOCITIY;
+    ctrl_type   = POSITION;
     // initialize time
     last_publish_time_ = time;
 
@@ -107,25 +94,21 @@ void OneTaskInverseKinematics::starting(const ros::Time& time)
 
 void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration& period)
 {
-
     // ROS_INFO_THROTTLE(2.0," OneTaskInverseKinematics::update");
     // ROS_INFO_STREAM_THROTTLE(2.0,"period: " << period.toSec());
 
-    // get joint positions and setting default values
+    // get joint positions
     for(int i=0; i < joint_handles_.size(); i++)
     {
-        joint_msr_.q(i)    = joint_handles_[i].getPosition();
+        joint_msr_.q(i) = joint_handles_[i].getPosition();
     }
 
     if (cmd_flag_)
     {
 
         if(ctrl_type == VELOCITIY){
-         //   ROS_INFO_STREAM_THROTTLE(1.0,"VELOCITY");
-           // ROS_INFO_STREAM_THROTTLE(1.0,"x_des_vel_: " << x_des_vel_.vel.x() << " " << x_des_vel_.vel.y() << " " <<  x_des_vel_.vel.z() );
             ik_vel_solver_->CartToJnt(joint_msr_.q,x_des_vel_,joint_des_.qdot);
         }else{
-          //  ROS_INFO_STREAM_THROTTLE(1.0,"POSITION");
 
             if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
 
@@ -151,7 +134,13 @@ void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration
             fk_pos_solver_->JntToCart(joint_msr_.q, x_);
 
             // end-effector position error
-            x_err_.vel = x_des_.p - x_.p;
+            KDL::Frame tmp;
+            tmp.p = P_err.p;
+            P_err.p = x_des_.p - x_.p;
+            I_err.p = P_err.p + I_err.p;
+            D_err.p = P_err.p - tmp.p;
+            x_err_.vel = Kp * P_err.p + Ki*I_err.p + Kd * D_err.p;
+//            x_err_.vel = Kp * P_err.p;
 
             // getting quaternion from rotation matrix
             x_.M.GetQuaternion(quat_curr_.v(0),quat_curr_.v(1),quat_curr_.v(2),quat_curr_.a);
@@ -187,23 +176,21 @@ void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration
         }
 
         // integrating q_dot -> getting q (Euler method)
-        for (int i = 0; i < joint_handles_.size(); i++){
-            joint_des_.q(i) = joint_des_.q(i) + period.toSec()*joint_des_.qdot(i);
+        for (int i = 0; i < joint_handles_.size(); i++)
+            joint_des_.q(i) += period.toSec()*joint_des_.qdot(i);
+
+        // joint limits saturation
+        for (int i =0;  i < joint_handles_.size(); i++)
+        {
+            if (joint_des_.q(i) < joint_limits_.min(i))
+                joint_des_.q(i) = joint_limits_.min(i);
+            if (joint_des_.q(i) > joint_limits_.max(i))
+                joint_des_.q(i) = joint_limits_.max(i);
         }
 
+
     }
 
-
-
-    // joint limits saturation
-   /* for (int i =0;  i < joint_handles_.size(); i++)
-    {
-        if (joint_des_states_.q(i) < joint_limits_.min(i))
-            joint_des_states_.q(i) = joint_limits_.min(i);
-        if (joint_des_states_.q(i) > joint_limits_.max(i))
-            joint_des_states_.q(i) = joint_limits_.max(i);
-    }
-*/
     // set controls for joints
     for (int i = 0; i < joint_handles_.size(); i++)
     {
@@ -211,20 +198,32 @@ void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration
         joint_handles_stiffness[i].setCommand(K_(i));
     }
 
+  /*
+    ROS_INFO_STREAM_THROTTLE(0.5,"--------------");
+    ROS_INFO_STREAM_THROTTLE(0.5,"K_cmd:    " << K_cmd(0) << " " << K_cmd(1) << " " << K_cmd(2) << " " << K_cmd(3) << " " << K_cmd(4) << " " << K_cmd(5) << " " << K_cmd(6));
+    ROS_INFO_STREAM_THROTTLE(0.5,"D_cmd:    " << D_cmd(0) << " " << D_cmd(1) << " " << D_cmd(2) << " " << D_cmd(3) << " " << D_cmd(4) << " " << D_cmd(5) << " " << D_cmd(6));
+    ROS_INFO_STREAM_THROTTLE(0.5,"tau_cmd_: " << tau_cmd_(0) << " " <<  tau_cmd_(1) << " " <<  tau_cmd_(2) << " " << tau_cmd_(3) << " " <<  tau_cmd_(4) << " " <<  tau_cmd_(5) << " " << tau_cmd_(6));
+    ROS_INFO_STREAM_THROTTLE(0.5,"pos_cmd_: " << pos_cmd_(0) << " " <<  pos_cmd_(1) << " " <<  pos_cmd_(2) << " " << pos_cmd_(3) << " " <<  pos_cmd_(4) << " " <<  pos_cmd_(5) << " " << pos_cmd_(6));
+    ROS_INFO_STREAM_THROTTLE(0.5,"--------------");
+
+  for(size_t i=0; i<joint_handles_.size(); i++) {
+      joint_handles_[i].setCommand(pos_cmd_(i));
+      joint_handles_torque[i].setCommand(tau_cmd_(i));
+      joint_handles_stiffness[i].setCommand(K_cmd(i));
+      joint_handles_damping[i].setCommand(D_cmd(i));
+  }
+*/
 }
 
 void OneTaskInverseKinematics::stopping(const ros::Time& /*time*/){
     for(int i=0; i < joint_handles_.size(); i++)
     {
-        joint_msr_.q(i)      = joint_handles_[i].getPosition();
-        joint_des_.q(i)      =  joint_msr_.q(i);
-        joint_des_.qdot(i)   = 0.0;
+        joint_msr_.q(i) = joint_handles_[i].getPosition();
         joint_handles_[i].setCommand(joint_des_.q(i));
         joint_handles_stiffness[i].setCommand(K_(i));
     }
 
     cmd_flag_ = false;
-    ctrl_type = POSITION;
 }
 
 void OneTaskInverseKinematics::command_pos(const geometry_msgs::PoseConstPtr &msg)

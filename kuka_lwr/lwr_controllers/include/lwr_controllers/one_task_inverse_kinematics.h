@@ -58,6 +58,9 @@ namespace lwr_controllers
 
 		KDL::Frame x_;		//current pose
 		KDL::Frame x_des_;	//desired pose
+        KDL::Frame P_err;	//position error for PID computation
+        KDL::Frame I_err;	//position error for PID computation
+        KDL::Frame D_err;	//position error for PID computation
 
         KDL::Vector x_v_des_; // desired linear velocity
         KDL::Twist  x_des_vel_;
@@ -94,8 +97,10 @@ namespace lwr_controllers
         boost::scoped_ptr<KDL::ChainIkSolverVel_pinv>       ik_vel_solver_;
         boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL>      ik_pos_solver_;
 
+        /// Extra handles
+        std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_damping;
+        std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_torque;
         std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_stiffness;
-
 
         Ctrl_type ctrl_type;
 	};
