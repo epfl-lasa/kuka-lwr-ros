@@ -14,6 +14,7 @@ Kuka_action_client::Kuka_action_client(const std::string& name)
     // default initial state, no actions are running
     b_action_running    = false;
     current_action_name = "NONE";
+    action_finished     = false;
 
    // add_default_actions();
 }
@@ -35,11 +36,15 @@ bool Kuka_action_client::call_action(const std::string& name){
 
         b_action_running        = true;
         current_action_name     = name;
+        action_finished         = false;
 
         ac_.sendGoal(it->second);
         ac_.waitForResult();
 
         actionlib::SimpleClientGoalState state = ac_.getState();
+
+        if (state.isDone())
+            action_finished = true;
 
         ROS_INFO("Action finished: %s",state.toString().c_str());
         b_action_running    = false;

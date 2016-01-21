@@ -30,6 +30,8 @@ public:
 
     void init_nl_subscriber(std::string topic_name);
 
+    int getState();
+
 private:
 
     void nl_command_callback(const std_msgs::String::ConstPtr &msg);
