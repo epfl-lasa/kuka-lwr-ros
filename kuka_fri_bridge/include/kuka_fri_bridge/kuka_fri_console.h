@@ -12,9 +12,9 @@
 #include "kuka_fri_bridge/utilities.h"
 #include "lwr_hw/lwr_hw.h"
 
-#include "std_tools/Console.h"
-#include "std_tools/NCConsole.h"
-#include "std_tools/Various.h"
+#include "console/Console.h"
+#include "console/NCConsole.h"
+#include "console/Various.h"
 
 #include "FastResearchInterface.h"
 #include "LinuxAbstraction.h"
@@ -90,6 +90,7 @@ private:
     ros::ServiceClient                          service_client;
     ros::Subscriber                             fri_sub;
     controller_manager_msgs::SwitchController   switch_msg;
+    std::string                                 start_controller;
 
     FRI_STATE                                   mFRI_STATE;
     FRI_QUALITY                                 mFRI_QUALITY;

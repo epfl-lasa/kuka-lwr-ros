@@ -1,9 +1,9 @@
 #ifndef KUKA_PLANNING_INTERFACE___KUKA_ACTION_CONSOLE_H_
 #define KUKA_PLANNING_INTERFACE___KUKA_ACTION_CONSOLE_H_
 
-#include "std_tools/Console.h"
-#include "std_tools/NCConsole.h"
-#include "std_tools/Various.h"
+#include "console/Console.h"
+#include "console/NCConsole.h"
+#include "console/Various.h"
 #include <ros/ros.h>
 
 #include "kuka_action_client/String_cmd.h"

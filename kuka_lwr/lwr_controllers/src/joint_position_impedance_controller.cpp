@@ -108,7 +108,6 @@ void JointPositionImpedanceController::update(const ros::Time& time, const ros::
         joint_handles_stiffness[i].setCommand(K_(i));
     }
 
-//    hardware_interface::PositionJointInterface::ResourceHandleType::get
 }
 
 void JointPositionImpedanceController::stopping(const ros::Time&){

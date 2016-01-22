@@ -1,20 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(kuka_fri_bridge)
+project(console)
 
-find_package(catkin REQUIRED
-fri_library_ros
-console
-message_generation
-sensor_msgs
-geometry_msgs
-lwr_hw
-)
-
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED roscpp)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -Wall -Wno-deprecated-declarations -Wno-unused-variable -Wno-reorder")
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -30,10 +24,10 @@ set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -Wall -Wno-deprecated-declarati
 ## * Let MSG_DEP_SET be the set of packages whose message types you use in
 ##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
 ## * In the file package.xml:
+##   * add a build_depend tag for "message_generation"
 ##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependencies might have been
-##     pulled in transitively but can be declared for certainty nonetheless:
-##     * add a build_depend tag for "message_generation"
+##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
+##     but can be declared for certainty nonetheless:
 ##     * add a run_depend tag for "message_runtime"
 ## * In this file (CMakeLists.txt):
 ##   * add "message_generation" and every package in MSG_DEP_SET to
@@ -46,17 +40,18 @@ set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -Wall -Wno-deprecated-declarati
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   JointStates.msg
-   FRI.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
- add_service_files(
-   FILES
-   StringService.srv
- )
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -66,11 +61,30 @@ set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -Wall -Wno-deprecated-declarati
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs 
-   geometry_msgs
- )
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs  # Or other packages containing msgs
+# )
+
+################################################
+## Declare ROS dynamic reconfigure parameters ##
+################################################
+
+## To declare and build dynamic reconfigure parameters within this
+## package, follow these steps:
+## * In the file package.xml:
+##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
+## * In this file (CMakeLists.txt):
+##   * add "dynamic_reconfigure" to
+##     find_package(catkin REQUIRED COMPONENTS ...)
+##   * uncomment the "generate_dynamic_reconfigure_options" section below
+##     and list every .cfg file to be processed
+
+## Generate dynamic reconfigure parameters in the 'cfg' folder
+# generate_dynamic_reconfigure_options(
+#   cfg/DynReconf1.cfg
+#   cfg/DynReconf2.cfg
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -83,14 +97,11 @@ set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -Wall -Wno-deprecated-declarati
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES robot_publisher
-  CATKIN_DEPENDS message_runtime fri_library_ros console
+  LIBRARIES console
+#  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
 
-###########
-## Build ##
-###########
 
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -99,39 +110,21 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${INCLUDE_DIR})
 
-
-
-set(H_FILES ${INCLUDE_DIR}/kuka_fri_bridge/LWRRobot_FRI.h
-            ${INCLUDE_DIR}/kuka_fri_bridge/utilities.h
-            ${INCLUDE_DIR}/kuka_fri_bridge/kuka_fri_console.h
-            ${INCLUDE_DIR}/kuka_fri_bridge/kuka_fri_interface.h
+set(H_FILES	${INCLUDE_DIR}/console/ConsoleInterface.h
+                ${INCLUDE_DIR}/console/Console.h
+		${INCLUDE_DIR}/console/NCConsole.h
+		${INCLUDE_DIR}/console/Various.h
 )
 
-set(S_FILES  ${SRC_DIR}/kuka_fri_bridge/LWRRobot_FRI.cpp
-             ${SRC_DIR}/kuka_fri_bridge/kuka_fri_interface.cpp
-             ${SRC_DIR}/kuka_fri_bridge/kuka_fri_console.cpp
-
-   )
+set(S_FILES 	${SRC_DIR}/ConsoleInterface.cpp
+                ${SRC_DIR}/Console.cpp
+            	${SRC_DIR}/NCConsole.cpp
+           	${SRC_DIR}/Various.cpp
+)
 
 include_directories(${catkin_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} ${H_FILES} ${S_FILES} )
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-
-add_executable(kuka_fri_bridge_node ${SRC_DIR}/kuka_fri_bridge_node.cpp )
-target_link_libraries(kuka_fri_bridge_node ${PROJECT_NAME} ${catkin_LIBRARIES})
-
-add_executable(kuka_fri_console_node ${SRC_DIR}/kuka_fri_console_node.cpp)
-target_link_libraries(kuka_fri_console_node ${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ncurses)
 
 
-add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
-
-
-
-#add_custom_target(${PROJECT_NAME}_temp COMMAND )
-#add_dependencies(${PROJECT_NAME}_temp ${PROJECT_NAME}_generat_messages_cpp)
-#find_package(rtk_pkg_tools)
-#include(${rtk_pkg_tools_SOURCE_DIR}/RTKbuild_package.cmake)
-#include(${rtk_pkg_tools_SOURCE_DIR}/rtk_create_symlinks.cmake)
- 

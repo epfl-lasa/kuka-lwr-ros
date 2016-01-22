@@ -83,6 +83,7 @@ public:
      *                           server and false otherwise.
      */
     volatile bool              b_action_running;
+    volatile bool              action_finished;
 
     /**
      * @brief current_action_name : name of the action which is currently being run on the

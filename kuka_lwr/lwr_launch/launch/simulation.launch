@@ -6,8 +6,6 @@
 	<arg name="robot_path" 			default="$(find single_lwr_robot)/robot"/>
 
    	<arg name="controllers" 		default="one_task_inverse_kinematics joint_position_impedance_controller"/>
-    	<arg name="stopped_controllers" 	default="gravity_compensation_controller"/>
-	
 	<arg name="t1_limits" 			default="false"/>
     	
 	<arg name="rviz_config" 		default="$(find lwr_launch)/launch/rviz/rviz_config.rviz"/>
@@ -52,7 +50,6 @@
 	<!-- spawn only desired controllers in current namespace -->
 	<node name="controller_spawner_js" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="kuka_joint_state_controller"/>
 	<node name="controller_spawner"    pkg="controller_manager" type="spawner" respawn="false" output="screen" args="--stopped $(arg controllers)"/>
-	<!--node name="controller_stopper"    pkg="controller_manager" type="spawner" args="-stopped $(arg stopped_controllers)" /-->
     </group>
 
   <!-- LAUNCH RVIZ -->
