@@ -19,19 +19,11 @@ $  wstool up
 $ rosdep install --from-paths . --ignore-src --rosdistro indigo 
 ```
 
-
 * [**Gazebo**](http://gazebosim.org/)
 ```
 $ sudo apt-get install libgazebo6 gazebo6
-```
-```
-$ sudo apt-get install gazebo6
-```
-* **ROS-Gazebo** dependencies for interfacing ROS and Gazebo
-```
 $ sudo apt-get install ros-indigo-gazebo6-*
 ```
-
 
 Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR).
 
