@@ -54,8 +54,8 @@
  <build_depend>     message_generation  </build_depend>
  <run_depend>       message_runtime     </run_depend>
 
- <build_depend> geomtry_msgs    </build_depend>
- <run_depend>   geomtry_msgs    </run_depend>
+ <build_depend> geometry_msgs    </build_depend>
+ <run_depend>   geometry_msgs    </run_depend>
 
 
   <build_depend>    fri_library_ros </build_depend>
