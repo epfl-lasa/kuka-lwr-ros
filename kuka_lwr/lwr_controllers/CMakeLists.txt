@@ -95,7 +95,7 @@ add_library(${PROJECT_NAME}
   #src/gravity_compensation.cpp
 )
 
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp ${PROJECT_NAME}_gencfg)
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencpp ${PROJECT_NAME}_gencfg)
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
