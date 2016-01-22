@@ -20,6 +20,9 @@
 
 #include <std_msgs/Float64MultiArray.h>
 
+#include <dynamic_reconfigure/server.h>
+#include <lwr_controllers/PIDConfig.h>
+
 
 namespace lwr_controllers
 {
@@ -46,6 +49,10 @@ namespace lwr_controllers
         void command_vel(const geometry_msgs::TwistConstPtr& msg);
         void setStiffness(const std_msgs::Float64MultiArray::ConstPtr &msg);
         void setDamping(const std_msgs::Float64MultiArray::ConstPtr &msg);
+
+    private:
+
+        void pid_callback(lwr_controllers::PIDConfig& config,uint32_t level);
 
 	private:
         ros::Subscriber sub_command_pose_;
@@ -101,6 +108,17 @@ namespace lwr_controllers
         std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_damping;
         std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_torque;
         std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_stiffness;
+
+        /// Dynamic parameters
+
+        ros::NodeHandle nd_pid;
+        boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::PIDConfig> >   dynamic_server_PID_param;
+        double Kp;
+        double Kd;
+        double Ki;
+
+
+
 
         Ctrl_type ctrl_type;
 	};

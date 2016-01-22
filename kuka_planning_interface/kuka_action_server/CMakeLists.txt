@@ -22,7 +22,6 @@ kuka_fri_bridge)
 set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -fext-numeric-literals -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
 
 
-
 add_action_files(DIRECTORY action
    FILES
    PLAN2CTRL.action

@@ -10,9 +10,6 @@
 
 namespace lwr_controllers
 {
-double Kp = 30.0;
-double Kd = 0.8;
-double Ki = 0.0;
 
 OneTaskInverseKinematics::OneTaskInverseKinematics() {}
 OneTaskInverseKinematics::~OneTaskInverseKinematics() {}
@@ -24,6 +21,15 @@ bool OneTaskInverseKinematics::init(hardware_interface::PositionJointInterface *
         ROS_ERROR("Couldn't initilize OneTaskInverseKinematics controller.");
         return false;
     }
+
+    // $ rosrun rqt_reconfigure rqt_reconfigure
+    nd_pid = ros::NodeHandle("PID_param");
+    dynamic_server_PID_param.reset(new        dynamic_reconfigure::Server< lwr_controllers::PIDConfig   >(nd_pid));
+    dynamic_server_PID_param->setCallback(     boost::bind(&OneTaskInverseKinematics::pid_callback, this, _1, _2));
+    Kp = 0;
+    Kd = 0;
+    Ki = 0;
+
 
     K_.resize(7);
     D_.resize(7);
@@ -273,6 +279,14 @@ void OneTaskInverseKinematics::setDamping(const std_msgs::Float64MultiArray::Con
         ROS_INFO("Damping Num of Joint handles = %lu", joint_handles_.size());
     }
 }
+
+void OneTaskInverseKinematics::pid_callback(lwr_controllers::PIDConfig& config,uint32_t level){
+    Kp = config.Kp;
+    Kd = config.Kd;
+    Ki = config.Ki;
+}
+
+
 
 }
 

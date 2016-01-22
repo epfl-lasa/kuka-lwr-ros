@@ -47,6 +47,7 @@ generate_dynamic_reconfigure_options(
     cfg/stiffness_param_all.cfg
     cfg/passive_ds_param.cfg
     cfg/rot_stiffness.cfg
+    cfg/PID.cfg
 )
 
 catkin_package(
