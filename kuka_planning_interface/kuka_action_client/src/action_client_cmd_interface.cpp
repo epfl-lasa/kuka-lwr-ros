@@ -65,6 +65,23 @@ void Action_client_cmd_interface::action_cmd_callback(const std::string& action_
 
 }
 
+int Action_client_cmd_interface::getState(){
+    if(!kuka_action_client.action_finished)
+    {
+//        ROS_INFO("Not yet");
+        return 0;
+    }
+    else if (kuka_action_client.action_finished)
+    {
+//        ROS_INFO("ACTION finished");
+        return 1;
+    }
+    else
+    {
+        ROS_INFO ("err");
+    }
+}
+
 bool Action_client_cmd_interface::cmd_interface_callback(kuka_action_client::String_cmd::Request& req,kuka_action_client::String_cmd::Response &res){
 
     std::string cmd = req.cmd;
