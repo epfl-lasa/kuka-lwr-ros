@@ -1,6 +1,38 @@
 # kuka-lwr-ros
 [![Build Status](https://travis-ci.com/epfl-lasa/kuka-lwr-ros.svg?token=d6T2YmvspfmdmqrMCGYv&branch=master)](https://travis-ci.com/epfl-lasa/kuka-lwr-ros/branches)
 
+# Installation
+Do the following steps:
+* In your catking src directory  
+```
+$ git clone https://github.com/epfl-lasa/kuka-lwr-ros.git
+```
+* wstool gets all other git repository dependencies, after the following steps you should see extra catkin 
+  packages in your src directory.
+```
+$  wstool init
+$  wstool merge kuka-lwr-ros/dependencies.rosinstall 
+$  wstool up 
+```
+* Query and installs all libraries and packages 
+```
+$ rosdep install --from-paths . --ignore-src --rosdistro indigo 
+```
+
+
+* [**Gazebo**](http://gazebosim.org/)
+```
+$ sudo apt-get install libgazebo6 gazebo6
+```
+```
+$ sudo apt-get install gazebo6
+```
+* **ROS-Gazebo** dependencies for interfacing ROS and Gazebo
+```
+$ sudo apt-get install ros-indigo-gazebo6-*
+```
+
+
 Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR).
 
 * [**kuka_fri_bridge**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/kuka_fri_bridge)         interface and run the physical robot.
@@ -16,34 +48,6 @@ Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR)
 Of these packages only the first three are important, the last contain utilities. The dependencies
 for this package are
 
-## Dependencies
-* [**Eigen**](http://eigen.tuxfamily.org/index.php?title=Main_Page)
-```
-$ sudo apt-get install libeigen3-dev
-```
-It could happen that during the building of other libraries the #include "Eigen/Eigen" is not found. To resolve this
-problem you should create a symbolic link
-```
-$ sudo ln -s /usr/include/eigen3/Eigen /usr/include/Eigen
-```
-
-* [**Gazebo**](http://gazebosim.org/)
-```
-$ sudo apt-get install libgazebo6 gazebo6
-```
-```
-$ sudo apt-get install gazebo6
-```
-* **ROS-Gazebo** dependencies for interfacing ROS and Gazebo
-```
-$ sudo apt-get install ros-indigo-gazebo6-*
-```
-* **other ros dependencies**
-```
-$ sudo apt-get install ros-indigo-joint-trajectory-* ros-indigo-controller-manager* ros-indigo-joint-limits-interface ros-indigo-transmission-interface
-```
-* [**fri-library-ros**](https://github.com/epfl-lasa/fri-library-ros) Fast research interface used to communicate
- with the physical robot.
 
 # Quick Start (Simulation)
 
