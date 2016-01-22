@@ -8,14 +8,15 @@ find_package(catkin REQUIRED roscpp cmake_modules)
 
 set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -Wall -Wno-deprecated-declarations -Wno-unused-variable -Wno-reorder")
 
-find_package(Eigen)
-
+find_package(Eigen REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS
     roscpp
+    cmake_modules
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
+  DEPENDS Eigen
 )
 
 
