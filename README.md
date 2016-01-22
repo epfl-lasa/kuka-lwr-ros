@@ -3,7 +3,7 @@
 
 # Installation
 Do the following steps:
-* In your catking src directory  
+* In your catking src directory clone the repository
 ```
 $ git clone https://github.com/epfl-lasa/kuka-lwr-ros.git
 ```
@@ -24,6 +24,7 @@ $ rosdep install --from-paths . --ignore-src --rosdistro indigo
 $ sudo apt-get install libgazebo6 gazebo6
 $ sudo apt-get install ros-indigo-gazebo6-*
 ```
+# Description
 
 Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR).
 
@@ -43,14 +44,7 @@ for this package are
 
 # Quick Start (Simulation)
 
-Go to your catking workspace folder and git the repository:
-```sh
-$ git clone git@github.com:epfl-lasa/kuka-lwr-ros.git
-```
-Rebuild your catking workspace. It could be that you get an error relating to an Eigen header file not found.
-
-you are ready to run an example. Open
-a new terminal and run the following:
+you are ready to run an example. Open a new terminal and run the following:
 ```sh
 $ roslaunch simple_example sim.launch
 ```
