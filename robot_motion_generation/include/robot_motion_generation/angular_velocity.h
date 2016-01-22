@@ -1,8 +1,7 @@
 #ifndef ROBOT_MOTION_GENERATOR___ANGULAR_VELOCITY_H_
 #define ROBOT_MOTION_GENERATOR___ANGULAR_VELOCITY_H_
 
-#include <Eigen/Dense>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Dense>
 
 namespace motion{
 
