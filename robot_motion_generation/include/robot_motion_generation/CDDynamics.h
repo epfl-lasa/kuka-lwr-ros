@@ -10,7 +10,7 @@
 #define CDDYNAMICS_H_
 
 
-#include <Eigen/Eigen>
+#include <Eigen/Dense>
 
 namespace motion{
 
