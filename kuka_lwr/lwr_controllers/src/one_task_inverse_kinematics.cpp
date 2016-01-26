@@ -114,7 +114,7 @@ void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration
     // ROS_INFO_STREAM_THROTTLE(2.0,"period: " << period.toSec());
 
     // get joint positions
-    for(int i=0; i < joint_handles_.size(); i++)
+    for(std::size_t  i=0; i < joint_handles_.size(); i++)
     {
         joint_msr_.q(i) = joint_handles_[i].getPosition();
     }
@@ -192,11 +192,11 @@ void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration
         }
 
         // integrating q_dot -> getting q (Euler method)
-        for (int i = 0; i < joint_handles_.size(); i++)
+        for (std::size_t  i = 0; i < joint_handles_.size(); i++)
             joint_des_.q(i) += period.toSec()*joint_des_.qdot(i);
 
         // joint limits saturation
-        for (int i =0;  i < joint_handles_.size(); i++)
+        for (std::size_t  i =0;  i < joint_handles_.size(); i++)
         {
             if (joint_des_.q(i) < joint_limits_.min(i))
                 joint_des_.q(i) = joint_limits_.min(i);
@@ -208,7 +208,7 @@ void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration
     }
 
     // set controls for joints
-    for (int i = 0; i < joint_handles_.size(); i++)
+    for (std::size_t  i = 0; i < joint_handles_.size(); i++)
     {
         joint_handles_[i].setCommand(joint_des_.q(i));
         joint_handles_stiffness[i].setCommand(K_(i));
@@ -233,7 +233,7 @@ void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration
 }
 
 void OneTaskInverseKinematics::stopping(const ros::Time& /*time*/){
-    for(int i=0; i < joint_handles_.size(); i++)
+    for(std::size_t  i=0; i < joint_handles_.size(); i++)
     {
         joint_msr_.q(i) = joint_handles_[i].getPosition();
         joint_handles_[i].setCommand(joint_des_.q(i));

@@ -74,6 +74,9 @@
   <build_depend>    console                 </build_depend>
   <run_depend>      console                 </run_depend>
 
+  <build_depend>    kuka_action_server      </build_depend>
+  <run_depend>      kuka_action_server      </run_depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

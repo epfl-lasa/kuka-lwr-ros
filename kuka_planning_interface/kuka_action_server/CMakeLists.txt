@@ -27,7 +27,12 @@ add_action_files(DIRECTORY action
    PLAN2CTRL.action
 )
 
-generate_messages(DEPENDENCIES std_msgs geometry_msgs actionlib_msgs kuka_fri_bridge)
+generate_messages(DEPENDENCIES
+std_msgs
+geometry_msgs
+actionlib_msgs
+kuka_fri_bridge
+)
 
 catkin_package(
    INCLUDE_DIRS include
@@ -79,4 +84,6 @@ set(SRC_FILES   ${SRC_DIR}/base_ee_action.cpp
 add_library(${PROJECT_NAME} SHARED ${H_FILES} ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME}  ${catkin_LIBRARIES})
 
-add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
+
+

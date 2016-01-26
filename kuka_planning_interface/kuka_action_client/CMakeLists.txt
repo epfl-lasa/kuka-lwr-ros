@@ -9,7 +9,9 @@ std_msgs
 message_runtime
 message_generation
 joint_trajectory_action
-console)
+console
+kuka_action_server
+)
 
 set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -mtune=native -fPIC -Wall -Wno-deprecated-declarations -Wno-reorder")
 
@@ -30,7 +32,7 @@ generate_messages(DEPENDENCIES std_msgs)
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${PROJECT_NAME}
-   CATKIN_DEPENDS roscpp tf std_msgs message_runtime console
+   CATKIN_DEPENDS roscpp tf std_msgs message_runtime console kuka_action_server
    DEPENDS system_lib
 )
 
@@ -53,6 +55,5 @@ set(SRC_FILES   ${SRC_DIR}/kuka_action_client.cpp
 add_library(${PROJECT_NAME} ${H_FILES} ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
-
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 
