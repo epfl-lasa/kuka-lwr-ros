@@ -28,8 +28,8 @@ bool OneTaskInverseKinematics::init(hardware_interface::PositionJointInterface *
     nd_pid = ros::NodeHandle("PID_param");
     dynamic_server_PID_param.reset(new        dynamic_reconfigure::Server< lwr_controllers::PIDConfig   >(nd_pid));
     dynamic_server_PID_param->setCallback(     boost::bind(&OneTaskInverseKinematics::pid_callback, this, _1, _2));
-    Kp = 0;
-    Kd = 0;
+    Kp = 16.0;
+    Kd = 1.5;
     Ki = 0;
 
     nd_K   = ros::NodeHandle("K");
@@ -95,7 +95,7 @@ void OneTaskInverseKinematics::starting(const ros::Time& time)
         joint_msr_.q(i) = joint_handles_[i].getPosition();
         joint_des_.q(i) =  joint_msr_.q(i);
         K_(i)                  = 1000.0;
-        D_(i)                  = 1;
+        D_(i)                  = 0.7;
         joint_handles_[i].setCommand(joint_msr_.q(i));
         joint_handles_stiffness[i].setCommand(K_(i));
         joint_handles_damping[i].setCommand(D_(i));
