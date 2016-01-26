@@ -22,7 +22,7 @@ bool LWRRobot_FRI::init(){
         joint_stiffness_[i]             = 500;
         joint_damping_[i]               = 0;
         joint_stiffness_command_[i]     = joint_stiffness_[i];
-        joint_damping_command_[i]       = joint_damping_command_[i];
+        joint_damping_command_[i]       = joint_damping_[i];
     }
 
     return true;
@@ -53,6 +53,7 @@ void LWRRobot_FRI::read(ros::Time time, ros::Duration period)
         joint_effort_[j]        = (double)msrJntTrq[j];
         joint_velocity_[j]      = filters::exponentialSmoothing((joint_position_[j]-joint_position_prev_[j])/period.toSec(), joint_velocity_[j], 0.2);
         joint_stiffness_[j]     = joint_stiffness_command_[j];
+        joint_damping_[j]       = joint_damping_command_[j];
     }
 
     /// FRI_STATE_MON || FRI_STATE_CMD
@@ -102,6 +103,7 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
             break;
         case JOINT_IMPEDANCE:
             ROS_INFO_STREAM_THROTTLE(1.0,"case ==> JOINT_IMPEDANCE:");
+            ROS_INFO_STREAM_THROTTLE(1.0,"D: " << joint_damping_command_[0]);
 
             for(int j=0; j < n_joints_; j++)
             {

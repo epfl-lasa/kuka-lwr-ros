@@ -21,7 +21,11 @@
 #include <std_msgs/Float64MultiArray.h>
 
 #include <dynamic_reconfigure/server.h>
+
 #include <lwr_controllers/PIDConfig.h>
+#include <lwr_controllers/stiffness_param_allConfig.h>
+#include <lwr_controllers/damping_param_allConfig.h>
+
 
 
 namespace lwr_controllers
@@ -53,6 +57,10 @@ namespace lwr_controllers
     private:
 
         void pid_callback(lwr_controllers::PIDConfig& config,uint32_t level);
+
+        void damping_all_callback(lwr_controllers::damping_param_allConfig& config,uint32_t level);
+
+        void stiffness_all_callback(lwr_controllers::stiffness_param_allConfig& config, uint32_t level);
 
 	private:
         ros::Subscriber sub_command_pose_;
@@ -111,8 +119,10 @@ namespace lwr_controllers
 
         /// Dynamic parameters
 
-        ros::NodeHandle nd_pid;
-        boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::PIDConfig> >   dynamic_server_PID_param;
+        ros::NodeHandle nd_pid, nd_K, nd_D;
+        boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::damping_param_allConfig> >     dynamic_server_D_all_param;
+        boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::stiffness_param_allConfig> >   dynamic_server_K_all_param;
+        boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::PIDConfig> >                   dynamic_server_PID_param;
         double Kp;
         double Kd;
         double Ki;

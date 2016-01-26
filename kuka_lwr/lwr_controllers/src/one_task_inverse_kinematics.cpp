@@ -21,6 +21,8 @@ bool OneTaskInverseKinematics::init(hardware_interface::PositionJointInterface *
         ROS_ERROR("Couldn't initilize OneTaskInverseKinematics controller.");
         return false;
     }
+    K_.resize(7);
+    D_.resize(7);
 
     // $ rosrun rqt_reconfigure rqt_reconfigure
     nd_pid = ros::NodeHandle("PID_param");
@@ -30,9 +32,15 @@ bool OneTaskInverseKinematics::init(hardware_interface::PositionJointInterface *
     Kd = 0;
     Ki = 0;
 
+    nd_K   = ros::NodeHandle("K");
+    nd_D   = ros::NodeHandle("D");
 
-    K_.resize(7);
-    D_.resize(7);
+    dynamic_server_D_all_param.reset(new    dynamic_reconfigure::Server< lwr_controllers::damping_param_allConfig   >(nd_D));
+    dynamic_server_K_all_param.reset(new    dynamic_reconfigure::Server< lwr_controllers::stiffness_param_allConfig >(nd_K));
+    dynamic_server_D_all_param->setCallback( boost::bind(&OneTaskInverseKinematics::damping_all_callback,  this, _1, _2));
+    dynamic_server_K_all_param->setCallback( boost::bind(&OneTaskInverseKinematics::stiffness_all_callback,this, _1, _2));
+
+
     // Get joint handles for all of the joints in the chain
     for(std::size_t i = 0; i < 7; i++)
     {
@@ -52,7 +60,7 @@ bool OneTaskInverseKinematics::init(hardware_interface::PositionJointInterface *
     J_.resize(kdl_chain_.getNrOfJoints());
 
     // get joint positions
-    for(int i=0; i < joint_handles_.size(); i++)
+    for(std::size_t i=0; i < joint_handles_.size(); i++)
     {
         joint_msr_.q(i) = joint_handles_[i].getPosition();
         joint_msr_.qdot(i) = joint_handles_[i].getVelocity();
@@ -82,14 +90,16 @@ void OneTaskInverseKinematics::starting(const ros::Time& time)
     ROS_INFO("starting on one task inverse kinematics");
     cmd_flag_ = false;
     // get joint positions
-    for(int i=0; i < joint_handles_.size(); i++)
+    for(std::size_t  i=0; i < joint_handles_.size(); i++)
     {
         joint_msr_.q(i) = joint_handles_[i].getPosition();
         joint_des_.q(i) =  joint_msr_.q(i);
-        K_(i)                  = 500.0;
-        D_(i)                  = 0.7;
+        K_(i)                  = 1000.0;
+        D_(i)                  = 1;
         joint_handles_[i].setCommand(joint_msr_.q(i));
         joint_handles_stiffness[i].setCommand(K_(i));
+        joint_handles_damping[i].setCommand(D_(i));
+
     }
 
     ctrl_type   = POSITION;
@@ -202,6 +212,7 @@ void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration
     {
         joint_handles_[i].setCommand(joint_des_.q(i));
         joint_handles_stiffness[i].setCommand(K_(i));
+        joint_handles_damping[i].setCommand(D_(i));
     }
 
   /*
@@ -227,6 +238,7 @@ void OneTaskInverseKinematics::stopping(const ros::Time& /*time*/){
         joint_msr_.q(i) = joint_handles_[i].getPosition();
         joint_handles_[i].setCommand(joint_des_.q(i));
         joint_handles_stiffness[i].setCommand(K_(i));
+        joint_handles_damping[i].setCommand(D_(i));
     }
 
     cmd_flag_ = false;
@@ -255,6 +267,24 @@ void OneTaskInverseKinematics::command_vel(const geometry_msgs::TwistConstPtr &m
     ctrl_type = VELOCITIY;
     cmd_flag_ = true;
 
+}
+
+void OneTaskInverseKinematics::damping_all_callback(lwr_controllers::damping_param_allConfig& config,uint32_t level){
+
+   ROS_INFO_STREAM("----> D: " << config.D);
+    for(std::size_t i = 0; i < joint_handles_damping.size();i++){
+        D_(i)    = config.D;
+    }
+    ROS_INFO_STREAM("---->  D_(i) : " <<  D_(0) );
+
+
+
+}
+
+void OneTaskInverseKinematics::stiffness_all_callback(lwr_controllers::stiffness_param_allConfig& config, uint32_t level){
+    for(std::size_t i = 0; i < joint_handles_.size();i++){
+        K_(i)    = config.K;
+    }
 }
 
 void OneTaskInverseKinematics::setStiffness(const std_msgs::Float64MultiArray::ConstPtr &msg){
