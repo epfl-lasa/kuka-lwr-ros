@@ -116,7 +116,7 @@ a USB ethernet adaptor. One of the ethernet cards will be connected to the KUKA 
 via an ethernet cable. The remaining ethernet card/USB adapater will be used to have access to he 
 internet.
 Once your two connections are setup, check that you can ping the KUKA robot.
-*Robot IP** ping 192.168.0.2
+**Robot IP** ping 192.168.0.2
 ```
 ping 192.168.0.2
 ```
