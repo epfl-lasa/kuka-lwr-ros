@@ -124,6 +124,18 @@ ping 192.168.0.2
 Now there are two possible setups you might consider; 1) directly connect your PC to the KUKA or 
 2) Connect to a hub/switch which then connects to the KUKA control box.
 
+### Direct PC-KUKA control
+
+1) Add a new internet connection with the following information
+
+* Address: 192.168.0.1
+* Netmask: 255.255.255.0
+* GateWay: 0.0.0.0
+
+2) change the following ROS variables in your .bashrc file:
+
+* export ROS_MASTER_URI=http://192.168.0.1:11311
+* export ROS_IP=192.168.0.1
 
 
 # Concept
