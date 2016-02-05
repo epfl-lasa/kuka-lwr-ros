@@ -109,6 +109,11 @@ Drives are in state GO.
 To send actions to the robot proceed as in Quick start (**simulation**). Essentially open two new terminals and launch
 the simple client and server nodes.
 
+# ROS and KUKA Robot network setup
+
+* **Robot IP** ping 192.168.0.2
+
+
 # Concept
 
 This package was implemented according to the following design decisions:
