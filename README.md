@@ -137,6 +137,11 @@ Now there are two possible setups you might consider; 1) directly connect your P
 * export ROS_MASTER_URI=http://192.168.0.1:11311
 * export ROS_IP=192.168.0.1
 
+Make sure that your you are networking configuration you setup in 1) and now you should be able 
+to use ROS and the KUKA robot.
+
+### PC-HUB-KUKA control
+
 
 # Concept
 
