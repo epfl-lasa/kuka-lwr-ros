@@ -111,7 +111,19 @@ the simple client and server nodes.
 
 # ROS and KUKA Robot network setup
 
-* **Robot IP** ping 192.168.0.2
+You will need to have either two ethernet network cards on your computer or one ethernet card and
+a USB ethernet adaptor. One of the ethernet cards will be connected to the KUKA control box with 
+via an ethernet cable. The remaining ethernet card/USB adapater will be used to have access to he 
+internet.
+Once your two connections are setup, check that you can ping the KUKA robot.
+*Robot IP** ping 192.168.0.2
+```
+ping 192.168.0.2
+```
+
+Now there are two possible setups you might consider; 1) directly connect your PC to the KUKA or 
+2) Connect to a hub/switch which then connects to the KUKA control box.
+
 
 
 # Concept
