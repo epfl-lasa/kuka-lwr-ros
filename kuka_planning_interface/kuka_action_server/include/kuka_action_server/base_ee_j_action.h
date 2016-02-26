@@ -18,6 +18,7 @@
 #include "geometry_msgs/Vector3.h"
 #include "std_msgs/Float64MultiArray.h"
 #include "std_msgs/Bool.h"
+#include "std_msgs/String.h"
 
 
 namespace asrv{
@@ -48,6 +49,8 @@ public:
 
     void sendOrient(const geometry_msgs::Quaternion &orient_msg);
 
+    void sendString(const std_msgs::String& string_msg);
+
 private:
 
     void pose_callback(const geometry_msgs::PoseConstPtr& msg);
@@ -61,6 +64,7 @@ private:
     ros::Publisher                          damping_pub;
     ros::Publisher                          grav_pub;
     ros::Publisher                          orient_pub;
+    ros::Publisher                          string_pub;
     ros::Subscriber                         pose_sub;
 
 protected:
@@ -74,6 +78,7 @@ protected:
     geometry_msgs::Quaternion               orient_msg;
 
     std_msgs::Bool                          grav_msg;
+    std_msgs::String                        string_msg;
 
     tf::Pose                                ee_pose_current;
     bool                                    b_received;

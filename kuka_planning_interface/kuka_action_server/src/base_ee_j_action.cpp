@@ -11,9 +11,9 @@ Base_ee_j_action::Base_ee_j_action(ros::NodeHandle&   nh, const std::string &con
     joint_pub     = nh.advertise<std_msgs::Float64MultiArray>("lwr/"  + controller_name + "/command_joint_pos",1);
     stiffness_pub = nh.advertise<std_msgs::Float64MultiArray>("/lwr/" + controller_name + "/stiffness",1);
     damping_pub   = nh.advertise<std_msgs::Float64MultiArray>("/lwr/" + controller_name + "/damping",1);
-    orient_pub       = nh.advertise<geometry_msgs::Quaternion>("/lwr/" + controller_name + "/command_orient",1);
-
-    grav_pub      = nh.advertise<std_msgs::Bool>("/lwr/" + controller_name + "/command_grav",1);
+    orient_pub    = nh.advertise<geometry_msgs::Quaternion>("/lwr/"   + controller_name + "/command_orient",1);
+    string_pub    = nh.advertise<std_msgs::String>("/lwr/"            + controller_name + "/command_string",1);
+    grav_pub      = nh.advertise<std_msgs::Bool>("/lwr/"              + controller_name + "/command_grav",1);
 
     damp_msg.data.resize(KUKA_NUM_JOINTS);
     stiff_msg.data.resize(KUKA_NUM_JOINTS);
@@ -49,6 +49,10 @@ void Base_ee_j_action::sendGrav(const std_msgs::Bool &grav_msg){
 
 void Base_ee_j_action::sendOrient(const geometry_msgs::Quaternion& orient_msg){
     orient_pub.publish(orient_msg);
+}
+
+void Base_ee_j_action::sendString(const std_msgs::String& string_msg){
+    string_pub.publish(string_msg);
 }
 
 void Base_ee_j_action::pose_callback(const geometry_msgs::PoseConstPtr &msg){

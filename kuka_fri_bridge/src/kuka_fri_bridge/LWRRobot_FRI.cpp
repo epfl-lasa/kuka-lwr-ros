@@ -73,7 +73,6 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
     {
 
         if(mSwitched){
-            ROS_INFO_STREAM_THROTTLE(1.0,"time: " << period.toSec());
             mFRI->WaitForKRCTick();
         }
 
@@ -87,7 +86,7 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
         case NONE:
             break;
         case JOINT_POSITION:
-            ROS_INFO_STREAM_THROTTLE(1.0,"case ==> JOINT_POSITION:");
+            ROS_INFO_STREAM_THROTTLE(2.0,"case ==> JOINT_POSITION:");
 
             for (int j = 0; j < n_joints_; j++)
             {
@@ -102,9 +101,6 @@ void LWRRobot_FRI::write(ros::Time time, ros::Duration period)
         case CARTESIAN_IMPEDANCE:
             break;
         case JOINT_IMPEDANCE:
-            ROS_INFO_STREAM_THROTTLE(1.0,"case ==> JOINT_IMPEDANCE:");
-            ROS_INFO_STREAM_THROTTLE(1.0,"D: " << joint_damping_command_[0]);
-
             for(int j=0; j < n_joints_; j++)
             {
                 newJntPosition[j]     = joint_position_command_[j];
@@ -200,8 +196,7 @@ bool LWRRobot_FRI::SetControlMode(ControlStrategy desiredMode){
             std::cout<<"Error: "<<result<<std::endl;
             return 1;
         }
-    }
-    else if(desiredMode == JOINT_IMPEDANCE){
+    }else if(desiredMode == JOINT_IMPEDANCE){
         std::cout<< "desiredMode ==  JOINT_IMPEDANCE" << std::endl;
         mFRI->SetKRLBoolValue(0,true);
         std::cout<< "Waiting for script..." << std::endl;
@@ -213,32 +208,7 @@ bool LWRRobot_FRI::SetControlMode(ControlStrategy desiredMode){
             return 1;
         }
         std::cout<< "Robot set in joint impedance mode." << std::endl;
-    }/*
-    else if(desiredMode == JOINT_EFFORT){
-        mFRI->SetKRLBoolValue(0,true);
-        std::cout<< "Waiting for script..." << std::endl;
-        mFRI-> WaitForKRCTick();
-        int result =  mFRI->StartRobot(FastResearchInterface::JOINT_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);
-        if(result != EOK && result != EALREADY)
-        {
-            std::cout<<"Error: "<<result<<std::endl;
-            return 1;
-        }
-        float newJntStiff[n_joints_];
-        float newJntDamp[n_joints_];
-        float newJntTorque[n_joints_];
-
-        for (int j = 0; j < n_joints_; j++)
-        {
-            newJntDamp[j]     = 0;
-            newJntStiff[j]    = 0;
-            newJntTorque[j]   = 0;
-        }
-        mFRI->SetCommandedJointDamping(newJntDamp);
-        mFRI->SetCommandedJointStiffness(newJntStiff);
-        mFRI->SetCommandedJointTorques(newJntTorque);
-        std::cout<< "Robot set in torque control mode." << std::endl;
-    }*/
+    }
     else if(desiredMode == GRAVITY_COMPENSATION){
         std::cout<< "Waiting for script..." << std::endl;
         int result =  mFRI->StartRobot(FastResearchInterface::JOINT_IMPEDANCE_CONTROL, FRI_CONN_TIMEOUT_SEC);

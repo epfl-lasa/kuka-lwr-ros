@@ -66,7 +66,34 @@ catkin_package(
   LIBRARIES ${PROJECT_NAME}
 )
 
+
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+include_directories(${INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${INCLUDE_STATISTICS})
+
+
+set(INC_FILES ${INCLUDE_DIR}/controllers/gravity_compensation.h
+              ${INCLUDE_DIR}/controllers/base_controllers.h
+              ${INCLUDE_DIR}/controllers/joint_position.h
+              ${INCLUDE_DIR}/controllers/open_loop_cartesian.h
+              ${INCLUDE_DIR}/controllers/change_ctrl_mode.h
+              ${INCLUDE_DIR}/controllers/passive_ds.h)
+
+set(SRC_FILES ${SRC_DIR}/controllers/gravity_compensation.cpp
+              ${SRC_DIR}/controllers/joint_position.cpp
+              ${SRC_DIR}/controllers/open_loop_cartesian.cpp
+              ${SRC_DIR}/controllers/change_ctrl_mode.cpp
+              ${SRC_DIR}/controllers/passive_ds.cpp
+)
+
+
 add_library(${PROJECT_NAME}
+  include/utils/definitions.h
+  include/utils/pseudo_inversion.h
+  include/utils/skew_symmetric.h
+  include/utils/safety.h
+  include/lwr_controllers/KinematicChainControllerBase.h
   include/lwr_controllers/KinematicChainControllerBase.h
   include/lwr_controllers/one_task_inverse_kinematics.h
   include/lwr_controllers/kuka_joint_state_controller.h
@@ -74,29 +101,16 @@ add_library(${PROJECT_NAME}
   include/lwr_controllers/joint_controllers.h
   include/lwr_controllers/joint_kinematics_imp.h
   include/lwr_controllers/PIDKinematicChainControllerBase.h
-
-  #src/joint_impedance_controller.cpp
   src/joint_position_impedance_controller.cpp
   src/kuka_joint_state_controller.cpp
-
-
-  #src/inverse_dynamics_controller.cpp
-  #src/computed_torque_controller.cpp
   src/one_task_inverse_kinematics.cpp
   src/joint_kinematics_imp.cpp
   src/joint_controllers.cpp
-  #src/multi_task_priority_inverse_kinematics.cpp
-  #src/multi_task_priority_inverse_dynamics.cpp
-  #src/minimum_effort_inverse_dynamics.cpp
-  #src/backstepping_controller.cpp
-  #src/dynamic_sliding_mode_controller.cpp
-  #src/dynamic_sliding_mode_controller_task_space.cpp
-  #src/one_task_inverse_dynamics_jl.cpp
-  #src/gravity_compensation.cpp
+  ${INC_FILES}
+  ${SRC_FILES}
 )
 
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencpp ${PROJECT_NAME}_gencfg)
-
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 
