@@ -142,6 +142,13 @@ to use ROS and the KUKA robot.
 
 ### PC-HUB-KUKA control
 
+# Useful tips
+
+## KUKA Panel Interface
+
+* If you press FRI OPEN before running the script the communication between your PC and the robot controller
+  will be stuck at 50 Hz, until you reboot the KUKA robot PC. To avoid this you should run the script until you
+  reach friOpen(2), which will set the communication at 500 Hz. If you want higher you should edit the friOpen script.
 
 # Concept
 
