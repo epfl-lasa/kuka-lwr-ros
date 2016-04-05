@@ -29,6 +29,7 @@ link_directories(${catkin_LIBRARY_DIRS})
 
 add_message_files(
    FILES
+   FF_FB_plan.msg
    PoseRPY.msg
    RPY.msg
    MultiPriorityTask.msg
@@ -77,12 +78,14 @@ set(INC_FILES ${INCLUDE_DIR}/controllers/gravity_compensation.h
               ${INCLUDE_DIR}/controllers/base_controllers.h
               ${INCLUDE_DIR}/controllers/joint_position.h
               ${INCLUDE_DIR}/controllers/open_loop_cartesian.h
+              ${INCLUDE_DIR}/controllers/ff_fb_cartesian.h
               ${INCLUDE_DIR}/controllers/change_ctrl_mode.h
               ${INCLUDE_DIR}/controllers/passive_ds.h)
 
 set(SRC_FILES ${SRC_DIR}/controllers/gravity_compensation.cpp
               ${SRC_DIR}/controllers/joint_position.cpp
               ${SRC_DIR}/controllers/open_loop_cartesian.cpp
+              ${SRC_DIR}/controllers/ff_fb_cartesian.cpp
               ${SRC_DIR}/controllers/change_ctrl_mode.cpp
               ${SRC_DIR}/controllers/passive_ds.cpp
 )

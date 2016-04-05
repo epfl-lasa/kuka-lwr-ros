@@ -8,7 +8,8 @@ namespace lwr_controllers{
 enum class CTRL_MODE{
     CART_VELOCITIY,         /// velocity
     JOINT_POSITION,         /// standard joint position controller (for goto joint pose)
-    GRAV_COMP               /// sets the controller into gravity compensation
+    GRAV_COMP,               /// sets the controller into gravity compensation
+    FF_FB_CARTESIAN             /// feedforward + feedback trajectory for the end effector
 };
 
 enum class ROBOT_CTRL_MODE
@@ -26,6 +27,8 @@ inline std::string ctrl_mod2str(CTRL_MODE mode)
         return "JOINT_POSITION";
     case CTRL_MODE::GRAV_COMP:
         return "GRAV_COMP";
+    case CTRL_MODE::FF_FB_CARTESIAN:
+        return "FF_FB_CARTESIAN";
     }
 
 }

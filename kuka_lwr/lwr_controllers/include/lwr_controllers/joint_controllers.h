@@ -36,6 +36,7 @@
 #include "controllers/gravity_compensation.h"
 #include "controllers/joint_position.h"
 #include "controllers/open_loop_cartesian.h"
+#include "controllers/ff_fb_cartesian.h"
 #include "controllers/change_ctrl_mode.h"
 
 #include "utils/definitions.h"
@@ -84,6 +85,7 @@ namespace lwr_controllers
 	private:
 
         controllers::Change_ctrl_mode                          change_ctrl_mode;
+        boost::scoped_ptr<controllers::FF_FB_cartesian>            ff_fb_controller;
         boost::scoped_ptr<controllers::Open_loop_cartesian>    cartesian_controller;
         boost::scoped_ptr<controllers::Joint_position>         joint_position_controller;
         boost::scoped_ptr<controllers::Gravity_compensation>   gravity_compensation_controller;
@@ -125,8 +127,8 @@ namespace lwr_controllers
 
         boost::scoped_ptr<KDL::ChainDynParam>               id_solver_gravity_;
         boost::scoped_ptr<KDL::ChainJntToJacSolver>         jnt_to_jac_solver_;
-        boost::scoped_ptr<KDL::ChainFkSolverPos_recursive>  fk_pos_solver_;
 
+        boost::shared_ptr<KDL::ChainFkSolverPos_recursive>  fk_pos_solver_;
         boost::shared_ptr<KDL::ChainIkSolverVel_pinv>       ik_vel_solver_;
         boost::shared_ptr<KDL::ChainIkSolverPos_NR_JL>      ik_pos_solver_;
 

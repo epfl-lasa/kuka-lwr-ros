@@ -61,10 +61,12 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
     ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(kdl_chain_));
     ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(kdl_chain_,joint_limits_.min,joint_limits_.max,*fk_pos_solver_,*ik_vel_solver_));
 
+    ff_fb_controller.reset(new controllers::FF_FB_cartesian(nh_,change_ctrl_mode,ik_vel_solver_));
     cartesian_controller.reset(new controllers::Open_loop_cartesian(nh_,change_ctrl_mode,ik_vel_solver_));
     joint_position_controller.reset(new controllers::Joint_position(nh_,change_ctrl_mode));
     gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
 
+    change_ctrl_mode.add(ff_fb_controller.get());
     change_ctrl_mode.add(cartesian_controller.get());
     change_ctrl_mode.add(joint_position_controller.get());
     change_ctrl_mode.add(gravity_compensation_controller.get());
@@ -169,6 +171,13 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_VELOCITIY");
             cartesian_controller->cart_vel_update(tau_cmd_,joint_des_,joint_msr_,K_,D_,period);
+            robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
+            break;
+        }
+        case CTRL_MODE::FF_FB_CARTESIAN:
+        {
+            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> FF_FB_FORCE");
+            ff_fb_controller->cart_ff_fb_update(tau_cmd_,joint_des_,joint_msr_,K_,D_,period);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
         }
