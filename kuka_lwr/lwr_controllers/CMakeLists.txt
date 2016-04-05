@@ -77,11 +77,13 @@ set(INC_FILES ${INCLUDE_DIR}/controllers/gravity_compensation.h
               ${INCLUDE_DIR}/controllers/base_controllers.h
               ${INCLUDE_DIR}/controllers/joint_position.h
               ${INCLUDE_DIR}/controllers/open_loop_cartesian.h
+              ${INCLUDE_DIR}/controllers/cartesian_position.h
               ${INCLUDE_DIR}/controllers/change_ctrl_mode.h
               ${INCLUDE_DIR}/controllers/passive_ds.h)
 
 set(SRC_FILES ${SRC_DIR}/controllers/gravity_compensation.cpp
               ${SRC_DIR}/controllers/joint_position.cpp
+              ${SRC_DIR}/controllers/cartesian_position.cpp
               ${SRC_DIR}/controllers/open_loop_cartesian.cpp
               ${SRC_DIR}/controllers/change_ctrl_mode.cpp
               ${SRC_DIR}/controllers/passive_ds.cpp

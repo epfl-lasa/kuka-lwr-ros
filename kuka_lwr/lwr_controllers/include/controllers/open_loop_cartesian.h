@@ -19,7 +19,7 @@
 namespace controllers
 {
 
-class Open_loop_cartesian : public Base_controllers {
+class Cartesian_velocity : public Base_controllers {
 
 public:
 
@@ -31,7 +31,7 @@ public:
 
 public:
 
-    Open_loop_cartesian(ros::NodeHandle &nh,
+    Cartesian_velocity(ros::NodeHandle &nh,
                         controllers::Change_ctrl_mode& change_ctrl_mode,
                         boost::shared_ptr<KDL::ChainIkSolverVel_pinv>& ik_vel_solver);
 
@@ -46,8 +46,6 @@ public:
 
 private:
 
-    void command_cart_pos(const geometry_msgs::PoseConstPtr &msg);
-
     void command_cart_vel(const geometry_msgs::TwistConstPtr& msg);
 
     void command_orient(const geometry_msgs::Quaternion &msg);
@@ -56,7 +54,6 @@ private:
 
     Change_ctrl_mode &change_ctrl_mode;
 
-    ros::Subscriber     sub_command_pose_;
     ros::Subscriber     sub_command_vel_;
     ros::Subscriber     sub_command_orient_;
 

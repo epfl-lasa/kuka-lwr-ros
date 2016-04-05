@@ -33,18 +33,18 @@
 
 #include <boost/scoped_ptr.hpp>
 
+#include <realtime_tools/realtime_publisher.h>
+
+
 #include "controllers/gravity_compensation.h"
 #include "controllers/joint_position.h"
 #include "controllers/open_loop_cartesian.h"
+#include "controllers/cartesian_position.h"
 #include "controllers/change_ctrl_mode.h"
 
 #include "utils/definitions.h"
 
 
-/*
-	tau_cmd_ = K_*(q_des_ - q_msr_) + D_*dotq_msr_ + G(q_msr_)
-
-*/
 
 namespace lwr_controllers
 {
@@ -66,6 +66,10 @@ namespace lwr_controllers
 
     private:
 
+        void publish();
+
+    private:
+
         void command_set_cart_type(const std_msgs::Int32& msg);
         void setStiffness(const std_msgs::Float64MultiArray::ConstPtr &msg);
         void setDamping(const std_msgs::Float64MultiArray::ConstPtr &msg);
@@ -84,7 +88,8 @@ namespace lwr_controllers
 	private:
 
         controllers::Change_ctrl_mode                          change_ctrl_mode;
-        boost::scoped_ptr<controllers::Open_loop_cartesian>    cartesian_controller;
+        boost::scoped_ptr<controllers::Cartesian_velocity>     cartesian_velocity_controller;
+        boost::scoped_ptr<controllers::Cartesian_position>     cartesian_position_controller;
         boost::scoped_ptr<controllers::Joint_position>         joint_position_controller;
         boost::scoped_ptr<controllers::Gravity_compensation>   gravity_compensation_controller;
 
@@ -93,7 +98,6 @@ namespace lwr_controllers
 
         ros::Subscriber sub_stiff_;
         ros::Subscriber sub_damp_;
-        ros::Subscriber sub_command_string_;
 
         ros::Publisher pub_qdot_,pub_F_,pub_tau_;
         std_msgs::Float64MultiArray qdot_msg, F_msg, tau_msg;
@@ -106,22 +110,13 @@ namespace lwr_controllers
 
         std::size_t         num_ctrl_joints;
 
-        KDL::Frame          x_;		//current pose
-        KDL::Jacobian       J_;	//Jacobian
+        KDL::Frame          x_;     // current pose
+        KDL::Frame          x_des_; // desired pose
+        KDL::Jacobian       J_;     // Jacobian
 
         ros::Time           last_publish_time_;
         double              publish_rate_;
 
-
-        struct quaternion_
-        {
-            KDL::Vector v;
-            double a;
-        } quat_curr_, quat_des_;
-
-        KDL::Vector v_temp_;
-
-        bool cmd_flag_;
 
         boost::scoped_ptr<KDL::ChainDynParam>               id_solver_gravity_;
         boost::scoped_ptr<KDL::ChainJntToJacSolver>         jnt_to_jac_solver_;
@@ -130,14 +125,18 @@ namespace lwr_controllers
         boost::shared_ptr<KDL::ChainIkSolverVel_pinv>       ik_vel_solver_;
         boost::shared_ptr<KDL::ChainIkSolverPos_NR_JL>      ik_pos_solver_;
 
+        /// Publishers
+
+        boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Pose> > realtime_pose_pub_;
+
+        /// Dynamic Parameters
 
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::damping_paramConfig> >         dynamic_server_D_param;
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::stiffness_paramConfig> >       dynamic_server_K_param;
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::damping_param_allConfig> >     dynamic_server_D_all_param;
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::stiffness_param_allConfig> >   dynamic_server_K_all_param;
 
-
-        ros::NodeHandle nd1, nd2, nd3,nd4, nd6;
+        ros::NodeHandle nd1, nd2, nd3,nd4;
 
         lwr_controllers::CTRL_MODE       ctrl_mode;
         lwr_controllers::ROBOT_CTRL_MODE robot_ctrl_mode;
