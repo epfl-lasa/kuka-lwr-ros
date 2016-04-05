@@ -9,7 +9,9 @@
 
 namespace lwr_controllers
 {
+
 JointKinematiscImp::JointKinematiscImp() {}
+
 JointKinematiscImp::~JointKinematiscImp() {}
 
 bool JointKinematiscImp::init(hardware_interface::PositionJointInterface *robot, ros::NodeHandle &n)

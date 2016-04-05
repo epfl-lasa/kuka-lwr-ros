@@ -9,7 +9,7 @@
 #include "lwr_controllers/joint_controllers.h"
 #include "utils/safety.h"
 
-int thrott_time = 5;
+int thrott_time = 2;
 
 namespace lwr_controllers {
 
@@ -22,10 +22,8 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
 
     KinematicChainControllerBase<hardware_interface::PositionJointInterface>::init(robot, n);
 
-    if ( !n.getParam("max_qdot",max_dqot) ){
-        ROS_WARN_STREAM("maximum allowed velocity not set in parameter server, default value of 1 rad/s set");
-        max_dqot=1.0;
-    }
+
+    /// Initialise Jacobian and stiffness/damping arrays
 
     K_.resize(kdl_chain_.getNrOfJoints());
     D_.resize(kdl_chain_.getNrOfJoints());
@@ -35,20 +33,31 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
     pos_cmd_.resize(kdl_chain_.getNrOfJoints());
     tau_cmd_.resize(kdl_chain_.getNrOfJoints());
 
+    J_.resize(kdl_chain_.getNrOfJoints());
+    ROS_INFO("JointControllers::init finished initialise [Jacobian]!");
 
-    D_.data.setZero();
-    K_.data.setZero();
-    tau_cmd_.data.setZero();
+    /// Get ROS parameters
+
+    if ( !n.getParam("max_qdot",max_dqot) ){
+        ROS_WARN_STREAM("maximum allowed velocity not set in parameter server, default value of 1 rad/s set");
+        max_dqot=1.0;
+    }
+    if ( !n.getParam("publish_rate",publish_rate_) ){
+        ROS_WARN_STREAM("publish rate not found, set to default 100 Hz");
+        publish_rate_=100;
+    }
+    ROS_INFO("JointControllers::init finished initialise [ROS parm]!");
 
 
-    ROS_INFO("Loading resource for stiffness values");
-    // Get joint handles for all of the joints in the chain
+    /// Joint resource handles
+
     for(std::size_t i = 0; i < joint_handles_.size(); i++)
     {
         joint_handles_stiffness.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()  + "_stiffness"));
         joint_handles_damping.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()    + "_damping"));
         joint_handles_torque.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()     + "_torque"));
     }
+    ROS_INFO("JointControllers::init finished initialise [resource handles]!");
 
     qdot_msg.data.resize(kdl_chain_.getNrOfJoints());
 
@@ -61,13 +70,15 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
     ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(kdl_chain_));
     ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(kdl_chain_,joint_limits_.min,joint_limits_.max,*fk_pos_solver_,*ik_vel_solver_));
 
-    ff_fb_controller.reset(new controllers::FF_FB_cartesian(nh_,change_ctrl_mode,ik_vel_solver_));
-    cartesian_controller.reset(new controllers::Open_loop_cartesian(nh_,change_ctrl_mode,ik_vel_solver_));
+    cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode,ik_vel_solver_));
+    cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
+    ff_fb_controller.reset(new controllers::FF_FB_cartesian(nh_,change_ctrl_mode));
     joint_position_controller.reset(new controllers::Joint_position(nh_,change_ctrl_mode));
     gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
 
     change_ctrl_mode.add(ff_fb_controller.get());
-    change_ctrl_mode.add(cartesian_controller.get());
+    change_ctrl_mode.add(cartesian_velocity_controller.get());
+    change_ctrl_mode.add(cartesian_position_controller.get());
     change_ctrl_mode.add(joint_position_controller.get());
     change_ctrl_mode.add(gravity_compensation_controller.get());
 
@@ -83,14 +94,22 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
         pos_cmd_(i)      = joint_des_.q(i);
 
     }
+    /// Publishers
 
+    realtime_pose_pub_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Pose>(n,"des_ee_pos",4));
     sub_stiff_             = nh_.subscribe("stiffness",        1, &JointControllers::setStiffness,         this);
     sub_damp_              = nh_.subscribe("damping",          1, &JointControllers::setDamping,           this);
-    sub_command_string_    = nh_.subscribe("command_string",   1, &JointControllers::command_string,       this);
+    // for debug
+    //pub_qdot_              = n.advertise<std_msgs::Float64MultiArray>("qdot",10);
+    //pub_F_                 = n.advertise<std_msgs::Float64MultiArray>("F_ee",10);
+    //pub_tau_               = n.advertise<std_msgs::Float64MultiArray>("tau_cmd",10);
+    // qdot_msg.data.resize(kdl_chain_.getNrOfJoints());
+    // F_msg.data.resize(6);
+    // tau_msg.data.resize(7);
+    ROS_INFO("JointControllers::init finished initialise [publishers]!");
 
-    pub_qdot_              = n.advertise<std_msgs::Float64MultiArray>("qdot",10);
-    pub_F_                 = n.advertise<std_msgs::Float64MultiArray>("F_ee",10);
-    pub_tau_               = n.advertise<std_msgs::Float64MultiArray>("tau_cmd",10);
+
+    /// Dynamic reconfigure
 
     nd1 = ros::NodeHandle("D_param");
     nd2 = ros::NodeHandle("K_param");
@@ -103,30 +122,55 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
     dynamic_server_D_all_param.reset(new    dynamic_reconfigure::Server< lwr_controllers::damping_param_allConfig   >(nd3));
     dynamic_server_K_all_param.reset(new    dynamic_reconfigure::Server< lwr_controllers::stiffness_param_allConfig >(nd4));
 
-
     dynamic_server_D_param->setCallback(     boost::bind(&JointControllers::damping_callback,      this, _1, _2));
     dynamic_server_K_param->setCallback(     boost::bind(&JointControllers::stiffness_callback,    this, _1, _2));
 
     dynamic_server_D_all_param->setCallback( boost::bind(&JointControllers::damping_all_callback,  this, _1, _2));
     dynamic_server_K_all_param->setCallback( boost::bind(&JointControllers::stiffness_all_callback,this, _1, _2));
+    ROS_INFO("JointControllers::init finished initialise [dynamic reconfigure]!");
 
 
+    /// Solvers (Kinematics, etc...)
 
-    publish_rate_          = 100;
+    jnt_to_jac_solver_.reset(new KDL::ChainJntToJacSolver(kdl_chain_));
+    fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
+    ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(kdl_chain_));
+    ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(kdl_chain_,joint_limits_.min,joint_limits_.max,*fk_pos_solver_,*ik_vel_solver_));
+    ROS_INFO("JointControllers::init finished initialise [kinematic solvers]!");
 
 
+    /// Controllers (joint position ,cartesian velocity/position,..)
 
-    F_msg.data.resize(6);
-    tau_msg.data.resize(7);
+    cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode,ik_vel_solver_));
+    joint_position_controller.reset(new controllers::Joint_position(nh_,change_ctrl_mode));
+    gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
+    cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
 
-    std::cout<< "finished init" << std::endl;
+    change_ctrl_mode.add(cartesian_velocity_controller.get());
+    change_ctrl_mode.add(joint_position_controller.get());
+    change_ctrl_mode.add(gravity_compensation_controller.get());
+    change_ctrl_mode.add(cartesian_position_controller.get());
+
+    ROS_INFO("JointControllers::init finished initialise [controllers]!");
+
+    // get joint positions
+    for(std::size_t i=0; i < joint_handles_.size(); i++)
+    {
+        joint_msr_.q(i)    = joint_handles_[i].getPosition();
+        joint_msr_.qdot(i) = joint_handles_[i].getVelocity();
+        joint_des_.q(i)    = joint_msr_.q(i);
+        joint_des_.qdot(i) = 0;
+        pos_cmd_(i)      = joint_des_.q(i);
+
+    }
+    ROS_INFO("JointControllers::init finished initialise [joint position values]!");
+
+    ROS_INFO("Joint_controllers initialised!");
     return true;
 }
 
 void JointControllers::starting(const ros::Time& time)
 {
-    ROS_INFO("JointControllers::starting");
-    // get joint positions
     for(size_t i=0; i<joint_handles_.size(); i++) {
         joint_msr_.q(i)    = joint_handles_[i].getPosition();
         joint_msr_.qdot(i) = joint_handles_[i].getVelocity();
@@ -141,7 +185,8 @@ void JointControllers::starting(const ros::Time& time)
         joint_handles_stiffness[i].setCommand(K_cmd(i));
         joint_handles_damping[i].setCommand(D_cmd(i));
     }
-    std::cout<< "finished starting" << std::endl;
+    last_publish_time_ = time;
+    ROS_INFO(" JointControllers::starting finished!");
 }
 
 void JointControllers::update(const ros::Time& time, const ros::Duration& period)
@@ -150,9 +195,8 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     for(size_t i=0; i<joint_handles_.size(); i++) {
         joint_msr_.q(i)           = joint_handles_[i].getPosition();
         joint_msr_.qdot(i)        = joint_handles_[i].getVelocity();
-        qdot_msg.data[i]          = joint_msr_.qdot(i);
+       // qdot_msg.data[i]          = joint_msr_.qdot(i);
     }
-    pub_qdot_.publish(qdot_msg);
     jnt_to_jac_solver_->JntToJac(joint_msr_.q,J_);
     fk_pos_solver_->JntToCart(joint_msr_.q, x_);
 
@@ -170,7 +214,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         case CTRL_MODE::CART_VELOCITIY:
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_VELOCITIY");
-            cartesian_controller->cart_vel_update(tau_cmd_,joint_des_,joint_msr_,K_,D_,period);
+            cartesian_velocity_controller->cart_vel_update(tau_cmd_,joint_des_,joint_msr_,K_,D_,period);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
         }
@@ -179,6 +223,13 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> FF_FB_FORCE");
             ff_fb_controller->cart_ff_fb_update(tau_cmd_,joint_des_,joint_msr_,K_,D_,period);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
+	    break;
+	}
+        case CTRL_MODE::CART_POSITION:
+        {
+            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_POSITION");
+            cartesian_position_controller->update(x_,J_,joint_des_,period);
+            robot_ctrl_mode = ROBOT_CTRL_MODE::POSITION_IMP;
             break;
         }
         case CTRL_MODE::JOINT_POSITION:
@@ -209,6 +260,8 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         }
     }
 
+    fk_pos_solver_->JntToCart(joint_des_.q, x_des_);
+
     if(robot_ctrl_mode == ROBOT_CTRL_MODE::TORQUE_IMP)
     {
         ROS_INFO_STREAM_THROTTLE(thrott_time,"   TORQUE_IMP    ");
@@ -226,6 +279,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
             pos_cmd_(i)      = joint_des_.q(i);
         }
     }
+
 
     ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
     ROS_INFO_STREAM_THROTTLE(thrott_time,"K_cmd:    " << K_cmd(0) << " " << K_cmd(1) << " " << K_cmd(2) << " " << K_cmd(3) << " " << K_cmd(4) << " " << K_cmd(5) << " " << K_cmd(6));
@@ -248,16 +302,38 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     }
 
     for(size_t i=0; i<joint_handles_.size(); i++) {
-        tau_msg.data[i] =tau_cmd_(i);
         joint_handles_stiffness[i].setCommand(K_cmd(i));
         joint_handles_damping[i].setCommand(D_cmd(i));
         joint_handles_torque[i].setCommand(tau_cmd_(i));
         joint_handles_[i].setCommand(pos_cmd_(i));
-
     }
-    // pub_tau_.publish(tau_msg);
+
+    /// Publish
+    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
+        publish();
+    }
+
 }
 
+void JointControllers::publish(){
+
+    if (realtime_pose_pub_->trylock()){
+        // we're actually publishing, so increment time
+        last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
+
+        // populate joint state message
+        realtime_pose_pub_->msg_.position.x = x_des_.p(0);
+        realtime_pose_pub_->msg_.position.y = x_des_.p(1);
+        realtime_pose_pub_->msg_.position.z = x_des_.p(2);
+
+        x_des_.M.GetQuaternion(realtime_pose_pub_->msg_.orientation.x,
+                               realtime_pose_pub_->msg_.orientation.y,
+                               realtime_pose_pub_->msg_.orientation.z,
+                               realtime_pose_pub_->msg_.orientation.w);
+
+        realtime_pose_pub_->unlockAndPublish();
+    }
+}
 
 
 void JointControllers::command_string(const std_msgs::String::ConstPtr& msg){
@@ -299,6 +375,11 @@ void JointControllers::setDamping(const std_msgs::Float64MultiArray::ConstPtr &m
 }
 
 void JointControllers::damping_callback(damping_paramConfig &config, uint32_t level){
+    if(D_.data.size() != 7)
+    {
+        ROS_WARN("D_.data.size() != 7  [JointControllers::damping_callback]!");
+        return;
+    }
     D_(0) = config.damp_0_joint;
     D_(1) = config.damp_1_joint;
     D_(2) = config.damp_2_joint;
@@ -309,6 +390,11 @@ void JointControllers::damping_callback(damping_paramConfig &config, uint32_t le
 }
 
 void JointControllers::stiffness_callback(lwr_controllers::stiffness_paramConfig& config, uint32_t level){
+    if(K_.data.size() != 7)
+    {
+        ROS_WARN("K_.data.size() != 7  [JointControllers::stiffness_callback]!");
+        return;
+    }
     K_(0) = config.K_0_joint;
     K_(1) = config.K_1_joint;
     K_(2) = config.K_2_joint;
@@ -319,13 +405,20 @@ void JointControllers::stiffness_callback(lwr_controllers::stiffness_paramConfig
 }
 
 void JointControllers::damping_all_callback(lwr_controllers::damping_param_allConfig& config,uint32_t level){
+    if(static_cast<std::size_t>(D_.data.size()) != joint_handles_.size()){
+        ROS_WARN("D_.data.size() != joint_handles_.size() [JointControllers::damping_all_callback]!");
+        return;
+    }
     for(std::size_t i = 0; i < joint_handles_.size();i++){
         D_(i)    = config.D;
     }
-
 }
 
 void JointControllers::stiffness_all_callback(lwr_controllers::stiffness_param_allConfig& config, uint32_t level){
+    if(static_cast<std::size_t>(K_.data.size()) != joint_handles_.size()){
+        ROS_WARN("K_.data.size() != joint_handles_.size() [JointControllers::stiffness_all_callback]!");
+        return;
+    }
     for(std::size_t i = 0; i < joint_handles_.size();i++){
         K_(i)    = config.K;
     }

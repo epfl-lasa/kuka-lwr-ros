@@ -64,9 +64,6 @@ namespace controller_interface
         std::cout<< "--------------------> name_space:  " << name_space << std::endl;
         std::cout<< "--------------------> name_space2: " << naemspace_2 << std::endl;
 
-
-        //exit(0);
-
         if (!ros::param::search(n.getNamespace(),"robot_description", robot_description))
         {
             ROS_ERROR_STREAM("KinematicChainControllerBase: No robot description (URDF) found on parameter server ("<<n.getNamespace()<<"/robot_description)");
@@ -165,7 +162,7 @@ namespace controller_interface
         joint_limits_.center.resize(kdl_chain_.getNrOfJoints());
         int index;
         
-       for (int i = 0; i < kdl_chain_.getNrOfJoints() && link_; i++)
+       for (std::size_t i = 0; i < kdl_chain_.getNrOfJoints() && link_; i++)
         {
             joint_ = model.getJoint(link_->parent_joint->name);  
             ROS_INFO("Getting limits for joint: %s", joint_->name.c_str());

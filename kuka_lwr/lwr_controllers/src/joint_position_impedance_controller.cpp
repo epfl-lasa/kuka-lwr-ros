@@ -38,12 +38,12 @@ bool JointPositionImpedanceController::init(hardware_interface::PositionJointInt
     K_.resize(num_ctrl_joints);
     D_.resize(num_ctrl_joints);
 
-    for (int i = 0; i < joint_handles_.size(); ++i){
+    for (std::size_t i = 0; i < joint_handles_.size(); ++i){
         if ( !n.getParam("stiffness_gains", K_(i) ) ){
             ROS_WARN("Stiffness gain not set in yaml file, Using %f", K_(i));
         }
     }
-    for (int i = 0; i < joint_handles_.size(); ++i){
+    for (std::size_t i = 0; i < joint_handles_.size(); ++i){
         if ( !n.getParam("damping_gains", D_(i)) ){
             ROS_WARN("Damping gain not set in yaml file, Using %f", D_(i));
         }

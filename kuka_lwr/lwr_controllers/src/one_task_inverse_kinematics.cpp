@@ -203,8 +203,6 @@ void OneTaskInverseKinematics::update(const ros::Time& time, const ros::Duration
             if (joint_des_.q(i) > joint_limits_.max(i))
                 joint_des_.q(i) = joint_limits_.max(i);
         }
-
-
     }
 
     // set controls for joints

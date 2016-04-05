@@ -127,9 +127,6 @@ namespace lwr_controllers
         double Kd;
         double Ki;
 
-
-
-
         Ctrl_type ctrl_type;
 	};
 
