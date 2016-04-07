@@ -3,7 +3,7 @@
 
 # Installation
 Do the following steps:
-* In your catking src directory clone the repository
+* In your catkin src directory clone the repository
 ```
 $ git clone https://github.com/epfl-lasa/kuka-lwr-ros.git
 ```
