@@ -3,7 +3,7 @@
   <material name="Kuka/DarkGrey">
     <color rgba="0.3 0.3 0.3 1.0"/>
   </material>
-  
+
   <material name="Kuka/LightGrey">
     <color rgba="0.8 0.8 0.8 1.0"/>
   </material>

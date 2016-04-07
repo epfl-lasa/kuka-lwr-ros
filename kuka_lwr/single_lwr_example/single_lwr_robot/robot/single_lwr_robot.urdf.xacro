@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="single_lwr_robot">
 
-	<!-- Include all models -->
-	<xacro:include filename="$(find lwr_description)/model/kuka_lwr.urdf.xacro"/>
+  <!-- Include all models -->
+  <xacro:include filename="$(find lwr_description)/model/kuka_lwr.urdf.xacro"/>
 
 
-	<!-- using the models -->
-	<xacro:kuka_lwr name="lwr">
-		<origin xyz="0 0 0" rpy="0 0 0"/>
-	</xacro:kuka_lwr>
+  <!-- using the models -->
+  <xacro:kuka_lwr name="lwr">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:kuka_lwr>
 
 </robot>
