@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+
+	<node name="client_console_node" pkg="simple_example" type="client_console_node" required="true" output="screen">
+  	</node>	
+	
+</launch>

@@ -85,7 +85,7 @@ void Cartesian_position::stop(){
 void Cartesian_position::command_cart_pos(const geometry_msgs::PoseConstPtr &msg)
 {
 
-    ROS_INFO("command_cart_pos callback!");
+   // ROS_INFO("================================================> command_cart_pos callback!");
     KDL::Frame frame_des_(
                 KDL::Rotation::Quaternion(msg->orientation.x,msg->orientation.y,msg->orientation.z,msg->orientation.w),
                 KDL::Vector(msg->position.x,msg->position.y,msg->position.z));

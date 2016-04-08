@@ -1,0 +1,15 @@
+lwr:
+
+  # Publish all joint states -----------------------------------
+  kuka_joint_state_controller:
+    type: lwr_controllers/KUKAJointStateController
+    publish_rate: 100  
+    root_name: lwr_base_link
+    tip_name: lwr_7_link
+
+  joint_controllers:
+    type: lwr_controllers/JointControllers
+    root_name: lwr_base_link
+    tip_name: lwr_7_link
+
+

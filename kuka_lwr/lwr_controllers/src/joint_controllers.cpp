@@ -72,11 +72,11 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
 
     cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode,ik_vel_solver_));
     cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
-    ff_fb_controller.reset(new controllers::FF_FB_cartesian(nh_,change_ctrl_mode));
+   // ff_fb_controller.reset(new controllers::FF_FB_cartesian(nh_,change_ctrl_mode));
     joint_position_controller.reset(new controllers::Joint_position(nh_,change_ctrl_mode));
     gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
 
-    change_ctrl_mode.add(ff_fb_controller.get());
+   // change_ctrl_mode.add(ff_fb_controller.get());
     change_ctrl_mode.add(cartesian_velocity_controller.get());
     change_ctrl_mode.add(cartesian_position_controller.get());
     change_ctrl_mode.add(joint_position_controller.get());
