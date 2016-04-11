@@ -48,17 +48,20 @@ you are ready to run an example. Open a new terminal and run the following:
 ```sh
 $ roslaunch simple_example sim.launch
 ```
-This will run the simulator and the Gazebo simulator and ROS Rviz visualiser GUIs should both open. In the
+This will run the simulator and the Gazebo simulator and ROS Rviz visualiser GUIs should both open. If the Gazebo 
+window does not open this is because a flag is set in the sim.launch file. In the
 caption below Rviz is on the left and Gazebo is on the right.
 
 ![alt text](readme/gazebo_rviz.png "Gazebo and Rviz GUIs")
 
-Now that the simulations are up and running we are ready to control the robot. For this we need both the action
-server and client. In two new terminals run the following lines
-
+Now that the simulations are up and running we are ready to control the robot.
+In on terminal run the following:
 ```sh
-$ roslaunch simple_example server.launch
 $ roslaunch simple_example client.launch
+```
+and in another:
+```sh
+$ roslaunch simple_example console.launch
 ```
 
 You should have the following triptych view in your console
