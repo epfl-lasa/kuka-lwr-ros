@@ -26,18 +26,14 @@ instructions on how to install it on ubuntu.
 
 Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR).
 
-* [**kuka_fri_bridge**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/kuka_fri_bridge)         interface and run the physical robot.
 
-* [**kuka_lwr**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/kuka_lwr)                 contains URDF robot description and hardware interface controllers with configuration files.
+* [**kuka_lwr**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/kuka_lwr) contains URDF robot description, hardware interface, controllers with configuration files.
 
-* [**kuka_planning_interface**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/kuka_planning_interface)  containes action client & server implementation.
+* [**lwr_ros_client**](https://github.com/epfl-lasa/kuka-lwr-ros) basic implemenation of action handling such that it is easy to call different types of policies.
 
 * [**robot_motion_generation**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/robot_motion_generation)  utilities such as filters for smoothing robot motion.
 
-* [**std_tools_fri**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/std_tools_fri)            display console
-
-Of these packages only the first three are important, the last contain utilities. The dependencies
-for this package are
+* [**lwr_examples**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/std_tools_fri) set of examples of how to use the KUKA with different controllers and environments.
 
 
 # Quick Start (Simulation)
