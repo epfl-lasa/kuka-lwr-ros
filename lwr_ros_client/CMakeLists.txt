@@ -8,7 +8,6 @@ roscpp
 std_msgs
 message_runtime
 message_generation
-joint_trajectory_action
 lwr_console
 lwr_ros_interface
 )
