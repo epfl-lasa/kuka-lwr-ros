@@ -171,13 +171,13 @@ void KUKAJointStateController::update(const ros::Time& time, const ros::Duration
             ROS_INFO_STREAM_THROTTLE(2.0,"kdl_chain_.nrOfSegments: " << kdl_chain_.getNrOfSegments());*/
 
 
-            static tf::TransformBroadcaster br1;
-            tf::Transform transform;
-            double x,y,z,w;
-            x_.M.GetQuaternion(x,y,z,w);
-            transform.setRotation(tf::Quaternion(x,y,z,w));
-            transform.setOrigin(tf::Vector3(x_.p.x(),x_.p.y(),x_.p.z()));
-            br1.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "EOF"));
+          //  static tf::TransformBroadcaster br1;
+          //  tf::Transform transform;
+          //  double x,y,z,w;
+          //  x_.M.GetQuaternion(x,y,z,w);
+          //  transform.setRotation(tf::Quaternion(x,y,z,w));
+          //  transform.setOrigin(tf::Vector3(x_.p.x(),x_.p.y(),x_.p.z()));
+          //  br1.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "EOF"));
 
 
 

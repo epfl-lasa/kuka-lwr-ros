@@ -7,7 +7,6 @@
 #include <urdf/model.h>
 #include <tf/transform_broadcaster.h>
 #include "lwr_controllers/joint_controllers.h"
-#include "utils/safety.h"
 
 int thrott_time = 2;
 
@@ -33,15 +32,13 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
     pos_cmd_.resize(kdl_chain_.getNrOfJoints());
     tau_cmd_.resize(kdl_chain_.getNrOfJoints());
 
+    joint_vel_msr_.resize(kdl_chain_.getNrOfJoints());
+
     J_.resize(kdl_chain_.getNrOfJoints());
     ROS_INFO("JointControllers::init finished initialise [Jacobian]!");
 
     /// Get ROS parameters
 
-    if ( !n.getParam("max_qdot",max_dqot) ){
-        ROS_WARN_STREAM("maximum allowed velocity not set in parameter server, default value of 1 rad/s set");
-        max_dqot=1.0;
-    }
     if ( !n.getParam("publish_rate",publish_rate_) ){
         ROS_WARN_STREAM("publish rate not found, set to default 100 Hz");
         publish_rate_=100;
@@ -62,13 +59,22 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
     qdot_msg.data.resize(kdl_chain_.getNrOfJoints());
 
 
+    /// Safety
 
+    safety.reset(           new lwr::safety::Safety(n));
+    contact_safety.reset(   new lwr::safety::Contact_safety(n));
+    speed_safety.reset(     new lwr::safety::Speed_safety(n,x_dt_msr_,joint_msr_.qdot));
+
+    safety->add(contact_safety.get());
+    safety->add(speed_safety.get());
 
     /// one_task_inverse_kinematics stuff
-    jnt_to_jac_solver_.reset(new KDL::ChainJntToJacSolver(kdl_chain_));
-    fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
-    ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(kdl_chain_));
-    ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(kdl_chain_,joint_limits_.min,joint_limits_.max,*fk_pos_solver_,*ik_vel_solver_));
+
+    jnt_to_jac_solver_.reset(   new KDL::ChainJntToJacSolver(kdl_chain_));
+    fk_pos_solver_.reset(       new KDL::ChainFkSolverPos_recursive(kdl_chain_));
+    fk_vel_solver_.reset(       new KDL::ChainFkSolverVel_recursive(kdl_chain_));
+    ik_vel_solver_.reset(       new KDL::ChainIkSolverVel_pinv(kdl_chain_));
+    ik_pos_solver_.reset(       new KDL::ChainIkSolverPos_NR_JL(kdl_chain_,joint_limits_.min,joint_limits_.max,*fk_pos_solver_,*ik_vel_solver_));
 
     cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode,ik_vel_solver_));
     cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
@@ -195,11 +201,13 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     for(size_t i=0; i<joint_handles_.size(); i++) {
         joint_msr_.q(i)           = joint_handles_[i].getPosition();
         joint_msr_.qdot(i)        = joint_handles_[i].getVelocity();
-       // qdot_msg.data[i]          = joint_msr_.qdot(i);
+        joint_vel_msr_.q(i)       = joint_msr_.q(i);
+        joint_vel_msr_.qdot(i)    = joint_msr_.qdot(i);
     }
-    jnt_to_jac_solver_->JntToJac(joint_msr_.q,J_);
-    fk_pos_solver_->JntToCart(joint_msr_.q, x_);
 
+    jnt_to_jac_solver_->JntToJac(joint_msr_.q,J_);
+    fk_pos_solver_->JntToCart(joint_msr_.q, x_msr_);
+    fk_vel_solver_->JntToCart(joint_vel_msr_,x_dt_msr_);
 
     if(change_ctrl_mode.is_switching())
     {
@@ -228,7 +236,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         case CTRL_MODE::CART_POSITION:
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_POSITION");
-            cartesian_position_controller->update(x_,J_,joint_des_,period);
+            cartesian_position_controller->update(x_msr_,J_,joint_des_,period);
             robot_ctrl_mode = ROBOT_CTRL_MODE::POSITION_IMP;
             break;
         }
@@ -290,7 +298,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
 
     /// Safety check if measured joint velocity is above specified threashold set torque and command to zero
 
-    if(lwr::safety::is_too_fast(joint_msr_.qdot,max_dqot)){
+    if(safety->is_safe()){
         for(size_t i=0; i<joint_handles_.size(); i++) {
             K_cmd(i)               = 0;
             D_cmd(i)               = 0.01;

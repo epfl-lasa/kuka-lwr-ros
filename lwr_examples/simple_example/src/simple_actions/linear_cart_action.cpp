@@ -26,7 +26,7 @@ Linear_cart_action::Linear_cart_action(ros::NodeHandle& nh):
     angular_cddynamics->SetVelocityLimits(velLimits);
 
     b_run       = false;
-    b_position  = false;
+    b_position  = true;
 
 
 }
