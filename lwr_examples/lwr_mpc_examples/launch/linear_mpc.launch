@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+<!--        <arg name="action_server_name"  default="kuka_server" /> -->
+
+        <node name="lwr_mpc_linear" pkg="lwr_mpc_examples" type="lwr_mpc_linear_node" required="true" output="screen" >
+<!--                <param name="action_server_name"        value="$(arg action_server_name)"/> -->
+        </node>
+</launch>
+
