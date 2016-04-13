@@ -3,6 +3,8 @@
 namespace lwr {
 namespace safety{
 
+const double warning_throttle_secs = 0.5;
+
 Speed_safety::Speed_safety(ros::NodeHandle &nh,const KDL::FrameVel &ee_vel,const KDL::JntArray &qdot_msr_):
 ee_vel(ee_vel),
 qdot_msr_(qdot_msr_)
@@ -35,14 +37,18 @@ bool Speed_safety::is_safe(){
 
     // check end-effector velocity
     if(ee_vel.GetTwist().vel.Norm() >= max_ee_dt){
-        ROS_WARN_STREAM("end-effector velocity is [" << ee_vel.GetTwist().vel.Norm() << "] max allowed is [" << max_ee_dt << "]");
+        ROS_WARN_STREAM_THROTTLE(warning_throttle_secs, "end-effector velocity is ["
+                                 << ee_vel.GetTwist().vel.Norm() << "] max allowed is ["
+                                 << max_ee_dt << "]");
         bIsSafe = false;
     }
 
     // check joint velocity
     for(std::size_t i = 0; i < qdot_msr_.rows();i++){
         if(qdot_msr_(i) >= max_qdot){
-            ROS_WARN_STREAM("joint["<<i<<"]: velocity: [" << qdot_msr_(i) << "] rad/s >= " << max_qdot);
+            ROS_WARN_STREAM_THROTTLE(warning_throttle_secs, "joint["<< i <<
+                                     "]: velocity: [" << qdot_msr_(i)
+                                     << "] rad/s >= " << max_qdot);
             bIsSafe = false;
         }
     }
