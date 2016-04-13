@@ -81,7 +81,8 @@ set(INC_FILES ${INCLUDE_DIR}/controllers/gravity_compensation.h
               ${INCLUDE_DIR}/controllers/ff_fb_cartesian.h
               ${INCLUDE_DIR}/controllers/cartesian_position.h
               ${INCLUDE_DIR}/controllers/change_ctrl_mode.h
-              ${INCLUDE_DIR}/controllers/passive_ds.h)
+              ${INCLUDE_DIR}/controllers/passive_ds.h
+              )
 
 set(SRC_FILES ${SRC_DIR}/controllers/gravity_compensation.cpp
               ${SRC_DIR}/controllers/joint_position.cpp
@@ -92,13 +93,23 @@ set(SRC_FILES ${SRC_DIR}/controllers/gravity_compensation.cpp
               ${SRC_DIR}/controllers/passive_ds.cpp
 )
 
+set(INC_FILES_UTIL
+    ${INCLUDE_DIR}/utils/definitions.h
+    ${INCLUDE_DIR}/utils/pseudo_inversion.h
+    ${INCLUDE_DIR}/utils/skew_symmetric.h
+    ${INCLUDE_DIR}/utils/base_safety.h
+    ${INCLUDE_DIR}/utils/safety.h
+    ${INCLUDE_DIR}/utils/speed_safety.h
+    ${INCLUDE_DIR}/utils/contact_safety.h
+)
+
+set(SRC_FILES_UTIL
+    ${SRC_DIR}/utils/safety.cpp
+    ${SRC_DIR}/utils/speed_safety.cpp
+    ${SRC_DIR}/utils/contact_safety.cpp
+)
 
 add_library(${PROJECT_NAME}
-  include/utils/definitions.h
-  include/utils/pseudo_inversion.h
-  include/utils/skew_symmetric.h
-  include/utils/safety.h
-  include/lwr_controllers/KinematicChainControllerBase.h
   include/lwr_controllers/KinematicChainControllerBase.h
   include/lwr_controllers/one_task_inverse_kinematics.h
   include/lwr_controllers/kuka_joint_state_controller.h
@@ -111,6 +122,8 @@ add_library(${PROJECT_NAME}
   src/one_task_inverse_kinematics.cpp
   src/joint_kinematics_imp.cpp
   src/joint_controllers.cpp
+  ${INC_FILES_UTIL}
+  ${SRC_FILES_UTIL}
   ${INC_FILES}
   ${SRC_FILES}
 )

@@ -27,6 +27,7 @@
 
 
 #include <kdl/chainfksolverpos_recursive.hpp>
+#include <kdl/chainfksolvervel_recursive.hpp>
 #include <kdl/chainiksolvervel_pinv.hpp>
 #include <kdl/chainiksolverpos_nr_jl.hpp>
 
@@ -43,7 +44,9 @@
 #include "controllers/change_ctrl_mode.h"
 
 #include "utils/definitions.h"
-
+#include "utils/contact_safety.h"
+#include "utils/speed_safety.h"
+#include "utils/safety.h"
 
 
 namespace lwr_controllers
@@ -70,6 +73,8 @@ namespace lwr_controllers
         void setStiffness(const std_msgs::Float64MultiArray::ConstPtr &msg);
         void setDamping(const std_msgs::Float64MultiArray::ConstPtr &msg);
         void command_string(const std_msgs::String::ConstPtr& msg);
+
+        void command_safety_reset(const std_msgs::BoolConstPtr& msg);
 
     private:
 
@@ -103,23 +108,28 @@ namespace lwr_controllers
         KDL::JntArray       pos_cmd_;
         KDL::JntArray       K_, D_,K_cmd,D_cmd;
 
-        double              max_dqot; // maximum allowed joint velocity (radians).
-
         std::size_t         num_ctrl_joints;
 
-        KDL::Frame          x_;     // current pos
-        KDL::Twist          x_dot_;     // current vel
-        KDL::Jacobian       J_;     // Jacobian
-
-        double              publish_rate_;
+        KDL::Frame          x_msr_;         // measured end-effector position
+        KDL::FrameVel       x_dt_msr_;      // measured end-effector velocity
+        KDL::Frame          x_des_;         // desired pose
+        KDL::Jacobian       J_;             // Jacobian
+        KDL::JntArrayVel    joint_vel_msr_;
 
 
         boost::scoped_ptr<KDL::ChainDynParam>               id_solver_gravity_;
         boost::scoped_ptr<KDL::ChainJntToJacSolver>         jnt_to_jac_solver_;
 
         boost::shared_ptr<KDL::ChainFkSolverPos_recursive>  fk_pos_solver_;
+        boost::shared_ptr<KDL::ChainFkSolverVel_recursive>  fk_vel_solver_;
         boost::shared_ptr<KDL::ChainIkSolverVel_pinv>       ik_vel_solver_;
         boost::shared_ptr<KDL::ChainIkSolverPos_NR_JL>      ik_pos_solver_;
+
+        /// Safety
+
+        boost::shared_ptr<lwr::safety::Safety>          safety;
+        boost::shared_ptr<lwr::safety::Contact_safety>  contact_safety;
+        boost::shared_ptr<lwr::safety::Speed_safety>    speed_safety;
 
         /// Dynamic Parameters
 

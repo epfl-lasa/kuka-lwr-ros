@@ -3,7 +3,7 @@
 
 	<!-- REAL ROBOT LAUNCH FILE  "Simple example" -->
 
-	<include file="$(find kuka_fri_bridge)/launch/fri_bridge.launch">
+	<include file="$(find lwr_fri)/launch/lwr_fri.launch">
     		<arg name="rviz_config"       value="$(find simple_example)/launch/rviz/rviz_config.rviz"/>
 		<arg name="load-rviz"	      value="true"/>
         </include>

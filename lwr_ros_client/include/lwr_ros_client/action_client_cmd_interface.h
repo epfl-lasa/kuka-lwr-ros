@@ -24,7 +24,7 @@ public:
     Action_client_cmd_interface(ros::NodeHandle          &nh,
                           ac::Kuka_action_client  &kuka_action_client,
                           const std::string        &action_service_name,
-                          const std::string       &cmd_service_name);
+                          const std::string       &cmd_service_name = "");
 
     void init_nl_subscriber(std::string topic_name);
 

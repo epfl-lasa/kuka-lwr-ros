@@ -48,6 +48,8 @@ set(H_FILES     ${INCLUDE_DIR}/lwr_ros_client/kuka_action_client.h
 set(SRC_FILES   ${SRC_DIR}/kuka_action_client.cpp
                 ${SRC_DIR}/action_client_cmd_interface.cpp
                 ${SRC_DIR}/kuka_action_console.cpp
+                ${SRC_DIR}/ros_param_parser.cpp
+
 )
 
 set(H_FILES_ACTION ${INCLUDE_DIR}/lwr_ros_action/joint_action.h

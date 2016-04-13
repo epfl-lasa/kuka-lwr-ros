@@ -66,9 +66,11 @@ private:
   ControlStrategy               mDesired_control_strategy;
   volatile bool                 mSwitched;
 
-   std::deque<LWRMeasurement> MeasurementHistory;
+  std::deque<LWRMeasurement>    MeasurementHistory;
 
-  int ResultValue;
+  double                        **massMatrix;
+
+  int                           ResultValue;
 
 };
 

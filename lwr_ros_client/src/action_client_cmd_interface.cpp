@@ -13,7 +13,10 @@ Action_client_cmd_interface::Action_client_cmd_interface(ros::NodeHandle    &nh,
     kuka_action_client(kuka_action_client)
 {
     action_service             = nh.advertiseService(action_service_name,&Action_client_cmd_interface::action_service_callback,this);
-    cmd_interface_service      = nh.advertiseService(cmd_service_name,&Action_client_cmd_interface::cmd_interface_callback,this);
+
+    if(cmd_service_name != ""){
+        cmd_interface_service      = nh.advertiseService(cmd_service_name,&Action_client_cmd_interface::cmd_interface_callback,this);
+    }
 }
 
 void Action_client_cmd_interface::init_nl_subscriber(std::string topic_name){
@@ -67,7 +70,6 @@ bool Action_client_cmd_interface::cmd_interface_callback(lwr_ros_client::String_
         res.res = "actions printed";
         return true;
     }else{
-
         res.res = "no such command defined [" + cmd  + "] in Action_client_cmd_interface::cmd_interface_callback";
         return false;
     }

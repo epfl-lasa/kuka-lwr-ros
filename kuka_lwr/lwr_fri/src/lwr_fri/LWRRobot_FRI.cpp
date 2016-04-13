@@ -28,7 +28,7 @@ bool LWRRobot_FRI::init(){
     return true;
 }
 
-void LWRRobot_FRI::safe_joint_target_update(ros::Time time, ros::Duration period){
+void LWRRobot_FRI::safe_joint_target_update(ros::Time time, ros::Duration period) {
 
 }
 

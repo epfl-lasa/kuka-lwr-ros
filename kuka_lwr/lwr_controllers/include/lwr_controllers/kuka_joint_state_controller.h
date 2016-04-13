@@ -11,6 +11,7 @@
 #include <realtime_tools/realtime_publisher.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <kdl/chainfksolvervel_recursive.hpp>
 #include <control_toolbox/filters.h>
 
 #include "KinematicChainControllerBase.h"
@@ -45,12 +46,11 @@ private:
     unsigned int num_hw_joints_;
     void addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg);
 
-    boost::scoped_ptr<KDL::ChainJntToJacSolver>         jnt_to_jac_solver_;
+    boost::shared_ptr<KDL::ChainFkSolverVel_recursive>  fk_vel_solver_;
     boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
     KDL::Frame          x_;     // current pos
-    KDL::Twist          x_dot_, x_dot_prev_;     // current vel
+    KDL::FrameVel          x_dot_, x_dot_prev_;     // current vel
     KDL::Wrench         x_dotdot_;     // current accel
-    KDL::Jacobian       J_;     // Jacobian
 
     KDL::JntArray K_, D_;
     KDL::JntArrayVel joint_msr_states_;

@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     param_name_value[node_name + "/cmd_service_name"]       = "";
     param_name_value[node_name + "/action_server_name"]     = "";
 
-    if(!pps::parser_string(nh,param_name_value)){
+    if(!pps::Parser::parser_string(nh,param_name_value)){
         ROS_ERROR("failed to parse all parameters!");
         return -1;
     }

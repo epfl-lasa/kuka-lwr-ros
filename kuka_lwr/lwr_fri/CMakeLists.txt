@@ -127,10 +127,4 @@ target_link_libraries(lwr_fri_console_node ${PROJECT_NAME} ${catkin_LIBRARIES})
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 
 
-
-#add_custom_target(${PROJECT_NAME}_temp COMMAND )
-#add_dependencies(${PROJECT_NAME}_temp ${PROJECT_NAME}_generat_messages_cpp)
-#find_package(rtk_pkg_tools)
-#include(${rtk_pkg_tools_SOURCE_DIR}/RTKbuild_package.cmake)
-#include(${rtk_pkg_tools_SOURCE_DIR}/rtk_create_symlinks.cmake)
  

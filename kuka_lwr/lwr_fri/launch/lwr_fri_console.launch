@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<launch>
+	<node name="lwr_fri_console" pkg="lwr_fri" type="lwr_fri_console_node" output="screen"/>
+</launch>
+

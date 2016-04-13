@@ -6,6 +6,8 @@ project(robot_motion_generation)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED roscpp cmake_modules)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -Wall -Wno-deprecated-declarations -Wno-unused-variable -Wno-reorder")
 
 find_package(Eigen REQUIRED)
@@ -30,10 +32,14 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${INCLUDE_DIR})
 
 
 set(H_FILES ${INCLUDE_DIR}/robot_motion_generation/CDDynamics.h
+            ${INCLUDE_DIR}/robot_motion_generation/OCProblemFH.h
+            ${INCLUDE_DIR}/robot_motion_generation/LQSolver.h
+            ${INCLUDE_DIR}/robot_motion_generation/IterativeLQSolver.h
             ${INCLUDE_DIR}/robot_motion_generation/angular_velocity.h
 )
 
-set(S_FILES  ${SRC_DIR}/CDDynamics.cpp          
+set(S_FILES  ${SRC_DIR}/CDDynamics.cpp
+             ${SRC_DIR}/IterativeLQSolver.cpp
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

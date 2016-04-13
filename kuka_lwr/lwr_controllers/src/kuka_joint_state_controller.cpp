@@ -18,10 +18,9 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
 
 
     fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
-    jnt_to_jac_solver_.reset(new KDL::ChainJntToJacSolver(kdl_chain_));
+    fk_vel_solver_.reset(new KDL::ChainFkSolverVel_recursive(kdl_chain_));
     K_.resize(7);
     D_.resize(7);
-    J_.resize(kdl_chain_.getNrOfJoints());
 
     // std::cout<< "#1" << std::endl;
 
@@ -91,16 +90,12 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
     //std::cout<< "#6" << std::endl;
 
    // std::cout<< "joint_handles_.size(): " << joint_handles_.size() << std::endl;
-   // std::cout<< "joint_msr_states_.q.size(): " << joint_msr_states_.q.columns() << std::endl;
-
-    //joint_msr_states_.q.resize(joint_handles_.size());
+   // std::cout<< "joint_msr_.q.size(): " << joint_msr_.q.columns() << std::endl;
 
     ROS_INFO_STREAM("joint_handles_.size(): " << joint_handles_.size());
 
-    joint_msr_.q.resize(7);
-    joint_msr_.qdot.resize(7);
-    J_.resize(7);
     joint_msr_states_.q.resize(7);
+    joint_msr_states_.qdot.resize(7);
 
     realtime_pose_pub_->msg_.position.x = x_.p.x();
     realtime_pose_pub_->msg_.position.y = x_.p.y();
@@ -162,42 +157,38 @@ void KUKAJointStateController::update(const ros::Time& time, const ros::Duration
         /** CARTESIAN pos/vel/accel computation **/
 
         for(size_t i=0; i<7; i++) {
-            joint_msr_.q(i)           = joint_handles_[i].getPosition();
-            joint_msr_.qdot(i)        = joint_handles_[i].getVelocity();
+            joint_msr_states_.q(i)           = joint_handles_[i].getPosition();
+            joint_msr_states_.qdot(i)        = joint_handles_[i].getVelocity();
            // qdot_msg.data[i]          = joint_msr_.qdot(i);
         }
-        /* ROS_INFO_STREAM_THROTTLE(2.0,"joint_msr_states_.q: " << joint_msr_states_.q(0) << " "
-                                                              << joint_msr_states_.q(1) << " "
-                                                              << joint_msr_states_.q(2) << " "
-                                                              << joint_msr_states_.q(3));*/
-        jnt_to_jac_solver_->JntToJac(joint_msr_.q,J_);
-        fk_pos_solver_->JntToCart(joint_msr_.q, x_);
-
+        /* ROS_INFO_STREAM_THROTTLE(2.0,"joint_msr_.q: " << joint_msr_.q(0) << " "
+                                                              << joint_msr_.q(1) << " "
+                                                              << joint_msr_.q(2) << " "
+                                                              << joint_msr_.q(3));*/
+        fk_pos_solver_->JntToCart(joint_msr_states_.q, x_);
+        fk_vel_solver_->JntToCart(joint_msr_states_,x_dot_);
         x_dot_prev_ = x_dot_;
-
-        // Compute x_dot
-        KDL::MultiplyJacobian(J_, joint_msr_.qdot, x_dot_);
 
         // Compute x_dotdot
         for (size_t j=0; j<3; j++) {
-            x_dotdot_.force(j) = filters::exponentialSmoothing((x_dot_.vel(j)-x_dot_prev_.vel(j))/period.toSec(), x_dotdot_.force(j), 0.2);
-            x_dotdot_.torque(j) = filters::exponentialSmoothing((x_dot_.rot(j)-x_dot_prev_.rot(j))/period.toSec(), x_dotdot_.torque(j), 0.2);
+            x_dotdot_.force(j) = filters::exponentialSmoothing((x_dot_.GetTwist().vel(j)-x_dot_prev_.GetTwist().vel(j))/period.toSec(), x_dotdot_.force(j), 0.2);
+            x_dotdot_.torque(j) = filters::exponentialSmoothing((x_dot_.GetTwist().rot(j)-x_dot_prev_.GetTwist().rot(j))/period.toSec(), x_dotdot_.torque(j), 0.2);
         }
 
-        /* ROS_INFO_STREAM_THROTTLE(2.0,"joint_msr_states_.q.rows(): " << joint_msr_states_.q.rows() );
-        ROS_INFO_STREAM_THROTTLE(2.0,"x_: " << x_.p(0) << " " << x_.p(1) << " " << x_.p(2) );
 
+        /* ROS_INFO_STREAM_THROTTLE(2.0,"x_: " << x_.p(0) << " " << x_.p(1) << " " << x_.p(2) );
         ROS_INFO_STREAM_THROTTLE(2.0,"kdl_chain_.nrOfJoints:   " << kdl_chain_.getNrOfJoints());
         ROS_INFO_STREAM_THROTTLE(2.0,"kdl_chain_.nrOfSegments: " << kdl_chain_.getNrOfSegments());*/
 
 
-        static tf::TransformBroadcaster br1;
-        tf::Transform transform;
-        double x,y,z,w;
-        x_.M.GetQuaternion(x,y,z,w);
-        transform.setRotation(tf::Quaternion(x,y,z,w));
-        transform.setOrigin(tf::Vector3(x_.p.x(),x_.p.y(),x_.p.z()));
-        br1.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "EOF"));
+
+//        static tf::TransformBroadcaster br1;
+//        tf::Transform transform;
+//        double x,y,z,w;
+//        x_.M.GetQuaternion(x,y,z,w);
+//        transform.setRotation(tf::Quaternion(x,y,z,w));
+//        transform.setOrigin(tf::Vector3(x_.p.x(),x_.p.y(),x_.p.z()));
+//        br1.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "EOF"));
 
         // Publish pos/vel/acc
         if (realtime_pose_pub_->trylock()) {
@@ -216,13 +207,13 @@ void KUKAJointStateController::update(const ros::Time& time, const ros::Duration
 
         if (realtime_twist_pub_->trylock()){
             // populate vel message
-            realtime_twist_pub_->msg_.linear.x = x_dot_.vel(0);
-            realtime_twist_pub_->msg_.linear.y = x_dot_.vel(1);
-            realtime_twist_pub_->msg_.linear.z = x_dot_.vel(2);
+            realtime_twist_pub_->msg_.linear.x = x_dot_.GetTwist().vel(0);
+            realtime_twist_pub_->msg_.linear.y = x_dot_.GetTwist().vel(1);
+            realtime_twist_pub_->msg_.linear.z = x_dot_.GetTwist().vel(2);
 
-            realtime_twist_pub_->msg_.angular.x = x_dot_.rot(0);
-            realtime_twist_pub_->msg_.angular.y = x_dot_.rot(1);
-            realtime_twist_pub_->msg_.angular.z = x_dot_.rot(2);
+            realtime_twist_pub_->msg_.angular.x = x_dot_.GetTwist().rot(0);
+            realtime_twist_pub_->msg_.angular.y = x_dot_.GetTwist().rot(1);
+            realtime_twist_pub_->msg_.angular.z = x_dot_.GetTwist().rot(2);
 
             realtime_twist_pub_->unlockAndPublish();
         }
