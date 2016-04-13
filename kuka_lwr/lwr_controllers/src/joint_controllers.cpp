@@ -42,10 +42,6 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
         ROS_WARN_STREAM("maximum allowed velocity not set in parameter server, default value of 1 rad/s set");
         max_dqot=1.0;
     }
-    if ( !n.getParam("publish_rate",publish_rate_) ){
-        ROS_WARN_STREAM("publish rate not found, set to default 100 Hz");
-        publish_rate_=100;
-    }
     ROS_INFO("JointControllers::init finished initialise [ROS parm]!");
 
 
@@ -61,42 +57,19 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
 
     qdot_msg.data.resize(kdl_chain_.getNrOfJoints());
 
+//    J_.resize(kdl_chain_.getNrOfJoints());
 
+//    // get joint positions
+//    for(std::size_t i=0; i < joint_handles_.size(); i++)
+//    {
+//        joint_msr_.q(i)    = joint_handles_[i].getPosition();
+//        joint_msr_.qdot(i) = joint_handles_[i].getVelocity();
+//        joint_des_.q(i)    = joint_msr_.q(i);
+//        joint_des_.qdot(i) = 0;
+//        pos_cmd_(i)      = joint_des_.q(i);
 
+//    }
 
-    /// one_task_inverse_kinematics stuff
-    jnt_to_jac_solver_.reset(new KDL::ChainJntToJacSolver(kdl_chain_));
-    fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
-    ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(kdl_chain_));
-    ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(kdl_chain_,joint_limits_.min,joint_limits_.max,*fk_pos_solver_,*ik_vel_solver_));
-
-    cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode,ik_vel_solver_));
-    cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
-   // ff_fb_controller.reset(new controllers::FF_FB_cartesian(nh_,change_ctrl_mode));
-    joint_position_controller.reset(new controllers::Joint_position(nh_,change_ctrl_mode));
-    gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
-
-   // change_ctrl_mode.add(ff_fb_controller.get());
-    change_ctrl_mode.add(cartesian_velocity_controller.get());
-    change_ctrl_mode.add(cartesian_position_controller.get());
-    change_ctrl_mode.add(joint_position_controller.get());
-    change_ctrl_mode.add(gravity_compensation_controller.get());
-
-    J_.resize(kdl_chain_.getNrOfJoints());
-
-    // get joint positions
-    for(std::size_t i=0; i < joint_handles_.size(); i++)
-    {
-        joint_msr_.q(i)    = joint_handles_[i].getPosition();
-        joint_msr_.qdot(i) = joint_handles_[i].getVelocity();
-        joint_des_.q(i)    = joint_msr_.q(i);
-        joint_des_.qdot(i) = 0;
-        pos_cmd_(i)      = joint_des_.q(i);
-
-    }
-    /// Publishers
-
-    realtime_pose_pub_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Pose>(n,"des_ee_pos",4));
     sub_stiff_             = nh_.subscribe("stiffness",        1, &JointControllers::setStiffness,         this);
     sub_damp_              = nh_.subscribe("damping",          1, &JointControllers::setDamping,           this);
     // for debug
@@ -110,7 +83,6 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
 
 
     /// Dynamic reconfigure
-
     nd1 = ros::NodeHandle("D_param");
     nd2 = ros::NodeHandle("K_param");
     nd3 = ros::NodeHandle("D_all_param");
@@ -131,7 +103,6 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
 
 
     /// Solvers (Kinematics, etc...)
-
     jnt_to_jac_solver_.reset(new KDL::ChainJntToJacSolver(kdl_chain_));
     fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
     ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(kdl_chain_));
@@ -140,12 +111,13 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
 
 
     /// Controllers (joint position ,cartesian velocity/position,..)
-
+    ff_fb_controller.reset(new controllers::FF_FB_cartesian(nh_,change_ctrl_mode));
     cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode,ik_vel_solver_));
     joint_position_controller.reset(new controllers::Joint_position(nh_,change_ctrl_mode));
     gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
     cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
 
+    change_ctrl_mode.add(ff_fb_controller.get());
     change_ctrl_mode.add(cartesian_velocity_controller.get());
     change_ctrl_mode.add(joint_position_controller.get());
     change_ctrl_mode.add(gravity_compensation_controller.get());
@@ -185,7 +157,6 @@ void JointControllers::starting(const ros::Time& time)
         joint_handles_stiffness[i].setCommand(K_cmd(i));
         joint_handles_damping[i].setCommand(D_cmd(i));
     }
-    last_publish_time_ = time;
     ROS_INFO(" JointControllers::starting finished!");
 }
 
@@ -199,7 +170,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     }
     jnt_to_jac_solver_->JntToJac(joint_msr_.q,J_);
     fk_pos_solver_->JntToCart(joint_msr_.q, x_);
-
+    KDL::MultiplyJacobian(J_, joint_msr_.qdot, x_dot_);
 
     if(change_ctrl_mode.is_switching())
     {
@@ -221,10 +192,10 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         case CTRL_MODE::FF_FB_CARTESIAN:
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> FF_FB_FORCE");
-            ff_fb_controller->cart_ff_fb_update(tau_cmd_,joint_des_,joint_msr_,K_,D_,period);
+            ff_fb_controller->update(tau_cmd_,x_,x_dot_, J_);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
-	    break;
-	}
+        break;
+    }
         case CTRL_MODE::CART_POSITION:
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_POSITION");
@@ -260,7 +231,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         }
     }
 
-    fk_pos_solver_->JntToCart(joint_des_.q, x_des_);
+    fk_pos_solver_->JntToCart(joint_des_.q, x_);
 
     if(robot_ctrl_mode == ROBOT_CTRL_MODE::TORQUE_IMP)
     {
@@ -308,31 +279,6 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         joint_handles_[i].setCommand(pos_cmd_(i));
     }
 
-    /// Publish
-    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
-        publish();
-    }
-
-}
-
-void JointControllers::publish(){
-
-    if (realtime_pose_pub_->trylock()){
-        // we're actually publishing, so increment time
-        last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
-
-        // populate joint state message
-        realtime_pose_pub_->msg_.position.x = x_des_.p(0);
-        realtime_pose_pub_->msg_.position.y = x_des_.p(1);
-        realtime_pose_pub_->msg_.position.z = x_des_.p(2);
-
-        x_des_.M.GetQuaternion(realtime_pose_pub_->msg_.orientation.x,
-                               realtime_pose_pub_->msg_.orientation.y,
-                               realtime_pose_pub_->msg_.orientation.z,
-                               realtime_pose_pub_->msg_.orientation.w);
-
-        realtime_pose_pub_->unlockAndPublish();
-    }
 }
 
 

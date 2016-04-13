@@ -18,8 +18,10 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
 
 
     fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(kdl_chain_));
+    jnt_to_jac_solver_.reset(new KDL::ChainJntToJacSolver(kdl_chain_));
     K_.resize(7);
     D_.resize(7);
+    J_.resize(kdl_chain_.getNrOfJoints());
 
     // std::cout<< "#1" << std::endl;
 
@@ -71,8 +73,10 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
           realtime_pub_->msg_.effort.push_back(0.0);
       }
 
-
+    // ee pos/vel/acc publishers
     realtime_pose_pub_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Pose>(root_nh,"ee_pose",4));
+    realtime_twist_pub_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Twist>(root_nh,"ee_vel",4));
+    realtime_accel_pub_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Accel>(root_nh,"ee_accel",4));
 
     std::string name_space = nh_.getNamespace();
 
@@ -93,13 +97,11 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
 
     ROS_INFO_STREAM("joint_handles_.size(): " << joint_handles_.size());
 
+    joint_msr_.q.resize(7);
+    joint_msr_.qdot.resize(7);
+    J_.resize(7);
     joint_msr_states_.q.resize(7);
-    // get joint positions
-    for(int i=0; i < 7; i++)
-    {
-        joint_msr_states_.q(i) = 0;
-    }
-    fk_pos_solver_->JntToCart(joint_msr_states_.q, x_);
+
     realtime_pose_pub_->msg_.position.x = x_.p.x();
     realtime_pose_pub_->msg_.position.y = x_.p.y();
     realtime_pose_pub_->msg_.position.z = x_.p.z();
@@ -137,11 +139,12 @@ void KUKAJointStateController::starting(const ros::Time& time)
 
 void KUKAJointStateController::update(const ros::Time& time, const ros::Duration& period)
 {
+
     // limit rate of publishing
-    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time){
+    if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time) {
 
         // try to publish
-        if (realtime_pub_->trylock()){
+        if (realtime_pub_->trylock()) {
             // we're actually publishing, so increment time
             last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
 
@@ -153,49 +156,88 @@ void KUKAJointStateController::update(const ros::Time& time, const ros::Duration
                 realtime_pub_->msg_.effort[i] = joint_state_[i].getEffort();
             }
             realtime_pub_->unlockAndPublish();
-
-            for(int i=0; i < 7; i++)
-            {
-                joint_msr_states_.q(i) = joint_handles_[i].getPosition();
-            }
-           /* ROS_INFO_STREAM_THROTTLE(2.0,"joint_msr_states_.q: " << joint_msr_states_.q(0) << " "
-                                                                 << joint_msr_states_.q(1) << " "
-                                                                 << joint_msr_states_.q(2) << " "
-                                                                 << joint_msr_states_.q(3));*/
-            fk_pos_solver_->JntToCart(joint_msr_states_.q, x_);
-
-          /*  ROS_INFO_STREAM_THROTTLE(2.0,"joint_msr_states_.q.rows(): " << joint_msr_states_.q.rows() );
-            ROS_INFO_STREAM_THROTTLE(2.0,"x_: " << x_.p(0) << " " << x_.p(1) << " " << x_.p(2) );
-
-            ROS_INFO_STREAM_THROTTLE(2.0,"kdl_chain_.nrOfJoints:   " << kdl_chain_.getNrOfJoints());
-            ROS_INFO_STREAM_THROTTLE(2.0,"kdl_chain_.nrOfSegments: " << kdl_chain_.getNrOfSegments());*/
+        }
 
 
-            static tf::TransformBroadcaster br1;
-            tf::Transform transform;
-            double x,y,z,w;
-            x_.M.GetQuaternion(x,y,z,w);
-            transform.setRotation(tf::Quaternion(x,y,z,w));
-            transform.setOrigin(tf::Vector3(x_.p.x(),x_.p.y(),x_.p.z()));
-            br1.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "EOF"));
+        /** CARTESIAN pos/vel/accel computation **/
+
+        for(size_t i=0; i<7; i++) {
+            joint_msr_.q(i)           = joint_handles_[i].getPosition();
+            joint_msr_.qdot(i)        = joint_handles_[i].getVelocity();
+           // qdot_msg.data[i]          = joint_msr_.qdot(i);
+        }
+        /* ROS_INFO_STREAM_THROTTLE(2.0,"joint_msr_states_.q: " << joint_msr_states_.q(0) << " "
+                                                              << joint_msr_states_.q(1) << " "
+                                                              << joint_msr_states_.q(2) << " "
+                                                              << joint_msr_states_.q(3));*/
+        jnt_to_jac_solver_->JntToJac(joint_msr_.q,J_);
+        fk_pos_solver_->JntToCart(joint_msr_.q, x_);
+
+        x_dot_prev_ = x_dot_;
+
+        // Compute x_dot
+        KDL::MultiplyJacobian(J_, joint_msr_.qdot, x_dot_);
+
+        // Compute x_dotdot
+        for (size_t j=0; j<3; j++) {
+            x_dotdot_.force(j) = filters::exponentialSmoothing((x_dot_.vel(j)-x_dot_prev_.vel(j))/period.toSec(), x_dotdot_.force(j), 0.2);
+            x_dotdot_.torque(j) = filters::exponentialSmoothing((x_dot_.rot(j)-x_dot_prev_.rot(j))/period.toSec(), x_dotdot_.torque(j), 0.2);
+        }
+
+        /* ROS_INFO_STREAM_THROTTLE(2.0,"joint_msr_states_.q.rows(): " << joint_msr_states_.q.rows() );
+        ROS_INFO_STREAM_THROTTLE(2.0,"x_: " << x_.p(0) << " " << x_.p(1) << " " << x_.p(2) );
+
+        ROS_INFO_STREAM_THROTTLE(2.0,"kdl_chain_.nrOfJoints:   " << kdl_chain_.getNrOfJoints());
+        ROS_INFO_STREAM_THROTTLE(2.0,"kdl_chain_.nrOfSegments: " << kdl_chain_.getNrOfSegments());*/
 
 
+        static tf::TransformBroadcaster br1;
+        tf::Transform transform;
+        double x,y,z,w;
+        x_.M.GetQuaternion(x,y,z,w);
+        transform.setRotation(tf::Quaternion(x,y,z,w));
+        transform.setOrigin(tf::Vector3(x_.p.x(),x_.p.y(),x_.p.z()));
+        br1.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "EOF"));
 
-            realtime_pose_pub_->msg_.position.x = x_.p.x();
-            realtime_pose_pub_->msg_.position.y = x_.p.y();
-            realtime_pose_pub_->msg_.position.z = x_.p.z();
+        // Publish pos/vel/acc
+        if (realtime_pose_pub_->trylock()) {
+            // populate ee cartesian pose message
+            realtime_pose_pub_->msg_.position.x = x_.p(0);
+            realtime_pose_pub_->msg_.position.y = x_.p(1);
+            realtime_pose_pub_->msg_.position.z = x_.p(2);
+
             x_.M.GetQuaternion(realtime_pose_pub_->msg_.orientation.x,
-                               realtime_pose_pub_->msg_.orientation.y,
-                               realtime_pose_pub_->msg_.orientation.z,
-                               realtime_pose_pub_->msg_.orientation.w);
+                                   realtime_pose_pub_->msg_.orientation.y,
+                                   realtime_pose_pub_->msg_.orientation.z,
+                                   realtime_pose_pub_->msg_.orientation.w);
 
             realtime_pose_pub_->unlockAndPublish();
+        }
 
-          /*  for(std::size_t i = 0; i < 7;i++){
-                K_(i) = joint_handles_stiffness[i].getPosition();
-            }
-            ROS_INFO_STREAM_THROTTLE(2.0,"K: " << K_(0));*/
+        if (realtime_twist_pub_->trylock()){
+            // populate vel message
+            realtime_twist_pub_->msg_.linear.x = x_dot_.vel(0);
+            realtime_twist_pub_->msg_.linear.y = x_dot_.vel(1);
+            realtime_twist_pub_->msg_.linear.z = x_dot_.vel(2);
 
+            realtime_twist_pub_->msg_.angular.x = x_dot_.rot(0);
+            realtime_twist_pub_->msg_.angular.y = x_dot_.rot(1);
+            realtime_twist_pub_->msg_.angular.z = x_dot_.rot(2);
+
+            realtime_twist_pub_->unlockAndPublish();
+        }
+
+        if (realtime_accel_pub_->trylock()){
+            // populate accel message
+            realtime_accel_pub_->msg_.linear.x = x_dotdot_.force(0);
+            realtime_accel_pub_->msg_.linear.y = x_dotdot_.force(1);
+            realtime_accel_pub_->msg_.linear.z = x_dotdot_.force(2);
+
+            realtime_accel_pub_->msg_.angular.x = x_dotdot_.torque(0);
+            realtime_accel_pub_->msg_.angular.y = x_dotdot_.torque(1);
+            realtime_accel_pub_->msg_.angular.z = x_dotdot_.torque(2);
+
+            realtime_accel_pub_->unlockAndPublish();
         }
     }
 }

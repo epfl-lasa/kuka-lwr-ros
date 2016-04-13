@@ -35,7 +35,6 @@
 
 #include <realtime_tools/realtime_publisher.h>
 
-
 #include "controllers/gravity_compensation.h"
 #include "controllers/joint_position.h"
 #include "controllers/open_loop_cartesian.h"
@@ -67,10 +66,6 @@ namespace lwr_controllers
 
     private:
 
-        void publish();
-
-    private:
-
         void command_set_cart_type(const std_msgs::Int32& msg);
         void setStiffness(const std_msgs::Float64MultiArray::ConstPtr &msg);
         void setDamping(const std_msgs::Float64MultiArray::ConstPtr &msg);
@@ -89,7 +84,7 @@ namespace lwr_controllers
 	private:
 
         controllers::Change_ctrl_mode                          change_ctrl_mode;
-        boost::scoped_ptr<controllers::FF_FB_cartesian>            ff_fb_controller;
+        boost::scoped_ptr<controllers::FF_FB_cartesian>        ff_fb_controller;
         boost::scoped_ptr<controllers::Cartesian_velocity>     cartesian_velocity_controller;
         boost::scoped_ptr<controllers::Cartesian_position>     cartesian_position_controller;
         boost::scoped_ptr<controllers::Joint_position>         joint_position_controller;
@@ -112,11 +107,10 @@ namespace lwr_controllers
 
         std::size_t         num_ctrl_joints;
 
-        KDL::Frame          x_;     // current pose
-        KDL::Frame          x_des_; // desired pose
+        KDL::Frame          x_;     // current pos
+        KDL::Twist          x_dot_;     // current vel
         KDL::Jacobian       J_;     // Jacobian
 
-        ros::Time           last_publish_time_;
         double              publish_rate_;
 
 
@@ -126,10 +120,6 @@ namespace lwr_controllers
         boost::shared_ptr<KDL::ChainFkSolverPos_recursive>  fk_pos_solver_;
         boost::shared_ptr<KDL::ChainIkSolverVel_pinv>       ik_vel_solver_;
         boost::shared_ptr<KDL::ChainIkSolverPos_NR_JL>      ik_pos_solver_;
-
-        /// Publishers
-
-        boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Pose> > realtime_pose_pub_;
 
         /// Dynamic Parameters
 

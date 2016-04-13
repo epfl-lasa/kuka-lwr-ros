@@ -6,9 +6,12 @@
 #include <pluginlib/class_list_macros.h>
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Accel.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <control_toolbox/filters.h>
 
 #include "KinematicChainControllerBase.h"
 
@@ -29,17 +32,26 @@ public:
     virtual void stopping(const ros::Time&);
 
 private:
-
     std::vector<hardware_interface::JointStateHandle> joint_state_;
+
+    // Publishers
     boost::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::JointState> > realtime_pub_;
     boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Pose> > realtime_pose_pub_;
+    boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Twist> > realtime_twist_pub_;
+    boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Accel> > realtime_accel_pub_;
+
     ros::Time last_publish_time_;
     double publish_rate_;
     unsigned int num_hw_joints_;
     void addExtraJoints(const ros::NodeHandle& nh, sensor_msgs::JointState& msg);
 
+    boost::scoped_ptr<KDL::ChainJntToJacSolver>         jnt_to_jac_solver_;
     boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
-    KDL::Frame x_;		//current pose
+    KDL::Frame          x_;     // current pos
+    KDL::Twist          x_dot_, x_dot_prev_;     // current vel
+    KDL::Wrench         x_dotdot_;     // current accel
+    KDL::Jacobian       J_;     // Jacobian
+
     KDL::JntArray K_, D_;
     KDL::JntArrayVel joint_msr_states_;
 
