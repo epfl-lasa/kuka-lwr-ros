@@ -6,8 +6,6 @@ project(robot_motion_generation)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED roscpp cmake_modules)
 
-set(CMAKE_BUILD_TYPE Debug)
-
 set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -Wall -Wno-deprecated-declarations -Wno-unused-variable -Wno-reorder")
 
 find_package(Eigen REQUIRED)
