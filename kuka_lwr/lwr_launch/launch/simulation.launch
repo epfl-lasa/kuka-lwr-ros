@@ -14,6 +14,7 @@
   <arg name="controller_config_file" default="$(find single_lwr_robot)/config/controllers.yaml"/>
   <arg name="gazebo_world_file" default="$(find single_lwr_robot)/worlds/simple_environment.world"/>
   <arg name="t1_limits_file" default="$(find single_lwr_robot)/config/t1_joint_limits.yaml"/>
+  <arg name="GAZEBO_GUI" default="false"/>
 
   <!-- ROBOT -->
 
@@ -29,7 +30,7 @@
     <arg name="world_name" value="$(arg gazebo_world_file)"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
-    <arg name="gui" value="false"/>
+    <arg name="gui" value="$(arg GAZEBO_GUI)"/>
     <arg name="headless" value="false"/>
     <arg name="debug" value="false"/>
   </include>
