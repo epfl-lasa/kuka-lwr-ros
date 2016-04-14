@@ -16,4 +16,4 @@ lwr:
     publish_rate: 100
     max_ee_dt : 0.5
     max_ee_f : 5
-    max_qdot : 3	
+    max_qdot : 3
