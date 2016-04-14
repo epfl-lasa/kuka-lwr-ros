@@ -11,5 +11,9 @@ lwr:
     type: lwr_controllers/JointControllers
     root_name: lwr_base_link
     tip_name: lwr_7_link
-
-
+    publish_rate: 100  
+    max_qdot: 1.0
+    publish_rate: 100
+    max_ee_dt : 0.5
+    max_ee_f : 5
+    max_qdot : 3	
