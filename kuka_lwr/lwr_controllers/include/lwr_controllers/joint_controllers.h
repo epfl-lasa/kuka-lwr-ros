@@ -36,7 +36,6 @@
 
 #include <realtime_tools/realtime_publisher.h>
 
-
 #include "controllers/gravity_compensation.h"
 #include "controllers/joint_position.h"
 #include "controllers/open_loop_cartesian.h"
@@ -67,10 +66,6 @@ namespace lwr_controllers
 		void starting(const ros::Time& time);
 
 		void update(const ros::Time& time, const ros::Duration& period);
-
-    private:
-
-        void publish();
 
     private:
 
@@ -122,11 +117,6 @@ namespace lwr_controllers
         KDL::JntArrayVel    joint_vel_msr_;
 
 
-
-        ros::Time           last_publish_time_;
-        double              publish_rate_;
-
-
         boost::scoped_ptr<KDL::ChainDynParam>               id_solver_gravity_;
         boost::scoped_ptr<KDL::ChainJntToJacSolver>         jnt_to_jac_solver_;
 
@@ -134,10 +124,6 @@ namespace lwr_controllers
         boost::shared_ptr<KDL::ChainFkSolverVel_recursive>  fk_vel_solver_;
         boost::shared_ptr<KDL::ChainIkSolverVel_pinv>       ik_vel_solver_;
         boost::shared_ptr<KDL::ChainIkSolverPos_NR_JL>      ik_pos_solver_;
-
-        /// Publishers
-
-        boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Pose> > realtime_pose_pub_;
 
         /// Safety
 

@@ -80,7 +80,10 @@ public:
     // If it is torques, then control strategy = Effort if not = Position
 
     ControlStrategy control_strategy;
-    if(joint_effort_command_[0] != 0){
+    bool isTorque = false;
+
+    for (size_t i = 0 ; i < n_joints_ ; i ++ ) { isTorque = isTorque || (joint_effort_command_[i] != 0); }
+    if(isTorque) {
         control_strategy = JOINT_IMPEDANCE;
     }else{
         control_strategy = JOINT_POSITION;

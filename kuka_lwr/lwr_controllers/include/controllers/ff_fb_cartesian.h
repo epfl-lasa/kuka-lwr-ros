@@ -30,12 +30,7 @@ public:
     FF_FB_cartesian(ros::NodeHandle &nh,
                         controllers::Change_ctrl_mode& change_ctrl_mode);
 
-    void cart_ff_fb_update(KDL::JntArray& tau_cmd,
-                KDL::JntArrayAcc& joint_des,
-                const KDL::JntArrayAcc& q_msr,
-                const KDL::JntArray& K,
-                const KDL::JntArray& D,
-                const ros::Duration& period);
+    void update(KDL::JntArray &tau_cmd, const KDL::Frame& x_, const KDL::Twist& x_dot_, const KDL::Jacobian& J_);
 
     void stop();
 
@@ -49,13 +44,9 @@ private:
 
     ros::Subscriber             sub_command_ff_fb_;
     lwr_controllers::FF_FB_plan cur_plan;
-    ros::Time                   time_at_start;
-    ros::Time                   cur_time;
-    geometry_msgs::Wrench       cur_ff;
-    geometry_msgs::Pose         cur_xd;
-    geometry_msgs::Twist        cur_xd_dot;
-    std_msgs::Float64MultiArray cur_fb;
     bool                        bFirst;
+
+    Eigen::VectorXd             F_ee_des;         // desired end-effector force
 
 };
 
