@@ -11,7 +11,7 @@
 
         <!-- Launch action_client after 4 seconds-->
         <node pkg="lwr_mpc_examples" type="timed_roslaunch.sh"
-            args="4 simple_example client.launch"
+            args="5 simple_example client.launch"
             name="timed_kuka_client" output="screen">
         </node>
 

@@ -251,7 +251,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
 
     /// Safety check if measured joint velocity is above specified threashold set torque and command to zero
 
-    if(safety->is_safe()){
+    if(!safety->is_safe()){
         for(size_t i=0; i<joint_handles_.size(); i++) {
             K_cmd(i)               = 0;
             D_cmd(i)               = 0.01;

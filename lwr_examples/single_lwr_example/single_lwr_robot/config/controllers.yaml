@@ -11,5 +11,8 @@ lwr:
     type: lwr_controllers/JointControllers
     root_name: lwr_base_link
     tip_name: lwr_7_link
+    max_ee_dt: 1.0
+    max_qdot: 1.0
+    max_qddot: 1.0
 
 

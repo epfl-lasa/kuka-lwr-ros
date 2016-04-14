@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "lwr_controllers/FF_FB_plan.h"
 #include "geometry_msgs/PoseStamped.h"
+#include <std_msgs/Float64MultiArray.h>
 #include <robot_motion_generation/IterativeLQSolver.h>
 #include <PointMassLinear.h>
 #include <tf/tf.h>
@@ -47,12 +48,17 @@ int main(int argc, char** argv)
     ros::Subscriber  pose_sub     = nh.subscribe("/lwr/ee_pose",5,pose_callback);
     ros::Subscriber  vel_sub     = nh.subscribe("/lwr/ee_vel",5,velocity_callback);
 
+    motion::Matrix fb_matrix(6,13);
+    fb_matrix.setZero();
     lwr_controllers::FF_FB_plan             ff_fb_plan;
     ff_fb_plan.times.resize(time_horizon);
     ff_fb_plan.ff.resize(time_horizon);
     ff_fb_plan.fb.resize(time_horizon);
     ff_fb_plan.xd.resize(time_horizon);
     ff_fb_plan.xd_dot.resize(time_horizon);
+
+
+
 
 
     double control_rate = 100;
@@ -95,7 +101,7 @@ int main(int argc, char** argv)
     PointMassLinear pointMassLinearProblem(time_horizon, A_rob, B_rob, A_d, x_d_center, Q_track, Q_track_f, R);
     x_initial.setZero();
 
-    motion::IterativeLQSolverParams sparams(0.0000001, 1, 0.001, 10);
+    motion::IterativeLQSolverParams sparams(0.00000001, 1, 0.001, 10);
     motion::LQSolution lqsol(time_horizon, x_dim*2, u_dim);    // Initial solution is a 0 trajectory
 
     // Define iterative solver
@@ -103,6 +109,8 @@ int main(int argc, char** argv)
                                                         pointMassLinearProblem, sparams, x_initial, lqsol);
 
     ROS_INFO("starting MPC loop...");
+
+
 
 
     while(ros::ok()) {
@@ -128,7 +136,40 @@ int main(int argc, char** argv)
             ff_fb_plan.ff[i].torque.x = 0;
             ff_fb_plan.ff[i].torque.x = 0;
             ff_fb_plan.ff[i].torque.x = 0;
+            ff_fb_plan.xd[i].position.x = lqsol.x[i](0);
+            ff_fb_plan.xd[i].position.y = lqsol.x[i](1);
+            ff_fb_plan.xd[i].position.z = lqsol.x[i](2);
+            ff_fb_plan.xd_dot[i].linear.x = lqsol.x[i](3);
+            ff_fb_plan.xd_dot[i].linear.y = lqsol.x[i](4);
+            ff_fb_plan.xd_dot[i].linear.z = lqsol.x[i](5);
+
+            // Copy Feedback matrix
+            ff_fb_plan.fb[i].layout.dim.resize(2);
+            ff_fb_plan.fb[i].layout.dim[0].label  = "state: [xd(Pose) xd_dot(Twist)";
+            ff_fb_plan.fb[i].layout.dim[0].size   = 13;
+            ff_fb_plan.fb[i].layout.dim[0].stride = 6*13;
+            ff_fb_plan.fb[i].layout.dim[1].label  = "control";
+            ff_fb_plan.fb[i].layout.dim[1].size   = 6;
+            ff_fb_plan.fb[i].layout.dim[1].stride = 6;
+
+            ff_fb_plan.fb[i].data.assign(ff_fb_plan.fb[i].layout.dim[0].stride, 0.0);
+
+            for (size_t j=0 ; j < u_dim ; j++) {
+                for (size_t k=0 ; k < x_dim ; k++) {
+            std::cout << "Here " << i<< k<<std::endl;
+                     ff_fb_plan.fb[i].data[ ff_fb_plan.fb[i].layout.dim[1].stride*j + k ] = lqsol.K[i](j,k);
+                }
+            }
+
         }
+
+            //ff_fb_plan.K[i].resize(6,13);
+            //ff_fb_plan.K[i].setZero();
+//            for (size_t j=0 ; j < time_horizon-1 ; j++) {
+//                for (size_t k=0 ; k < time_horizon-1 ; k++) {
+//                    ff_fb_plan.K[i].
+//                }
+//            }
 
         //std::cout << "Initial state: " << std::endl << x_initial << std::endl;
         //std::cout << "Solution: " << ff_fb_plan.ff[0].force.x << " " << ff_fb_plan.ff[0].force.y << " " << ff_fb_plan.ff[0].force.z << std::endl;
