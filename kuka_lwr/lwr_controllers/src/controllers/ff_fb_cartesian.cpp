@@ -5,18 +5,18 @@ namespace controllers{
 FF_FB_cartesian::FF_FB_cartesian(ros::NodeHandle& nh,
                                       Change_ctrl_mode &change_ctrl_mode)
     : Base_controllers(lwr_controllers::CTRL_MODE::FF_FB_CARTESIAN),
-      change_ctrl_mode(change_ctrl_mode), F_ee_des(6)
+      change_ctrl_mode(change_ctrl_mode), u_ff(6)
 {
     sub_command_ff_fb_       = nh.subscribe("command_ff_fb_plan",      1, &FF_FB_cartesian::command_ff_fb,     this);
     bFirst = false;
-    F_ee_des.setZero();
+    u_ff.setZero();
     ROS_INFO_STREAM("constructor [FF_FB]");
 }
 
 void FF_FB_cartesian::stop(){
     ROS_INFO_STREAM("stopping [FF_FB]");
     // Set to zero the ff and fb parts
-    F_ee_des.setZero();
+    u_ff.setZero();
     bFirst = false;
 }
 
@@ -37,20 +37,29 @@ void FF_FB_cartesian::update(KDL::JntArray &tau_cmd, const KDL::Frame& x_, const
 
     ROS_INFO_THROTTLE(1.0,"Exert force %f, %f, %f\n", cur_plan.ff[i].force.x, cur_plan.ff[i].force.y, cur_plan.ff[i].force.z);
 
-    F_ee_des[0] = cur_plan.ff[i].force.x;
-    F_ee_des[1] = cur_plan.ff[i].force.y;
-    F_ee_des[2] = cur_plan.ff[i].force.z;
-    F_ee_des[3] = cur_plan.ff[i].torque.x;
-    F_ee_des[4] = cur_plan.ff[i].torque.y;
-    F_ee_des[5] = cur_plan.ff[i].torque.z;
+    u_ff[0] = cur_plan.ff[i].force.x;
+    u_ff[1] = cur_plan.ff[i].force.y;
+    u_ff[2] = cur_plan.ff[i].force.z;
+    u_ff[3] = cur_plan.ff[i].torque.x;
+    u_ff[4] = cur_plan.ff[i].torque.y;
+    u_ff[5] = cur_plan.ff[i].torque.z;
 
-    // TODO: Compute feedback
-    // Compute error
-    // e = cur_plan.xd - x_;
-    // e_dot = cur_plan.xd_dot - x_dot_;
-    // F_ee_des_+= cur_plan.fb ([e e_dot]);
+    // Construct Eigen feedback matrix
+    Eigen::MatrixXd K(6, 12);
+    int ii = 0;
+    for (int i = 0; i < 6; ++i) {
+        for (int j = 0; j < 12; ++j) {
+            K(i, j) = cur_plan.fb[i].data[ii++];
+        }
+    }
 
-    tau_cmd.data = J_.data.transpose() * F_ee_des;
+    // Error vector for second order dynamics
+    Eigen::VectorXd e(12);
+    e << cur_plan.xd[i].position.x - x_.p.x(), cur_plan.xd[i].position.y - x_.p.y(), cur_plan.xd[i].position.z - x_.p.z() , Eigen::VectorXd::Zero(3) ,
+         cur_plan.xd_dot[i].linear.x - x_dot_.vel.x() , cur_plan.xd_dot[i].linear.y - x_dot_.vel.y() , cur_plan.xd_dot[i].linear.z - x_dot_.vel.z() , Eigen::VectorXd::Zero(3);
+
+    // Control law = J^T (u_ff + K (x_d - x))
+    tau_cmd.data = J_.data.transpose() * (u_ff + K*e);
 }
 
 

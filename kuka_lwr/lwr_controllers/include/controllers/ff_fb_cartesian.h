@@ -10,6 +10,7 @@
 #include <geometry_msgs/Wrench.h>
 #include <lwr_controllers/FF_FB_plan.h>
 #include <std_msgs/Float64MultiArray.h>
+#include "eigen_conversions/eigen_msg.h"
 
 #include <tf/LinearMath/Matrix3x3.h>
 #include <tf/LinearMath/Vector3.h>
@@ -46,7 +47,7 @@ private:
     lwr_controllers::FF_FB_plan cur_plan;
     bool                        bFirst;
 
-    Eigen::VectorXd             F_ee_des;         // desired end-effector force
+    Eigen::VectorXd             u_ff;         // desired end-effector force
 
 };
 
