@@ -64,7 +64,7 @@ int main(int argc, char** argv)
     ff_fb_plan.fb.resize(time_horizon);
     ff_fb_plan.xd.resize(time_horizon);
     ff_fb_plan.xd_dot.resize(time_horizon);
-    motion::Matrix fb_matrix(6,13);
+    motion::Matrix fb_matrix(6,12);
     fb_matrix.setZero();
 
 
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
             ff_fb_plan.xd_dot[i].linear.y = lqsol.x[i](4);
             ff_fb_plan.xd_dot[i].linear.z = lqsol.x[i](5);
             fb_matrix.block<3,3>(0,0) << lqsol.K[i].block<3,3>(0,0);
-            fb_matrix.block<3,3>(0,7) << lqsol.K[i].block<3,3>(0,6);
+            fb_matrix.block<3,3>(0,6) << lqsol.K[i].block<3,3>(0,6);
             tf::matrixEigenToMsg(fb_matrix, ff_fb_plan.fb[i]);
         }
 
