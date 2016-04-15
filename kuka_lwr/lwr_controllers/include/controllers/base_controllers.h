@@ -10,10 +10,7 @@ class Base_controllers{
 
 public:
 
-    Base_controllers(lwr_controllers::CTRL_MODE  ctrl_mode):ctrl_mode(ctrl_mode)
-    {
-
-    }
+    Base_controllers(lwr_controllers::CTRL_MODE  ctrl_mode):ctrl_mode(ctrl_mode) {}
 
     virtual void stop() = 0;
 

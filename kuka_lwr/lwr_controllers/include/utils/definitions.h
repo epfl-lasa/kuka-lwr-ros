@@ -9,8 +9,9 @@ enum class CTRL_MODE{
     CART_VELOCITIY,         /// velocity
     CART_POSITION,          /// position
     JOINT_POSITION,         /// standard joint position controller (for goto joint pose)
-    GRAV_COMP,               /// sets the controller into gravity compensation
-    FF_FB_CARTESIAN             /// feedforward + feedback trajectory for the end effector
+    GRAV_COMP,              /// sets the controller into gravity compensation
+    FF_FB_CARTESIAN,        /// feedforward + feedback trajectory for the end effector
+    CART_HYBRID             /// hybrid cartesian impedance - force controller
 };
 
 enum class ROBOT_CTRL_MODE
@@ -32,6 +33,8 @@ inline std::string ctrl_mod2str(CTRL_MODE mode)
         return "GRAV_COMP";
     case CTRL_MODE::FF_FB_CARTESIAN:
         return "FF_FB_CARTESIAN";
+    case CTRL_MODE::CART_HYBRID:
+        return "CART_HYBRID";
     }
 
 }
