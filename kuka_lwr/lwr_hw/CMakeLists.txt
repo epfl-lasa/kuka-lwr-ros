@@ -77,20 +77,20 @@ ExternalProject_Add(FRILibrary
 )
 
 # lwr hw fril node
-include_directories(${CATKIN_DEVEL_PREFIX}/include/fril)
-link_directories(${CATKIN_DEVEL_PREFIX}/lib)
-add_executable(lwr_hw_fril_node  src/lwr_hw_fril_node.cpp
-  include/${PROJECT_NAME}/lwr_hw_fril.hpp
-)
-add_dependencies(lwr_hw_fril_node
-  FRILibrary
-  ${PROJECT_NAME} 
-)
-target_link_libraries(lwr_hw_fril_node
-  fril
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
+#include_directories(${CATKIN_DEVEL_PREFIX}/include/fril)
+#link_directories(${CATKIN_DEVEL_PREFIX}/lib)
+#add_executable(lwr_hw_fril_node  src/lwr_hw_fril_node.cpp
+#  include/${PROJECT_NAME}/lwr_hw_fril.hpp
+#)
+#add_dependencies(lwr_hw_fril_node
+#  FRILibrary
+#  ${PROJECT_NAME}
+#)
+#target_link_libraries(lwr_hw_fril_node
+#  fril
+#  ${PROJECT_NAME}
+#  ${catkin_LIBRARIES}
+#)
 
 ## SIMULATION
 # lwr hw sim gazebo plugin 
