@@ -2,12 +2,11 @@
   <name>lwr_controllers</name>
   <version>0.1.0</version>
   <description>lwr_controllers</description>
-  <maintainer email="cjrosales@gmail.com">Carlos J. Rosales</maintainer>
-  <maintainer email="marco.esposito@tum.de">Marco Esposito</maintainer>
+  <maintainer email="chambrierg@gmail.com">Guillaume de Chambrier</maintainer>
 
   <license>BSD</license>
 
-  <author>Manuel Bonilla</author>
+  <author>Guillaume de Chambrier</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -35,8 +34,14 @@
   <run_depend>kdl_parser</run_depend>
   <run_depend>message_runtime</run_depend>
 
+
+
+  <build_depend>    eigen_conversions     </build_depend>
+  <run_depend>      eigen_conversions     </run_depend>
+
   <build_depend>    robot_motion_generation     </build_depend>
   <run_depend>      robot_motion_generation     </run_depend>
+
 
   <build_depend>    dynamic_reconfigure     </build_depend>
   <run_depend>      dynamic_reconfigure     </run_depend>

@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   dynamic_reconfigure
   passive_ds_control
+  eigen_conversions
 )
 
 #add_definitions(-DUSE_DOUBLE_PRECISION)
