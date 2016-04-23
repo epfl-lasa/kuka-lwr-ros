@@ -38,7 +38,7 @@
 
 #include "controllers/gravity_compensation.h"
 #include "controllers/joint_position.h"
-#include "controllers/open_loop_cartesian.h"
+#include "controllers/cartesian_velocity.h"
 #include "controllers/ff_fb_cartesian.h"
 #include "controllers/cartesian_position.h"
 #include "controllers/change_ctrl_mode.h"
