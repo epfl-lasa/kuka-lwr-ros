@@ -72,6 +72,8 @@ simple example case are; **go_front**, **go_home**,
 **go_left**, **grav_comp** and **linear** (note that grav_comp only works on the real physical robot).
 
 # Quick start (real robot)
+You first have to make sure that your network configurations are set correctly and you can ping the robot. 
+If you are unsure about this, take a look at [**Network setup**](https://github.com/epfl-lasa/kuka-lwr-ros/wiki/Network-setup)
 
 Once the robot is turned on and you have loaded your script open the FRI such that in the KUKA interface
  you see the following message: **FRI-Ctrl FRI successfully opened**.
@@ -108,44 +110,3 @@ Drives are in state GO.
 
 To send actions to the robot proceed as in Quick start (**simulation**). Essentially open two new terminals and launch
 the simple client and server nodes.
-
-# ROS and KUKA Robot network setup
-
-You will need to have either two ethernet network cards on your computer or one ethernet card and
-a USB ethernet adaptor. One of the ethernet cards will be connected to the KUKA control box with 
-via an ethernet cable. The remaining ethernet card/USB adapater will be used to have access to he 
-internet.
-Once your two connections are setup, check that you can ping the KUKA robot.
-**Robot IP** 192.168.0.2
-```
-ping 192.168.0.2
-```
-
-Now there are two possible setups you might consider; 1) directly connect your PC to the KUKA or 
-2) Connect to a hub/switch which then connects to the KUKA control box.
-
-### Direct PC-KUKA control
-
-1) Add a new internet connection with the following information
-
-* Address: 192.168.0.1
-* Netmask: 255.255.255.0
-* GateWay: 0.0.0.0
-
-2) change the following ROS variables in your .bashrc file:
-
-* export ROS_MASTER_URI=http://192.168.0.1:11311
-* export ROS_IP=192.168.0.1
-
-Make sure that your you are networking configuration you setup in 1) and now you should be able 
-to use ROS and the KUKA robot.
-
-### PC-HUB-KUKA control
-
-# Useful tips
-
-## KUKA Panel Interface
-
-* If you press FRI OPEN before running the script the communication between your PC and the robot controller
-  will be stuck at 50 Hz, until you reboot the KUKA robot PC. To avoid this you should run the script until you
-  reach friOpen(2), which will set the communication at 500 Hz. If you want higher you should edit the friOpen script.
