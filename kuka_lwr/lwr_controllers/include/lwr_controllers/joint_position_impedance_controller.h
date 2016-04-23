@@ -3,8 +3,6 @@
 #define LWR_CONTROLLERS__JOIN_POSITION_INPEDANCE_CONTROLLER_H
 
 #include "KinematicChainControllerBase.h"
-
-#include <visualization_msgs/Marker.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <boost/scoped_ptr.hpp>
 #include <robot_motion_generation/CDDynamics.h>
