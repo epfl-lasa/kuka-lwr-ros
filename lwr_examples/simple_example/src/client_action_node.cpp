@@ -94,6 +94,12 @@ int main(int argc, char** argv)
       joint_go_home.debug_print = true;
       actions["go_home"]        = &joint_go_home;
 
+      ac::Joint_action go_candle(nh);
+      des_position  =  {{0,0,0,0,0,0,0}};
+      go_candle.set_joint_values(des_position,ac::Joint_action::MESSAGE_TYPE::JOINT_POSITION);
+      go_candle.debug_print = true;
+      actions["candle"]         = &go_candle;
+
       simple_actions::Linear_cart_action linear_cart_action(nh);
       actions["linear"]         = &linear_cart_action;
 
@@ -104,7 +110,6 @@ int main(int argc, char** argv)
       **/
 
       kuka_action_client.push_back(actions);
-
 
 
     /**  ------------- Initialise Service, Voice & Cmd interface  -------------

@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     client_console.AddConsoleCommand("go_front");
     client_console.AddConsoleCommand("go_left");
     client_console.AddConsoleCommand("linear");
-
+    client_console.AddConsoleCommand("candle");
 
     client_console.start();
 

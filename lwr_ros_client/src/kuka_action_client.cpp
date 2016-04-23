@@ -74,33 +74,5 @@ void Kuka_action_client::print_action_names() {
     std::cout<<std::endl;
 }
 
-void Kuka_action_client::add_default_actions(){
-
-    enum{KUKA_DOF = 7};
-
-    std::array<double,KUKA_DOF> des_stiffness;
-
-  /*  kuka_fri_bridge::JointStates JointStates;
-    JointStates.position.resize(KUKA_DOF);
-    // JointStates.velocity.resize(KUKA_DOF);
-    // JointStates.effort.resize(KUKA_DOF);
-    JointStates.stiffness.resize(KUKA_DOF);
-
-    ///--- Gravity Compensation Actions ---///
-    // Go to Gravity Compensation
-    {
-        ac::Goal goal;
-        des_stiffness =  {{0,0,0,0,0,0,0}};
-
-        for(std::size_t i = 0; i < KUKA_DOF;i++){
-            JointStates.stiffness[i]     = des_stiffness[i];
-        }
-        goal.action_type            = "grav_comp";
-        goal.JointStates            = JointStates;
-        actions["grav_comp"]          = goal;
-    }*/
-
-}
-
 
 }

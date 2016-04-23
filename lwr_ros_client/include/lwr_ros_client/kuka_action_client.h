@@ -17,6 +17,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include "lwr_ros_client/common_action_client/joint_position_ac.h"
 #include "lwr_ros_action/base_action.h"
+#include "lwr_ros_action/joint_action.h"
 
 
 #include <map>
@@ -57,16 +58,6 @@ public:
 
     void print_action_names();
 
-private:
-
-
-    /**
-     * @brief add_default_actions   : adds default action definitions, such as gravity compensation,
-     *                                etc...
-     */
-    void add_default_actions();
-
-
 public:
 
     /**
@@ -81,7 +72,6 @@ public:
     std::string                current_action_name;
 
     volatile bool              b_action_running;
-
 
 
 };
