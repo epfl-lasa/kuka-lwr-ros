@@ -3,8 +3,6 @@
 
 #include "KinematicChainControllerBase.h"
 #include "lwr_controllers/PoseRPY.h"
-
-#include <visualization_msgs/Marker.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
 

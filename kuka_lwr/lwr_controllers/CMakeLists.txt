@@ -113,14 +113,14 @@ add_library(${PROJECT_NAME}
   include/lwr_controllers/KinematicChainControllerBase.h
   include/lwr_controllers/one_task_inverse_kinematics.h
   include/lwr_controllers/kuka_joint_state_controller.h
-  include/lwr_controllers/joint_position_impedance_controller.h
+ # include/lwr_controllers/joint_position_impedance_controller.h
   include/lwr_controllers/joint_controllers.h
-  include/lwr_controllers/joint_kinematics_imp.h
+  #include/lwr_controllers/joint_kinematics_imp.h
   include/lwr_controllers/PIDKinematicChainControllerBase.h
-  src/joint_position_impedance_controller.cpp
+  #src/joint_position_impedance_controller.cpp
   src/kuka_joint_state_controller.cpp
   src/one_task_inverse_kinematics.cpp
-  src/joint_kinematics_imp.cpp
+  #src/joint_kinematics_imp.cpp
   src/joint_controllers.cpp
   ${INC_FILES_UTIL}
   ${SRC_FILES_UTIL}
