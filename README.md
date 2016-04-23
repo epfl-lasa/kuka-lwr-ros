@@ -35,14 +35,14 @@ Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR)
 
 * [**robot_motion_generation**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/robot_motion_generation)  utilities such as filters for smoothing robot motion.
 
-* [**lwr_examples**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/lwr_examples) set of examples of how to use the KUKA with different controllers and environments.
+* [**kuka-lwr-ros-examples**](https://github.com/epfl-lasa/kuka-lwr-ros-examples) set of examples of how to use the KUKA with different controllers and environments.
 
 
 # Quick Start (Simulation)
 
 you are ready to run an example. Open a new terminal and run the following:
 ```sh
-$ roslaunch simple_example sim.launch
+$ roslaunch lwr_simple_example sim.launch
 ```
 This will run the simulator and the Gazebo simulator and ROS Rviz visualiser GUIs should both open. If the Gazebo 
 window does not open this is because a flag is set in the sim.launch file. In the
@@ -53,11 +53,11 @@ caption below Rviz is on the left and Gazebo is on the right.
 Now that the simulations are up and running we are ready to control the robot.
 In on terminal run the following:
 ```sh
-$ roslaunch simple_example client.launch
+$ roslaunch lwr_simple_example client.launch
 ```
 and in another:
 ```sh
-$ roslaunch simple_example console.launch
+$ roslaunch lwr_simple_example console.launch
 ```
 
 You should have the following triptych view in your console
@@ -76,13 +76,13 @@ Once the robot is turned on and you have loaded your script open the FRI such th
 
 In a terminal run the following:
 ```sh
-$ roslaunch simple_example real.launch
+$ roslaunch lwr_simple_example real.launch
 ```
 You should see an Rviz window with the Robot displayed in the correct configuration.
 ![alt text](readme/real_rviz.png "real rviz view")
 Now in another terminal run:
 ```sh
-$ roslaunch kuka_fri_bridge fri_console.launch
+$ roslaunch lwr_fri lwr_fri_console.launch
 ```
 In the terminal you should see the following:
 ![alt text](readme/fri_console.png "fri console")
@@ -94,11 +94,10 @@ Now we are going to change the FRI State to COMMAND which will allow use to run 
 example (see quick start simulation).
 In the terminal type the follwoing:
 ```sh
-FRI> control 3
+FRI> control 
 ```
 In the terminal where you run real.lauch you will see the lign: **Waiting for script...**. This statement means
 that you have to press the green button on the KUKA interface panel until you hear a click originating from the robot.
-The control 3 cmd sets the robot to **control impedance** mode.
 
 ![alt text](readme/command_mode.png "fri in command mode")
 
