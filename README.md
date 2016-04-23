@@ -149,27 +149,3 @@ to use ROS and the KUKA robot.
 * If you press FRI OPEN before running the script the communication between your PC and the robot controller
   will be stuck at 50 Hz, until you reboot the KUKA robot PC. To avoid this you should run the script until you
   reach friOpen(2), which will set the communication at 500 Hz. If you want higher you should edit the friOpen script.
-
-# Concept
-
-This package was implemented according to the following design decisions:
-*  Seperate user specific policy implementations (search policy, grasping policy, etc..) from the actual robot controllers.
-*  User specific policy implementations send desired commands through ROS topics to the actual robot controllers.
-
-There are a three different interfaces to control the robot those are; 1) position, 2) impedance, and 3) effort.
-To reliably control the robot these controllers have to be running at least 1000Hz.
-
-
-![alt text](readme/concept.png "Description goes here")
-
-
-[**ros_control**](http://gazebosim.org/tutorials?tut=ros_control)
-
-
-<ol>
-  <li>Action client node</li>
-  <li>Action server node</li>
-  <li>Controller manager</li>
-  <li>Gazebo/Real robot</li>
-  <li>Rviz</li>
-</ol>
