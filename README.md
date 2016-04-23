@@ -35,12 +35,14 @@ Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR)
 
 * [**robot_motion_generation**](https://github.com/epfl-lasa/kuka-lwr-ros/tree/master/robot_motion_generation)  utilities such as filters for smoothing robot motion.
 
-* [**kuka-lwr-ros-examples**](https://github.com/epfl-lasa/kuka-lwr-ros-examples) set of examples of how to use the KUKA with different controllers and environments.
+* [**kuka-lwr-ros-examples**](https://github.com/epfl-lasa/kuka-lwr-ros-examples) set of examples.
 
 
 # Quick Start (Simulation)
+Download the [**kuka-lwr-ros-examples**](https://github.com/epfl-lasa/kuka-lwr-ros-examples) into your catkin_ws and 
+after compling them are ready to run the lwr_simple_example. 
 
-you are ready to run an example. Open a new terminal and run the following:
+Open a new terminal and run the following:
 ```sh
 $ roslaunch lwr_simple_example sim.launch
 ```
