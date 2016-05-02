@@ -170,6 +170,10 @@ catkin_package(
 #############
 ## Testing ##
 #############
+if(CATKIN_ENABLE_TESTING)
+  add_rostest(test/test_lwr_launch.test)
+endif()
+
 
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_lwr_launch.cpp)
