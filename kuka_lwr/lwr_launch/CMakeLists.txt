@@ -4,7 +4,9 @@ project(lwr_launch)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED
+  COMPONENTS
+  rostest)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -170,6 +172,10 @@ catkin_package(
 #############
 ## Testing ##
 #############
+if(CATKIN_ENABLE_TESTING)
+  add_rostest(test/test_lwr_launch.test)
+endif()
+
 
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_lwr_launch.cpp)

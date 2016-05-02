@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<launch>
+
+  <include file="$(find lwr_launch)/launch/simulation.launch">
+    <arg name="GAZEBO_GUI" value="false"/>
+  </include>
+
+</launch>
