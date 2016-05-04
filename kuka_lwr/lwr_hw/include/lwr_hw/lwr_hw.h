@@ -20,6 +20,11 @@
 #include <joint_limits_interface/joint_limits_urdf.h>
 #include <control_toolbox/filters.h>
 
+// KUKA specific ROS control
+
+#include "lwr_hw/lwr_kuka_interface.h"
+
+
 // KDL
 #include <kdl/kdl.hpp>
 #include <kdl/tree.hpp>
@@ -75,8 +80,8 @@ public:
 
   hardware_interface::EffortJointInterface      effort_interface_;
   hardware_interface::PositionJointInterface    position_interface_;
-  //hardware_interface::StiffnessJointInterface stiffness_interface_; // ToDo
-  // hardware_interface::ImpedanceointInterface impedance_interface_; // ToDo
+
+  hardware_interface::KukaStateHandle           kuka_interface_;
 
   ControlStrategy current_strategy_;
 
