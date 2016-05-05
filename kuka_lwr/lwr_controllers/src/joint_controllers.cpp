@@ -16,10 +16,10 @@ JointControllers::JointControllers() {}
 
 JointControllers::~JointControllers() {}
 
-bool JointControllers::init(hardware_interface::PositionJointInterface *robot, ros::NodeHandle &n)
+bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::NodeHandle &n)
 {
 
-    KinematicChainControllerBase<hardware_interface::PositionJointInterface>::init(robot, n);
+    KinematicChainControllerBase<hardware_interface::KUKAJointInterface>::init(robot, n);
 
 
     /// Initialise Jacobian and stiffness/damping arrays
@@ -40,12 +40,12 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
 
     /// Joint resource handles
 
-    for(std::size_t i = 0; i < joint_handles_.size(); i++)
+   /* for(std::size_t i = 0; i < joint_handles_.size(); i++)
     {
         joint_handles_stiffness.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()  + "_stiffness"));
         joint_handles_damping.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()    + "_damping"));
         joint_handles_torque.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()     + "_torque"));
-    }
+    }*/
     ROS_INFO("JointControllers::init finished initialise [resource handles]!");
 
     qdot_msg.data.resize(kdl_chain_.getNrOfJoints());
@@ -118,11 +118,12 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
     // get joint positions
     for(std::size_t i=0; i < joint_handles_.size(); i++)
     {
-        joint_msr_.q(i)    = joint_handles_[i].getPosition();
-        joint_msr_.qdot(i) = joint_handles_[i].getVelocity();
-        joint_des_.q(i)    = joint_msr_.q(i);
-        joint_des_.qdot(i) = 0;
-        pos_cmd_(i)      = joint_des_.q(i);
+        joint_msr_.q(i)         = joint_handles_[i].getPosition();
+        joint_msr_.qdot(i)      = joint_handles_[i].getVelocity();
+        joint_msr_.qdotdot(i)   = joint_handles_[i].getAcceleration();
+        joint_des_.q(i)         = joint_msr_.q(i);
+        joint_des_.qdot(i)      = 0;
+        pos_cmd_(i)             = joint_des_.q(i);
 
     }
     ROS_INFO("JointControllers::init finished initialise [joint position values]!");
@@ -134,18 +135,20 @@ bool JointControllers::init(hardware_interface::PositionJointInterface *robot, r
 void JointControllers::starting(const ros::Time& time)
 {
     for(size_t i=0; i<joint_handles_.size(); i++) {
-        joint_msr_.q(i)    = joint_handles_[i].getPosition();
-        joint_msr_.qdot(i) = joint_handles_[i].getVelocity();
+        joint_msr_.q(i)         = joint_handles_[i].getPosition();
+        joint_msr_.qdot(i)      = joint_handles_[i].getVelocity();
+        joint_msr_.qdotdot(i)   = joint_handles_[i].getAcceleration();
+
         joint_des_.q(i)    = joint_msr_.q(i);
         pos_cmd_(i)        = joint_des_.q(i);
         tau_cmd_(i)        = 0;
         K_cmd(i)           = 0;
         D_cmd(i)           = 0.7;
 
-        joint_handles_[i].setCommand(pos_cmd_(i));
-        joint_handles_torque[i].setCommand(tau_cmd_(i));
-        joint_handles_stiffness[i].setCommand(K_cmd(i));
-        joint_handles_damping[i].setCommand(D_cmd(i));
+        joint_handles_[i].setCommandPosition(pos_cmd_(i));
+        joint_handles_[i].setCommandTorque(tau_cmd_(i));
+        joint_handles_[i].setCommandStiffness(K_cmd(i));
+        joint_handles_[i].setCommandDamping(D_cmd(i));
     }
     ROS_INFO(" JointControllers::starting finished!");
 }
@@ -264,10 +267,10 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     }
 
     for(size_t i=0; i<joint_handles_.size(); i++) {
-        joint_handles_stiffness[i].setCommand(K_cmd(i));
-        joint_handles_damping[i].setCommand(D_cmd(i));
-        joint_handles_torque[i].setCommand(tau_cmd_(i));
-        joint_handles_[i].setCommand(pos_cmd_(i));
+        joint_handles_[i].setCommandPosition(pos_cmd_(i));
+        joint_handles_[i].setCommandTorque(tau_cmd_(i));
+        joint_handles_[i].setCommandStiffness(K_cmd(i));
+        joint_handles_[i].setCommandDamping(D_cmd(i));
     }
 
 }
