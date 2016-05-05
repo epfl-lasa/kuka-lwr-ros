@@ -11,7 +11,7 @@ namespace hardware_interface
 class KukaStateHandle
 {
 public:
-  KukaStateHandle() : name_(), pos_(0), eff_(0), sti_(0), dam_(0) {}
+  KukaStateHandle() : name_(), pos_(0), vel_(0), acc_(0), eff_(0), sti_(0), dam_(0) {}
 
   /**
    * \param name The name of the joint
@@ -19,12 +19,20 @@ public:
    * \param vel A pointer to the storage for this joint's velocity
    * \param eff A pointer to the storage for this joint's effort (force or torque)
    */
-  KukaStateHandle(const std::string& name, const double* pos, const double* eff, const double* dam, const double* sti)
-    : name_(name), pos_(pos), eff_(eff), dam_(dam), sti_(sti)
+  KukaStateHandle(const std::string& name, const double* pos, const double* vel, const double* acc, const double* eff, const double* dam, const double* sti)
+    : name_(name), pos_(pos), vel_(vel), acc_(acc), eff_(eff), dam_(dam), sti_(sti)
   {
     if (!pos)
     {
       throw HardwareInterfaceException("Cannot create handle '" + name + "'. Position data pointer is null.");
+    }
+    if (!vel)
+    {
+      throw HardwareInterfaceException("Cannot create handle '" + name + "'. Velocity data pointer is null.");
+    }
+    if (!acc)
+    {
+      throw HardwareInterfaceException("Cannot create handle '" + name + "'. Acceleration data pointer is null.");
     }
     if (!eff)
     {
@@ -40,29 +48,33 @@ public:
     }
   }
 
-  std::string getName()  const {return name_;}
-  double getPosition()   const {assert(pos_); return *pos_;}
-  double getTorque()     const {assert(eff_); return *eff_;}
-  double getStiffness()  const {assert(sti_); return *sti_;}
-  double getDamping()    const {assert(dam_); return *dam_;}
-
+  std::string getName()     const {return name_;}
+  double getPosition()      const {assert(pos_); return *pos_;}
+  double getVelocity()      const {assert(vel_); return *vel_;}
+  double getAcceleration()  const {assert(acc_); return *acc_;}
+  double getTorque()        const {assert(eff_); return *eff_;}
+  double getStiffness()     const {assert(sti_); return *sti_;}
+  double getDamping()       const {assert(dam_); return *dam_;}
 
 private:
   std::string name_;
   const double* pos_;   // position
+  const double* vel_;   // velocity
+  const double* acc_;   // acceleration
   const double* eff_;   // torque
-  const double* dam_;   // damping
   const double* sti_;   // stiffness
+  const double* dam_;   // damping
 
 
 
 };
 
+
 /** \brief A handle used to read and command a single joint. */
 class KUKAJointHandle : public KukaStateHandle
 {
 public:
-  KUKAJointHandle() : JointStateHandle(), pos_cmd_(0), eff_cmd_(0), sti_cmd_(0), dam_cmd_(0){}
+  KUKAJointHandle() : KukaStateHandle(), pos_cmd_(0), eff_cmd_(0), sti_cmd_(0), dam_cmd_(0){}
 
   /**
    * \param js This joint's state handle
@@ -98,10 +110,10 @@ public:
   void setCommandDamping(double command)    {assert(dam_cmd_); *dam_cmd_ = command;}
 
 
-  double getCommandPosition()   const {assert(cmd_); return *pos_cmd_;}
-  double getCommandTorque()     const {assert(cmd_); return *eff_cmd_;}
-  double getCommandStiffness()  const {assert(cmd_); return *sti_cmd_;}
-  double getCommandDamping()    const {assert(cmd_); return *dam_cmd_;}
+  double getCommandPosition()   const {assert(pos_cmd_); return *pos_cmd_;}
+  double getCommandTorque()     const {assert(eff_cmd_); return *eff_cmd_;}
+  double getCommandStiffness()  const {assert(sti_cmd_); return *sti_cmd_;}
+  double getCommandDamping()    const {assert(dam_cmd_); return *dam_cmd_;}
 
 private:
 
@@ -112,6 +124,12 @@ private:
 
 };
 
+
+class JointKUKAStateInterface : public HardwareResourceManager<KukaStateHandle> {};
+
+class JointKUKACommandInterface : public HardwareResourceManager<KUKAJointHandle, ClaimResources> {};
+
+class KUKAJointInterface : public JointKUKACommandInterface {};
 
 }
 
