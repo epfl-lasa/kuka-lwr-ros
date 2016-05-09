@@ -20,6 +20,11 @@
 #include <joint_limits_interface/joint_limits_urdf.h>
 #include <control_toolbox/filters.h>
 
+// KUKA specific ROS control
+
+#include "lwr_hw/lwr_kuka_interface.h"
+
+
 // KDL
 #include <kdl/kdl.hpp>
 #include <kdl/tree.hpp>
@@ -75,8 +80,9 @@ public:
 
   hardware_interface::EffortJointInterface      effort_interface_;
   hardware_interface::PositionJointInterface    position_interface_;
-  //hardware_interface::StiffnessJointInterface stiffness_interface_; // ToDo
-  // hardware_interface::ImpedanceointInterface impedance_interface_; // ToDo
+
+  hardware_interface::JointKUKAStateInterface   state_kuka_interface_;
+  hardware_interface::KUKAJointInterface        kuka_interface_;
 
   ControlStrategy current_strategy_;
 
@@ -114,6 +120,7 @@ public:
   joint_position_,
   joint_position_prev_,
   joint_velocity_,
+  joint_acceleration_,
   joint_effort_,
   joint_stiffness_,
   joint_damping_,
@@ -159,7 +166,7 @@ private:
                    const hardware_interface::JointHandle& joint_handle_effort,
                    const hardware_interface::JointHandle& joint_handle_position,
                    const hardware_interface::JointHandle& joint_handle_velocity,
-                   const hardware_interface::JointHandle& joint_handle_stiffness,
+                //   const hardware_interface::JointHandle& joint_handle_stiffness,
                    const urdf::Model *const urdf_model,
                    double *const lower_limit, double *const upper_limit,
                    double *const lower_limit_stiffness, double *const upper_limit_stiffness,

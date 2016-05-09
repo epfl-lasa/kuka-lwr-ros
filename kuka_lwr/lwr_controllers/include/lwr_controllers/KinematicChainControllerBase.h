@@ -6,6 +6,10 @@
 #include <urdf/model.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <controller_interface/controller.h>
+
+#include <lwr_hw/lwr_kuka_interface.h>
+
+
 #include <ros/node_handle.h>
 #include <ros/ros.h>
 

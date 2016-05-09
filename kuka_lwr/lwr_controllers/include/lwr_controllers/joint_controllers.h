@@ -1,6 +1,6 @@
 
-#ifndef LWR_CONTROLLERS__JOINT_INPEDANCE_CONTROLLER_H
-#define LWR_CONTROLLERS__JOINT_INPEDANCE_CONTROLLER_H
+#ifndef LWR_CONTROLLERS__JOINT_CONTROLLER_H
+#define LWR_CONTROLLERS__JOINT_CONTROLLER_H
 
 #include "KinematicChainControllerBase.h"
 
@@ -52,7 +52,7 @@
 namespace lwr_controllers
 {
 
-    class JointControllers: public controller_interface::KinematicChainControllerBase<hardware_interface::PositionJointInterface>
+    class JointControllers: public controller_interface::KinematicChainControllerBase<hardware_interface::KUKAJointInterface>
 	{
 
 	public:
@@ -61,7 +61,7 @@ namespace lwr_controllers
 
         ~JointControllers();
 
-        bool init(hardware_interface::PositionJointInterface *robot, ros::NodeHandle &n);
+        bool init(hardware_interface::KUKAJointInterface *robot, ros::NodeHandle &n);
 
 		void starting(const ros::Time& time);
 
@@ -144,9 +144,9 @@ namespace lwr_controllers
         lwr_controllers::ROBOT_CTRL_MODE robot_ctrl_mode;
 
         /// Extra handles
-        std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_damping;
-        std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_stiffness;
-        std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_torque;
+       // std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_damping;
+       // std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_stiffness;
+       // std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_torque;
 
 	};
 

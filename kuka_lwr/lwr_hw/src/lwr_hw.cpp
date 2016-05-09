@@ -26,6 +26,7 @@ namespace lwr_hw
     joint_position_.resize(n_joints_);
     joint_position_prev_.resize(n_joints_);
     joint_velocity_.resize(n_joints_);
+    joint_acceleration_.resize(n_joints_);
     joint_effort_.resize(n_joints_);
     joint_stiffness_.resize(n_joints_);
     joint_damping_.resize(n_joints_);
@@ -140,6 +141,12 @@ namespace lwr_hw
       state_interface_.registerHandle(hardware_interface::JointStateHandle(
           joint_names_[j], &joint_position_[j], &joint_velocity_[j], &joint_effort_[j]));
 
+
+     state_kuka_interface_.registerHandle(hardware_interface::KukaStateHandle(
+          joint_names_[j], &joint_position_[j], &joint_velocity_[j], &joint_acceleration_[j], &joint_effort_[j], &joint_stiffness_[j],&joint_damping_[j]));
+
+
+
       state_interface_stiff.registerHandle(hardware_interface::JointStateHandle(
           joint_names_[j]+std::string("_stiffness"),&joint_stiffness_[j], &joint_stiffness_[j], &joint_stiffness_[j]));
 
@@ -164,26 +171,22 @@ namespace lwr_hw
       position_interface_.registerHandle(joint_handle_position);
 
 
-      /// Torque interface (for position interface)
-      hardware_interface::JointHandle joint_handle_effort_position;
-      joint_handle_effort_position = hardware_interface::JointHandle(state_interface_torque.getHandle(joint_names_[j]+std::string("_torque")),
-                                                       &joint_effort_command_[j]);
-      position_interface_.registerHandle(joint_handle_effort_position);
+      /// Kuka command interface for actuator/joint
+      hardware_interface::KUKAJointHandle kuka_joint_handle;
+      kuka_joint_handle = hardware_interface::KUKAJointHandle(state_kuka_interface_.getHandle(joint_names_[j]),
+                                                              &joint_position_command_[j],
+                                                              &joint_effort_command_[j],
+                                                              &joint_stiffness_command_[j],
+                                                              &joint_damping_command_[j]);
+      kuka_interface_.registerHandle(kuka_joint_handle);
+
 
       // the stiffness is not actually a different joint, so the state handle is only used for handle
       /// Stiffneess interface
-      hardware_interface::JointHandle joint_handle_stiffness;
+     /* hardware_interface::JointHandle joint_handle_stiffness;
       joint_handle_stiffness = hardware_interface::JointHandle(state_interface_stiff.getHandle(joint_names_[j]+std::string("_stiffness")),
                                                        &joint_stiffness_command_[j]);
-      position_interface_.registerHandle(joint_handle_stiffness);
-
-      /// Damping interface
-      hardware_interface::JointHandle joint_handle_damping;
-      joint_handle_damping = hardware_interface::JointHandle(state_interface_damp.getHandle(joint_names_[j]+std::string("_damping")),
-                                                        &joint_damping_command_[j]
-                                                             );
-      position_interface_.registerHandle(joint_handle_damping);
-
+      position_interface_.registerHandle(joint_handle_stiffness);*/
 
 
    
@@ -196,8 +199,7 @@ namespace lwr_hw
                           joint_handle_effort, 
                           joint_handle_position,
                           joint_handle_velocity,
-                          joint_handle_stiffness,
-                          urdf_model, 
+                          urdf_model,
                           &joint_lower_limits_[j], &joint_upper_limits_[j],
                           &joint_lower_limits_stiffness_[j],
                           &joint_upper_limits_stiffness_[j],
@@ -208,6 +210,8 @@ namespace lwr_hw
     registerInterface(&state_interface_);
     registerInterface(&effort_interface_);
     registerInterface(&position_interface_);
+    registerInterface(&kuka_interface_);
+
   }
 
   // Register the limits of the joint specified by joint_name and\ joint_handle. The limits are
@@ -217,7 +221,7 @@ namespace lwr_hw
                            const hardware_interface::JointHandle& joint_handle_effort,
                            const hardware_interface::JointHandle& joint_handle_position,
                            const hardware_interface::JointHandle& joint_handle_velocity,
-                           const hardware_interface::JointHandle& joint_handle_stiffness,
+                           //const hardware_interface::JointHandle& joint_handle_stiffness,
                            const urdf::Model *const urdf_model,
                            double *const lower_limit, double *const upper_limit, 
                            double *const lower_limit_stiffness, double *const upper_limit_stiffness,
@@ -292,8 +296,8 @@ namespace lwr_hw
       *upper_limit_stiffness = limits_stiffness.max_position;
     }
 
-    const joint_limits_interface::PositionJointSaturationHandle sat_handle_stiffness(joint_handle_stiffness, limits_stiffness);
-    sj_sat_interface_.registerHandle(sat_handle_stiffness);
+   // const joint_limits_interface::PositionJointSaturationHandle sat_handle_stiffness(joint_handle_stiffness, limits_stiffness);
+   // sj_sat_interface_.registerHandle(sat_handle_stiffness);
   }
 
   void LWRHW::enforceLimits(ros::Duration period)

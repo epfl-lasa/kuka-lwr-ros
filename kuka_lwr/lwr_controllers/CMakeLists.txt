@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
   passive_ds_control
   eigen_conversions
+  lwr_hw
 )
 
 #add_definitions(-DUSE_DOUBLE_PRECISION)
@@ -64,6 +65,7 @@ catkin_package(
     message_runtime
     robot_motion_generation
     passive_ds_control
+    lwr_hw
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
 )

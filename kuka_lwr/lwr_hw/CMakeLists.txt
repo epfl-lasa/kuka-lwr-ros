@@ -58,6 +58,7 @@ include_directories(include
 ## LWR HW BASE CLASS TO RULE'EM ALL
 add_library(${PROJECT_NAME}
   include/${PROJECT_NAME}/lwr_hw.h
+  include/${PROJECT_NAME}/lwr_kuka_interface.h
   src/lwr_hw.cpp
 )
 target_link_libraries(${PROJECT_NAME}

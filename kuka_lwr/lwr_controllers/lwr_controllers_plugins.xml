@@ -2,17 +2,11 @@
     
   <class name="lwr_controllers/JointControllers" type="lwr_controllers::JointControllers" base_class_type="controller_interface::ControllerBase">
     <description>
-      The JointImpedanceController tracks effort commands. It expects a EffortJointInterface type of hardware interface.
+ 	Controller ROS interface for many controllers
     </description>
   </class>
 
   <class name="lwr_controllers/KUKAJointStateController" type="lwr_controllers::KUKAJointStateController" base_class_type="controller_interface::ControllerBase">
-    <description>
-      The KUKAJointStateController is for publishing information such as ee_pos and joint pose on ros topics
-    </description>
-  </class>
-
-  <class name="lwr_controllers/JointKinematiscImp" type="lwr_controllers::JointKinematiscImp" base_class_type="controller_interface::ControllerBase">
     <description>
       The KUKAJointStateController is for publishing information such as ee_pos and joint pose on ros topics
     </description>
@@ -24,13 +18,6 @@
       The JointPositionImpedanceController tracks joint position commands. It expects a PositionJointInterface type of hardware interface.
     </description>
   </class>
-
-
-  <class name="lwr_controllers/OneTaskInverseKinematics" type="lwr_controllers::OneTaskInverseKinematics" base_class_type="controller_interface::ControllerBase">
-    <description>
-      Info...
-    </description>
-  </class> 
 
 
 
