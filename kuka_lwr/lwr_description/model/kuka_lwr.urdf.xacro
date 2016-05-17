@@ -53,7 +53,7 @@
       <visual>
 	<origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
 	<geometry>
-	  <mesh filename="package://lwr_description/meshes/base.dae"/>
+            <mesh filename="package://lwr_description/meshes_arm/arm_base.dae"/>
 	</geometry>
 	<material name="Kuka/Orange"/>
       </visual>
@@ -76,19 +76,24 @@
       <child link="${name}_1_link"/>
     </joint>
 
+
+<!-- 			LINK 1 			-->
+
     <link name="${name}_1_link">
       <inertial>
 	<mass value="${link_mass}"/>
 	<origin rpy="0 0 0" xyz="0 -0.06 0.130"/>
 	<cuboid_inertia_def length="0.12" width="0.06" height="0.260" mass="${link_mass}"/>
       </inertial>
+ 
       <visual>
-	<origin xyz="0 0 -0.008" rpy="0 0 ${M_PI}"/>
-	<geometry>
-	  <mesh filename="package://lwr_description/meshes/link_1.dae"/>
-	</geometry>
-	<material name="Kuka/Orange"/>
+            <origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
+            <geometry>
+              <mesh filename="package://lwr_description/meshes_arm/arm_segment_a.dae"/>
+            </geometry>
+            <material name="Orange"/>
       </visual>
+
       <collision>
 	<origin xyz="0 0 0.0" rpy="0 0 0"/>
 	<geometry>
@@ -120,6 +125,9 @@
       <child link="${name}_2_link"/>
     </joint>
 
+<!-- 			LINK 2 			-->
+
+
     <link name="${name}_2_link">
       <inertial>
 	<mass value="${link_mass}"/>
@@ -127,13 +135,14 @@
 	<cuboid_inertia_def length="0.12" width="0.06" height="0.260" mass="${link_mass}"/>
       </inertial>
 
-      <visual>
-	<origin xyz="0 0 0.0" rpy="0 0 ${M_PI}"/>
-	<geometry>
-	  <mesh filename="package://lwr_description/meshes/link_2.dae"/>
-	</geometry>
-	<!--material name="Kuka/Orange"/-->
-      </visual>
+        <visual>
+          <origin xyz="0 0 0.2" rpy="${M_PI} 0 ${M_PI}"/>
+          <geometry>
+            <mesh filename="package://lwr_description/meshes_arm/arm_segment_b.dae"/>
+          </geometry>
+          <material name="Orange"/>
+        </visual>
+
       <collision>
 	<origin xyz="0 0 0.2" rpy="0 0 0"/>
 	<geometry>
@@ -165,6 +174,11 @@
       <child link="${name}_3_link"/>
     </joint>
 
+
+<!-- 			LINK 3 			-->
+
+
+
     <link name="${name}_3_link">
       <inertial>
 	<mass value="${link_mass}"/>
@@ -173,12 +187,13 @@
       </inertial>
 
       <visual>
-	<origin xyz="0 0 -0.008" rpy="0 0 ${M_PI}"/>
-	<geometry>
-	  <mesh filename="package://lwr_description/meshes/link_3.dae"/>
-	</geometry>
-	<material name="Kuka/Orange"/>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <geometry>
+       	 <mesh filename="package://lwr_description/meshes_arm/arm_segment_a.dae"/>
+        </geometry>
+        <material name="Orange"/>
       </visual>
+
       <collision>
 	<origin xyz="0 0 0.0" rpy="0 0 0"/>
 	<geometry>
@@ -210,6 +225,10 @@
       <child link="${name}_4_link"/>
     </joint>
 
+
+<!-- 			LINK 4 			-->
+
+
     <link name="${name}_4_link">
       <inertial>
 	<mass value="${link_mass}"/>
@@ -218,12 +237,13 @@
       </inertial>
 
       <visual>
-	<origin xyz="0 0 0.0" rpy="0 0 ${M_PI}"/>
-	<geometry>
-	  <mesh filename="package://lwr_description/meshes/link_4.dae"/>
-	</geometry>
-	<material name="Kuka/Orange"/>
+        <origin xyz="0 0 0.2" rpy="0 ${M_PI} ${M_PI}"/>
+         <geometry>
+            <mesh filename="package://lwr_description/meshes_arm/arm_segment_b.dae"/>
+      	 </geometry>
+      	<material name="Orange"/>
       </visual>
+
       <collision>
 	<origin xyz="0 0 0.2" rpy="0 0 0"/>
 	<geometry>
@@ -255,6 +275,8 @@
       <child link="${name}_5_link"/>
     </joint>
 
+<!-- 			LINK 5 			-->
+
     <link name="${name}_5_link">
       <inertial>
 	<mass value="${link_mass}"/>
@@ -263,11 +285,11 @@
       </inertial>
 
       <visual>
-	<origin xyz="0 0 -0.008" rpy="0 0 ${M_PI}"/>
-	<geometry name="${name}_5_geom">
-	  <mesh filename="package://lwr_description/meshes/link_5.dae"/>
-	</geometry>
-	<material name="Kuka/Orange"/>
+      	<origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
+      	  <geometry name="${name}_arm_5_geom">
+             <mesh filename="package://lwr_description/meshes_arm/arm_segment_last.dae"/>
+           </geometry>
+         <material name="Orange"/>
       </visual>
 
       <collision>
@@ -301,6 +323,12 @@
       <child link="${name}_6_link"/>
     </joint>
 
+
+
+<!-- 			LINK 6 			-->
+
+
+
     <link name="${name}_6_link">
       <inertial>
 	<mass value="0.2"/>
@@ -309,12 +337,13 @@
       </inertial>
 
       <visual>
-	<origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
-	<geometry>
-	  <mesh filename="package://lwr_description/meshes/link_6.dae"/>
-	</geometry>
-	<material name="Kuka/Grey"/>
+      	<origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
+        <geometry>
+      	  <mesh filename="package://lwr_description/meshes_arm/arm_wrist.dae"/>
+         </geometry>
+         <material name="Grey"/>
       </visual>
+
       <collision>
 	<origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
 	<geometry>
@@ -333,12 +362,18 @@
       <child link="${name}_7_link"/>
     </joint>
 
+
+<!-- 			LINK 7 			-->
+
+
+
     <link name="${name}_7_link">
       <inertial>
 	<mass value="0.2"/>
 	<origin xyz="0 0 0"/>
 	<cuboid_inertia_def length="1" width="1" height="1" mass="0.2"/>
       </inertial>
+
       <visual>
 	<origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
 	<geometry>
