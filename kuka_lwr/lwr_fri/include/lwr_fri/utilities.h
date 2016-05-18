@@ -148,16 +148,6 @@ inline lwr_hw::LWRHW::ControlStrategy int2CTRL_STRATEGY(int i)
         return lwr_hw::LWRHW::JOINT_IMPEDANCE;
 
     }
-    case 40:
-    {
-        return lwr_hw::LWRHW::JOINT_EFFORT;
-
-    }
-    case 50:
-    {
-        return lwr_hw::LWRHW::JOINT_STIFFNESS;
-
-    }
     case 90:
     {
         return lwr_hw::LWRHW::GRAVITY_COMPENSATION;

@@ -196,9 +196,9 @@ void Fri_console::ConsoleUpdate(){
     case lwr_hw::LWRHW::ControlStrategy::JOINT_IMPEDANCE:
         sprintf(static_txt, "Control Mode    :  JOINT_IMPEDANCE");
         break;
-    case lwr_hw::LWRHW::ControlStrategy::JOINT_EFFORT:
+    /*case lwr_hw::LWRHW::ControlStrategy::JOINT_EFFORT:
         sprintf(static_txt, "Control Mode    :  JOINT_EFFORT");
-        break;
+        break;*/
     default:
         sprintf(static_txt, "Control Mode    :  UNKNOWN");
         break;

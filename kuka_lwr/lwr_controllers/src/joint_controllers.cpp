@@ -179,42 +179,42 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         {
         case CTRL_MODE::CART_VELOCITIY:
         {
-            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_VELOCITIY");
+       //     ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_VELOCITIY");
             cartesian_velocity_controller->cart_vel_update(tau_cmd_,joint_des_,joint_msr_,K_,D_,period,time);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
         }
         case CTRL_MODE::FF_FB_CARTESIAN:
         {
-            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> FF_FB_FORCE");
+        //    ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> FF_FB_FORCE");
             ff_fb_controller->update(tau_cmd_,x_msr_,x_dt_msr_.GetTwist(), J_);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
         break;
     }
         case CTRL_MODE::CART_POSITION:
         {
-            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_POSITION");
+         //   ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_POSITION");
             cartesian_position_controller->update(x_msr_,J_,joint_des_,period);
             robot_ctrl_mode = ROBOT_CTRL_MODE::POSITION_IMP;
             break;
         }
         case CTRL_MODE::JOINT_POSITION:
         {
-            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> JOINT_POSITION");
+          //  ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> JOINT_POSITION");
             joint_position_controller->update(joint_des_,joint_msr_,period);
             robot_ctrl_mode = ROBOT_CTRL_MODE::POSITION_IMP;
             break;
         }
         case CTRL_MODE::GRAV_COMP:
         {
-            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> GRAV_COMP");
+        //    ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> GRAV_COMP");
             gravity_compensation_controller->update(tau_cmd_,pos_cmd_,K_cmd,D_cmd,joint_des_,joint_msr_);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
         }
         default:    // same as grav-comp
         {
-            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> NONE");
+         //   ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> NONE");
             for(std::size_t i = 0; i < joint_handles_.size();i++){
                 tau_cmd_(i)         = 0;
                 joint_des_.q(i)     = joint_msr_.q(i);
@@ -228,14 +228,14 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
 
     if(robot_ctrl_mode == ROBOT_CTRL_MODE::TORQUE_IMP)
     {
-        ROS_INFO_STREAM_THROTTLE(thrott_time,"   TORQUE_IMP    ");
+    //    ROS_INFO_STREAM_THROTTLE(thrott_time,"   TORQUE_IMP    ");
         for(size_t i=0; i<joint_handles_.size(); i++) {
             K_cmd(i)         = 0;
             D_cmd(i)         = 0;
             pos_cmd_(i)      = joint_msr_.q(i);
         }
     }else if(ctrl_mode != CTRL_MODE::GRAV_COMP){
-        ROS_INFO_STREAM_THROTTLE(thrott_time,"   POSITION_IMP   ");
+     //   ROS_INFO_STREAM_THROTTLE(thrott_time,"   POSITION_IMP   ");
         for(size_t i=0; i<joint_handles_.size(); i++) {
             K_cmd(i)         = K_(i);
             D_cmd(i)         = D_(i);
@@ -245,13 +245,13 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     }
 
 
-    ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
+ /*   ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
     ROS_INFO_STREAM_THROTTLE(thrott_time,"K_cmd:    " << K_cmd(0) << " " << K_cmd(1) << " " << K_cmd(2) << " " << K_cmd(3) << " " << K_cmd(4) << " " << K_cmd(5) << " " << K_cmd(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"D_cmd:    " << D_cmd(0) << " " << D_cmd(1) << " " << D_cmd(2) << " " << D_cmd(3) << " " << D_cmd(4) << " " << D_cmd(5) << " " << D_cmd(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"tau_cmd_: " << tau_cmd_(0) << " " <<  tau_cmd_(1) << " " <<  tau_cmd_(2) << " " << tau_cmd_(3) << " " <<  tau_cmd_(4) << " " <<  tau_cmd_(5) << " " << tau_cmd_(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"pos_cmd_: " << pos_cmd_(0) << " " <<  pos_cmd_(1) << " " <<  pos_cmd_(2) << " " << pos_cmd_(3) << " " <<  pos_cmd_(4) << " " <<  pos_cmd_(5) << " " << pos_cmd_(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
-
+*/
     /// Safety check if measured joint velocity is above specified threashold set torque and command to zero
 
     if(!safety->is_safe()){

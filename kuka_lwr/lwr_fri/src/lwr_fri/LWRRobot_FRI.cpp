@@ -138,13 +138,14 @@ void LWRRobot_FRI::doSwitch(const std::list<hardware_interface::ControllerInfo> 
             mDesired_control_strategy = JOINT_IMPEDANCE;
             break;
         }
-        else if( it->hardware_interface.compare( std::string("hardware_interface::EffortJointInterface") ) == 0 )
+        else if( it->hardware_interface.compare( std::string("hardware_interface::KUKAJointInterface") ) == 0 )
         {
             std::cout << "Request to switch to hardware_interface::EffortJointInterface (JOINT_EFFORT)" << std::endl;
-            mDesired_control_strategy = JOINT_EFFORT;
+            mDesired_control_strategy = JOINT_IMPEDANCE;
             break;
         }
     }
+
     for (int j = 0; j < n_joints_; ++j)
     {
         ///semantic Zero
@@ -178,6 +179,8 @@ void LWRRobot_FRI::doSwitch(const std::list<hardware_interface::ControllerInfo> 
 }
 
 bool LWRRobot_FRI::SetControlMode(ControlStrategy desiredMode){
+    std::cout<< "SetControlMode(" << ControlStrategy2String(desiredMode) << std::endl;
+
     if(desiredMode ==  JOINT_POSITION){
         std::cout<< "Waiting for script..." << std::endl;
         int result =  mFRI->StartRobot(FastResearchInterface::JOINT_POSITION_CONTROL, FRI_CONN_TIMEOUT_SEC);
