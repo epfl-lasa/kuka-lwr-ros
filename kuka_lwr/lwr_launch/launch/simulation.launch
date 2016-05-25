@@ -9,6 +9,7 @@
   <arg name="t1_limits" default="false"/>
 
   <arg name="rviz_config" default="$(find lwr_launch)/launch/rviz/rviz_config.rviz"/>
+  <arg name="rviz_bringup" default="true"/> <!--If false, do not launch rviz-->
 
   <arg name="hw_interface_file" default="$(find single_lwr_robot)/config/hw_interface.yaml"/>
   <arg name="controller_config_file" default="$(find single_lwr_robot)/config/controllers.yaml"/>
@@ -55,6 +56,8 @@
 
   <!-- LAUNCH RVIZ -->
 
-  <node name="lwr_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rviz_config)" output="screen"/>
+  <node name="lwr_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rviz_config)"
+        output="screen"
+        if="$(arg rviz_bringup)"/>
 
 </launch>

@@ -4,8 +4,10 @@
   <arg name="controllers" 	default="joint_controllers"/>
   <arg name="start_controller"	default="joint_controllers"/>
 
-  <arg name="rviz_config" 	default="$(find lwr_launch)/launch/rviz_config.rviz"/>
-  <arg name="load-rviz" 		default="True"/>
+  <arg name="rviz_config" default="$(find lwr_launch)/launch/rviz_config.rviz"/>
+  <arg name="load-rviz" default="true"/>
+  <arg name="rviz_bringup" default="$(arg load-rviz)"/> <!--alias-->
+
 
   <arg name="controller_file" 	default="$(find single_lwr_robot)/config/controllers.yaml"/>
   <arg name="hw_interface_file"   default="$(find single_lwr_robot)/config/hw_interface.yaml"/>
@@ -39,9 +41,8 @@
     <node name="lwr_fri" pkg="lwr_fri" type="lwr_fri_node" output="screen"/>
   </group>
 
-
   <!-- LAUNCH RVIZ -->
-  <group if="$(arg load-rviz)">
+  <group if="$(arg rviz_bringup)">
     <node name="lwr_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rviz_config)" output="screen"/>
   </group>
 </launch>
