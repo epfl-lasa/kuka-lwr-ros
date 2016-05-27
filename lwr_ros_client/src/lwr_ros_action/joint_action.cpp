@@ -54,7 +54,7 @@ bool Joint_action::update(){
             joint_dist_norm = (joint_target_pos - joint_sensed).norm();
 
             if(debug_print){
-                ros_controller_interface::utilities::ros_print_joint(1.0,joint_sensed);
+                ros_controller_interface::utilities::ros_print_joint(3.0,joint_sensed);
             }
 
             if(joint_dist_norm <= stop_threash)

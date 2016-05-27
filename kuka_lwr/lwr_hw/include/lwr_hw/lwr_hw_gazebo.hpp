@@ -95,7 +95,7 @@ public:
       case JOINT_POSITION:
         for(int j=0; j < n_joints_; j++)
         {
-            ROS_INFO_STREAM_THROTTLE(0.5,"Gazebo JOINT_POSITION");
+            ROS_INFO_STREAM_THROTTLE(3.0,"Gazebo JOINT_POSITION");
           // according to the gazebo_ros_control plugin, this must *not* be called if SetForce is going to be called
           // but should be called when SetPostion is going to be called
           // so enable this when I find the SetMaxForce reset.
@@ -114,9 +114,9 @@ public:
 
       case JOINT_IMPEDANCE:
         // compute the gracity term
-        ROS_INFO_STREAM_THROTTLE(0.5,"Gazebo JOINT_IMPEDANCE");
+        ROS_INFO_STREAM_THROTTLE(3.0,"Gazebo JOINT_IMPEDANCE");
         f_dyn_solver_->JntToGravity(joint_position_kdl_, gravity_effort_);
-        
+
         for(int j=0; j < n_joints_; j++)
         {
           // replicate the joint impedance control strategy
@@ -129,7 +129,7 @@ public:
         break;
 
       case GRAVITY_COMPENSATION:
-        ROS_INFO_STREAM_THROTTLE(0.5,"Gazebo CARTESIAN IMPEDANCE NOT IMPLEMENTED");
+        ROS_INFO_STREAM_THROTTLE(3.0,"Gazebo CARTESIAN IMPEDANCE NOT IMPLEMENTED");
         break;
     }
   }

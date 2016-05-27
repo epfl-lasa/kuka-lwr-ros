@@ -134,7 +134,7 @@ void JointKinematiscImp::update(const ros::Time& time, const ros::Duration& peri
 
     if(ctrl_type == JOINT_POSITION)
     {
-        ROS_INFO_THROTTLE(1.0,"JOINT_POSITION");
+        ROS_INFO_THROTTLE(3.0,"JOINT_POSITION");
 
         for(std::size_t i = 0; i < 7;i ++){
             joint_des_.qdot(i) = 0;
@@ -361,6 +361,3 @@ void JointKinematiscImp::setDamping(const std_msgs::Float64MultiArray::ConstPtr 
 }
 
 PLUGINLIB_EXPORT_CLASS(lwr_controllers::JointKinematiscImp, controller_interface::ControllerBase)
-
-
-
