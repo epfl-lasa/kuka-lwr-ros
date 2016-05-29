@@ -38,10 +38,7 @@ public:
 
     Cartesian_velocity(ros::NodeHandle &nh,
                         controllers::Change_ctrl_mode& change_ctrl_mode,
-                        boost::shared_ptr<KDL::ChainIkSolverVel_pinv>& ik_vel_solver,
-                        boost::shared_ptr<KDL::ChainFkSolverPos_recursive>& fk_pos_solver,
-                       double publish_rate = 100,
-                       const std::string& frame_id = "world");
+                        boost::shared_ptr<KDL::ChainIkSolverVel_pinv>& ik_vel_solver);
 
     void cart_vel_update(KDL::JntArray& tau_cmd,
                 KDL::JntArrayAcc& joint_des,
@@ -78,12 +75,7 @@ private:
     boost::shared_ptr<KDL::ChainFkSolverPos_recursive>      fk_pos_solver;
     KDL::Twist                                              x_des_vel_;
 
-    KDL::Frame                                                                          x_open_loop;
-    std::string                                                                         frame_id;
-    boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::PoseStamped> >   realtime_publisher;
-    double                                                                              last_publish_time_;
-    double                                                                              q_x,q_y,q_z,q_w; // Quaternion parameters
-    double                                                                              publish_rate_;
+
 
 };
 

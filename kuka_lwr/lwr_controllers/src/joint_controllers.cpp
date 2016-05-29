@@ -38,16 +38,6 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     J_.resize(kdl_chain_.getNrOfJoints());
     ROS_INFO("JointControllers::init finished initialise [Jacobian]!");
 
-    /// Joint resource handles
-
-   /* for(std::size_t i = 0; i < joint_handles_.size(); i++)
-    {
-        joint_handles_stiffness.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()  + "_stiffness"));
-        joint_handles_damping.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()    + "_damping"));
-        joint_handles_torque.push_back(robot->getHandle(kdl_chain_.segments[i].getJoint().getName()     + "_torque"));
-    }*/
-    ROS_INFO("JointControllers::init finished initialise [resource handles]!");
-
     qdot_msg.data.resize(kdl_chain_.getNrOfJoints());
 
     /// Safety
@@ -61,15 +51,6 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
 
     sub_stiff_             = nh_.subscribe("stiffness",        1, &JointControllers::setStiffness,         this);
     sub_damp_              = nh_.subscribe("damping",          1, &JointControllers::setDamping,           this);
-    // for debug
-    //pub_qdot_              = n.advertise<std_msgs::Float64MultiArray>("qdot",10);
-    //pub_F_                 = n.advertise<std_msgs::Float64MultiArray>("F_ee",10);
-    //pub_tau_               = n.advertise<std_msgs::Float64MultiArray>("tau_cmd",10);
-    // qdot_msg.data.resize(kdl_chain_.getNrOfJoints());
-    // F_msg.data.resize(6);
-    // tau_msg.data.resize(7);
-    ROS_INFO("JointControllers::init finished initialise [subscribers and safety]!");
-
 
     /// Dynamic reconfigure
     nd1 = ros::NodeHandle("D_param");
@@ -102,16 +83,18 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
 
     /// Controllers (joint position ,cartesian velocity/position,..)
     ff_fb_controller.reset(new controllers::FF_FB_cartesian(nh_,change_ctrl_mode));
-    cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode,ik_vel_solver_,fk_pos_solver_));
+    cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode,ik_vel_solver_));
     joint_position_controller.reset(new controllers::Joint_position(nh_,change_ctrl_mode));
     gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
     cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
+    passive_ds_controller.reset(new controllers::Passive_ds(nh_,change_ctrl_mode));
 
     change_ctrl_mode.add(ff_fb_controller.get());
     change_ctrl_mode.add(cartesian_velocity_controller.get());
     change_ctrl_mode.add(joint_position_controller.get());
     change_ctrl_mode.add(gravity_compensation_controller.get());
     change_ctrl_mode.add(cartesian_position_controller.get());
+    change_ctrl_mode.add(passive_ds_controller.get());
 
     ROS_INFO("JointControllers::init finished initialise [controllers]!");
 
@@ -127,6 +110,10 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
 
     }
     ROS_INFO("JointControllers::init finished initialise [joint position values]!");
+
+    realtime_publisher.reset( new realtime_tools::RealtimePublisher<geometry_msgs::PoseStamped>(n,"x_open_loop",1) );
+    frame_id = "world";
+    publish_rate_ = 100;
 
     ROS_INFO("Joint_controllers initialised!");
     return true;
@@ -167,6 +154,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     fk_pos_solver_->JntToCart(joint_msr_.q, x_msr_);
     fk_vel_solver_->JntToCart(joint_vel_msr_,x_dt_msr_);
 
+
     if(change_ctrl_mode.is_switching())
     {
         change_ctrl_mode.switching();
@@ -179,7 +167,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         {
         case CTRL_MODE::CART_VELOCITIY:
         {
-       //     ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_VELOCITIY");
+            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_VELOCITIY");
             cartesian_velocity_controller->cart_vel_update(tau_cmd_,joint_des_,joint_msr_,K_,D_,period,time);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
@@ -203,6 +191,13 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
           //  ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> JOINT_POSITION");
             joint_position_controller->update(joint_des_,joint_msr_,period);
             robot_ctrl_mode = ROBOT_CTRL_MODE::POSITION_IMP;
+            break;
+        }
+        case CTRL_MODE::CART_PASSIVE_DS:
+        {
+            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_PASSIVE_DS");
+            passive_ds_controller->update(tau_cmd_,J_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
+            robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
         }
         case CTRL_MODE::GRAV_COMP:
@@ -242,16 +237,19 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
             tau_cmd_(i)      = 0;
             pos_cmd_(i)      = joint_des_.q(i);
         }
+        publish_open_loop_pos(joint_des_.q,period,time);
     }
 
 
- /*   ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
+  /*  ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
     ROS_INFO_STREAM_THROTTLE(thrott_time,"K_cmd:    " << K_cmd(0) << " " << K_cmd(1) << " " << K_cmd(2) << " " << K_cmd(3) << " " << K_cmd(4) << " " << K_cmd(5) << " " << K_cmd(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"D_cmd:    " << D_cmd(0) << " " << D_cmd(1) << " " << D_cmd(2) << " " << D_cmd(3) << " " << D_cmd(4) << " " << D_cmd(5) << " " << D_cmd(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"tau_cmd_: " << tau_cmd_(0) << " " <<  tau_cmd_(1) << " " <<  tau_cmd_(2) << " " << tau_cmd_(3) << " " <<  tau_cmd_(4) << " " <<  tau_cmd_(5) << " " << tau_cmd_(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"pos_cmd_: " << pos_cmd_(0) << " " <<  pos_cmd_(1) << " " <<  pos_cmd_(2) << " " << pos_cmd_(3) << " " <<  pos_cmd_(4) << " " <<  pos_cmd_(5) << " " << pos_cmd_(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
 */
+//    tau_cmd_.data.setZero();
+
     /// Safety check if measured joint velocity is above specified threashold set torque and command to zero
 
     if(!safety->is_safe()){
@@ -265,14 +263,41 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
             joint_des_.qdot(i)     = 0;
         }
     }
-
     for(size_t i=0; i<joint_handles_.size(); i++) {
         joint_handles_[i].setCommandPosition(pos_cmd_(i));
         joint_handles_[i].setCommandTorque(tau_cmd_(i));
         joint_handles_[i].setCommandStiffness(K_cmd(i));
         joint_handles_[i].setCommandDamping(D_cmd(i));
     }
+}
 
+
+void JointControllers::publish_open_loop_pos(const KDL::JntArray& q_des_, const ros::Duration& period, const ros::Time& time){
+
+        // we're actually publishing, so increment time
+        last_publish_time_ = last_publish_time_ + period.toSec();
+
+        if(last_publish_time_ >= 1.0/publish_rate_){
+
+            fk_pos_solver_->JntToCart(q_des_,x_open_loop);
+
+            if (realtime_publisher->trylock()){
+                realtime_publisher->msg_.header.frame_id     = frame_id;
+                realtime_publisher->msg_.header.stamp        = time;
+                realtime_publisher->msg_.pose.position.x     = x_open_loop.p.x();
+                realtime_publisher->msg_.pose.position.y     = x_open_loop.p.y();
+                realtime_publisher->msg_.pose.position.z     = x_open_loop.p.z();
+
+                x_open_loop.M.GetQuaternion(q_x,q_y,q_z,q_w);
+
+                realtime_publisher->msg_.pose.orientation.x  = q_x;
+                realtime_publisher->msg_.pose.orientation.y  = q_y;
+                realtime_publisher->msg_.pose.orientation.z  = q_z;
+                realtime_publisher->msg_.pose.orientation.w  = q_w;
+                realtime_publisher->unlockAndPublish();
+                last_publish_time_ = 0;
+            }
+        }
 }
 
 
