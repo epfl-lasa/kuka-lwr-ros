@@ -33,16 +33,13 @@ public:
 
     void stop();
 
-    void update(KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_);
+    void update(KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector &p = KDL::Vector());
 
 private:
 
     /// Dynamic reconfigure
 
     void ds_param_callback(lwr_controllers::passive_ds_paramConfig& config,uint32_t level);
-
-    void rot_stiffness_callback(lwr_controllers::rot_stiffnessConfig& config,uint32_t level);
-
 
 private:
 
@@ -56,6 +53,8 @@ private:
 
     void command_rot_stiff(const std_msgs::Float64& msg);
 
+    void command_rot_damp(const std_msgs::Float64& msg);
+
     void publish_open_loop_pos(const ros::Duration &period, const ros::Time& time);
 
 private:
@@ -63,6 +62,8 @@ private:
     /// Ctrl mode
     Change_ctrl_mode&   change_ctrl_mode;
     bool                bFirst;
+    bool                bDebug;
+    bool                bSmooth;
 
 
     /// DS parameters
@@ -74,35 +75,36 @@ private:
     Vec                 F_linear_des_;     // desired linear force
     Eigen::VectorXd     F_ee_des_;         // desired end-effector force
     /// Rotation
-  //  tf::Matrix3x3       x_des_orient_rot_;
- //   tf::Matrix3x3       x_orient_des_;
-   // tf::Matrix3x3       err_orient;
     KDL::Rotation         err_orient;
     tf::Vector3           err_orient_axis;
     double                err_orient_angle;
     tf::Vector3           torque_orient;
     double                qx, qy, qz, qw;
+    tf::Quaternion        q;
 
 
+    double              smooth_val_;
     double              rot_stiffness;
+    double              rot_damping;
 
     boost::scoped_ptr<DSController>                     passive_ds_controller;
 
     /// Dynamic reconfigure
 
     boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::passive_ds_paramConfig> >      dynamic_server_ds_param;
-    boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::rot_stiffnessConfig> >         dynamic_server_rot_stiffness_param;
-    ros::NodeHandle nd5, nd6;
-
-
+    ros::NodeHandle nd5;
 
 private:
     /// ROS topic
     KDL::Twist             x_des_vel_;
-    KDL::Frame             x_des_;
+    KDL::Rotation          rot_des_;
 
     ros::Subscriber         sub_command_vel_;
     ros::Subscriber         sub_command_orient_;
+    ros::Subscriber         sub_eig_;
+    ros::Subscriber         sub_stiff_;
+    ros::Subscriber         sub_damp_;
+
 
 
     /// ROS debug
@@ -110,6 +112,7 @@ private:
     ros::Publisher                  pub_F_;
     ros::Publisher                  torque_pub_;
     std_msgs::Float64MultiArray     F_msg_,tau_msg_;
+    lwr_controllers::passive_ds_paramConfig config_cfg;
 
 };
 
