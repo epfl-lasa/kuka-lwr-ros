@@ -12,7 +12,6 @@
 #include <passive_ds_controller.h>
 #include <boost/scoped_ptr.hpp>
 #include <Eigen/Eigen>
-#include <lwr_controllers/rot_stiffnessConfig.h>
 #include <dynamic_reconfigure/server.h>
 
 #include <kdl/jntarray.hpp>
