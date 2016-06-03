@@ -4,6 +4,7 @@
 #include "robot_motion_generation/LQSolver.h"
 #include "robot_motion_generation/OCProblemFH.h"
 #include <eigen3/Eigen/Dense>
+#include <memory>
 
 namespace motion{
 
@@ -36,7 +37,7 @@ private :
     IterativeLQSolverParams solver_params;
 
     // Optimal control problem
-    OCProblemFH *prob;
+    std::shared_ptr<OCProblemFH> prob;
 
     // Current LQ approximation
     LQProblem lqprob;
@@ -47,7 +48,7 @@ private :
 public :
 
     IterativeLQSolver(int time_horizon, int x_di, int u_di, double sampling_time,
-                      const OCProblemFH & ocProb, const IterativeLQSolverParams & sparams,
+                      std::shared_ptr<OCProblemFH> ocProb, const IterativeLQSolverParams & sparams,
                       const Vector & x_initial, const LQSolution & sol_ini);
 
     // Necessary for MPC (update the initial state)

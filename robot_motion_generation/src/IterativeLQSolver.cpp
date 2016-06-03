@@ -11,12 +11,12 @@
 
 namespace motion{
 
-IterativeLQSolver::IterativeLQSolver(int time_horizon, int x_di, int u_di, double sampling_time, const OCProblemFH & ocProb, const IterativeLQSolverParams & sparams, const Vector & x_initial, const LQSolution & sol_ini) :
+IterativeLQSolver::IterativeLQSolver(int time_horizon, int x_di, int u_di, double sampling_time, std::shared_ptr<OCProblemFH> ocProb, const IterativeLQSolverParams & sparams, const Vector & x_initial, const LQSolution & sol_ini) :
     lqprob(time_horizon, x_dim, u_dim), nominal(time_horizon, x_dim, u_dim),
     nominal_new(time_horizon, x_dim, u_dim), deviations(time_horizon, x_dim, u_dim),
     T(time_horizon), solver_params(sparams), sample_time(sampling_time), x_dim(x_di), u_dim(u_di)
 {
-    prob = ocProb.clone();
+    prob = ocProb;
 
     nominal.x[0] = x_initial;
     nominal.ff = sol_ini.ff;
