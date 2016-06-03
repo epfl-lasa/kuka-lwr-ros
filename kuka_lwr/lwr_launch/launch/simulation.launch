@@ -2,8 +2,13 @@
 <launch>
   <!-- LAUNCH INTERFACE -->
 
+  <!-- The robot name is required for gazebo to spawn a model. -->
   <arg name="robot_name" default="single_lwr_robot"/>
+
+  <!-- The recommended way of specifying the URDF file is to pass it in
+       directly. -->
   <arg name="robot_path" default="$(find single_lwr_robot)/robot"/>
+  <arg name="robot_urdf_file" default="$(arg robot_path)/$(arg robot_name).urdf.xacro" />
 
   <arg name="controllers" default="joint_controllers"/>
   <arg name="t1_limits" default="false"/>
@@ -20,7 +25,7 @@
   <!-- ROBOT -->
 
   <group ns="lwr">
-    <param name="robot_description" command="$(find xacro)/xacro.py $(arg robot_path)/$(arg robot_name).urdf.xacro"/>
+    <param name="robot_description" command="$(find xacro)/xacro.py $(arg robot_urdf_file)"/>
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
   </group>
 
