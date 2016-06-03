@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <robot name="kuka_lwr" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <xacro:include filename="$(find lwr_description)/model/kuka_lwr_robot.urdf.xacro"/>
+
   <!-- This is a model of the KUKA LWR that is rooted in the 'world' frame. -->
   <xacro:macro name="kuka_lwr" params="name *origin">
     <link name="world"/>
@@ -10,7 +12,10 @@
       <turnGravityOff>true</turnGravityOff>
     </gazebo>
 
-    <xacro:include filename="$(find lwr_description)/model/kuka_lwr_robot.urdf.xacro"/>
-  </xacro:macro>
+    <xacro:kuka_lwr_variable_root name="${name}"
+                                  base_link="world"
+                                  >
+    </xacro:kuka_lwr_variable_root>
 
+  </xacro:macro>
 </robot>

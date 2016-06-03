@@ -26,7 +26,7 @@
 
 
   <!-- URDF model /-->
-  <xacro:macro name="kuka_lwr" params="name base_link *origin">
+  <xacro:macro name="kuka_lwr_variable_root" params="name base_link *origin">
 
     <!-- First (shoulder) element of the arm. Fixed to its parent. -->
     <joint name="${name}_base_joint" type="fixed">
