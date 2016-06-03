@@ -8,7 +8,6 @@
   <arg name="load-rviz" default="true"/>
   <arg name="rviz_bringup" default="$(arg load-rviz)"/> <!--alias-->
 
-
   <arg name="controller_file" 	default="$(find single_lwr_robot)/config/controllers.yaml"/>
   <arg name="hw_interface_file"   default="$(find single_lwr_robot)/config/hw_interface.yaml"/>
   <arg name="joint_limit_file"    default="$(find single_lwr_robot)/config/t1_joint_limits.yaml"/>
