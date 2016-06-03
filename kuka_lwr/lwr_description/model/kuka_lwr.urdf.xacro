@@ -25,12 +25,12 @@
   <xacro:property name="rate_daming" value="20000"/>
 
 
-  <!-- URDF model /-->
-  <xacro:macro name="kuka_lwr" params="name *origin">
+  <!-- URDF model with default base_link (world)-->
+  <xacro:macro name="kuka_lwr" params="name base_link:=world *origin">
 
-    <link name="world"/>
+    <link name="${base_link}"/>
 
-    <gazebo reference="world">
+    <gazebo reference="${base_link}">
       <static>true</static>
       <turnGravityOff>true</turnGravityOff>
     </gazebo>
@@ -40,7 +40,7 @@
     <joint name="${name}_base_joint" type="fixed">
       <insert_block name="origin"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <parent link="world"/>
+      <parent link="${base_link}"/>
       <child link="${name}_base_link"/>
     </joint>
 
@@ -85,7 +85,7 @@
 	<origin rpy="0 0 0" xyz="0 -0.06 0.130"/>
 	<cuboid_inertia_def length="0.12" width="0.06" height="0.260" mass="${link_mass}"/>
       </inertial>
- 
+
       <visual>
             <origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
             <geometry>
