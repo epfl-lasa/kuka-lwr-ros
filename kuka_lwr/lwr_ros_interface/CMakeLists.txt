@@ -50,12 +50,13 @@ set(H_FILES  	${INCLUDE_DIR}/lwr_ros_interface/switch_controller.h
                 ${INCLUDE_DIR}/lwr_ros_interface/ros_ee.h
                 ${INCLUDE_DIR}/lwr_ros_interface/ros_joint.h
                 ${INCLUDE_DIR}/lwr_ros_interface/ros_ee_j.h
+                ${INCLUDE_DIR}/lwr_ros_interface/ros_passive_ds.h
 #                ${INCLUDE_DIR}/lwr_ros_interface/lwr_ros_utilities.h
 )
 
 set(SRC_FILES   ${SRC_DIR}/ros_joint.cpp
                 ${SRC_DIR}/ros_ee_j.cpp
-              #  ${SRC_DIR}/ros_ee.cpp
+                ${SRC_DIR}/ros_passive_ds.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${H_FILES} ${SRC_FILES})

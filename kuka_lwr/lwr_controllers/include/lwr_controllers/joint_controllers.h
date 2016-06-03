@@ -42,6 +42,7 @@
 #include "controllers/ff_fb_cartesian.h"
 #include "controllers/cartesian_position.h"
 #include "controllers/change_ctrl_mode.h"
+#include "controllers/passive_ds.h"
 
 #include "utils/definitions.h"
 #include "utils/contact_safety.h"
@@ -69,6 +70,8 @@ namespace lwr_controllers
 
     private:
 
+        void publish_open_loop_pos(const KDL::JntArray &q_des_, const ros::Duration& period, const ros::Time& time);
+
         void command_set_cart_type(const std_msgs::Int32& msg);
         void setStiffness(const std_msgs::Float64MultiArray::ConstPtr &msg);
         void setDamping(const std_msgs::Float64MultiArray::ConstPtr &msg);
@@ -94,6 +97,7 @@ namespace lwr_controllers
         boost::scoped_ptr<controllers::Cartesian_position>     cartesian_position_controller;
         boost::scoped_ptr<controllers::Joint_position>         joint_position_controller;
         boost::scoped_ptr<controllers::Gravity_compensation>   gravity_compensation_controller;
+        boost::scoped_ptr<controllers::Passive_ds>             passive_ds_controller;
 
 		ros::Subscriber sub_gains_;
 		ros::Subscriber sub_posture_;
@@ -106,7 +110,7 @@ namespace lwr_controllers
 
         KDL::JntArray       tau_cmd_;
         KDL::JntArray       pos_cmd_;
-        KDL::JntArray       K_, D_,K_cmd,D_cmd;
+        KDL::JntArray       K_, D_,K_cmd,D_cmd, K_pos_, K_vel_;
 
         std::size_t         num_ctrl_joints;
 
@@ -143,10 +147,14 @@ namespace lwr_controllers
         lwr_controllers::CTRL_MODE       ctrl_mode;
         lwr_controllers::ROBOT_CTRL_MODE robot_ctrl_mode;
 
-        /// Extra handles
-       // std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_damping;
-       // std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_stiffness;
-       // std::vector<hardware_interface::PositionJointInterface::ResourceHandleType> joint_handles_torque;
+
+        KDL::Frame                                                                          x_open_loop;
+        std::string                                                                         frame_id;
+        boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::PoseStamped> >   realtime_publisher;
+        double                                                                              last_publish_time_;
+        double                                                                              q_x,q_y,q_z,q_w; // Quaternion parameters
+        double                                                                              publish_rate_;
+
 
 	};
 

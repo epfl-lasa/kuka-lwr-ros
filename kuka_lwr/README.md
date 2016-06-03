@@ -32,8 +32,6 @@ The abstraction is enforced with [three pure virtual functions](lwr_hw/include/l
 
 Adding an interface boils down to inherit from the [LWRHW class](lwr_hw/include/lwr_hw/lwr_hw.h#L33), implement these three function according to your final platform, and creating either a node or a plugin that uses your new class. This way you can use all your planning and controllers setup in any final real or simulated robot.
 
-Examples of final interface class implementations are found for the [Kuka FRI](lwr_hw/include/lwr_hw/lwr_hw_fri.hpp), [Stanford FRI library](lwr_hw/include/lwr_hw/lwr_hw_fril.hpp) and a [Gazebo simulation](lwr_hw/include/lwr_hw/lwr_hw_gazebo.hpp). The corresponding nodes and plugin are found [here](lwr_hw/src/lwr_hw_fri_node.cpp), [here](lwr_hw/src/lwr_hw_fril_node.cpp), and [here](lwr_hw/src/lwr_hw_gazebo_plugin.cpp).
-
 ## Using the Stanford FRI Library
 
 You need to provide your user name with real time priority and memlock limits higher than the default ones. You can do it permanently like this:
