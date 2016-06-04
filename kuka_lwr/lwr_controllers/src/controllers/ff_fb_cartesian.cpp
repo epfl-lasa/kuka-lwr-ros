@@ -35,7 +35,7 @@ void FF_FB_cartesian::update(KDL::JntArray &tau_cmd, const KDL::Frame& x_, const
         }
     }
 
-    ROS_INFO_THROTTLE(1.0,"Exert force %f, %f, %f\n", cur_plan.ff[i].force.x, cur_plan.ff[i].force.y, cur_plan.ff[i].force.z);
+    ROS_INFO_THROTTLE(0.002,"Exert force %f, %f, %f\n", cur_plan.ff[i].force.x, cur_plan.ff[i].force.y, cur_plan.ff[i].force.z);
 
     u_ff[0] = cur_plan.ff[i].force.x;
     u_ff[1] = cur_plan.ff[i].force.y;
@@ -44,22 +44,27 @@ void FF_FB_cartesian::update(KDL::JntArray &tau_cmd, const KDL::Frame& x_, const
     u_ff[4] = cur_plan.ff[i].torque.y;
     u_ff[5] = cur_plan.ff[i].torque.z;
 
+    // Error vector for second order dynamics
+    Eigen::VectorXd e(12);
+
+    e << cur_plan.xd[i].position.x, cur_plan.xd[i].position.y, cur_plan.xd[i].position.z, 0, 0, 0,
+         cur_plan.xd_dot[i].linear.x - x_dot_.vel.x() , cur_plan.xd_dot[i].linear.y - x_dot_.vel.y() , cur_plan.xd_dot[i].linear.z - x_dot_.vel.z() , 0, 0, 0;
+
     // Construct Eigen feedback matrix
     Eigen::MatrixXd K(6, 12);
     int ii = 0;
-    for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 12; ++j) {
-            K(i, j) = cur_plan.fb[i].data[ii++];
+    for (int j = 0; j < 6; ++j) {
+        for (int k = 0; k < 12; ++k) {
+            K(j, k) = cur_plan.fb[i].data[ii++];
         }
     }
 
-    // Error vector for second order dynamics
-    Eigen::VectorXd e(12);
-    e << cur_plan.xd[i].position.x - x_.p.x(), cur_plan.xd[i].position.y - x_.p.y(), cur_plan.xd[i].position.z - x_.p.z() , Eigen::VectorXd::Zero(3) ,
-         cur_plan.xd_dot[i].linear.x - x_dot_.vel.x() , cur_plan.xd_dot[i].linear.y - x_dot_.vel.y() , cur_plan.xd_dot[i].linear.z - x_dot_.vel.z() , Eigen::VectorXd::Zero(3);
-
     // Control law = J^T (u_ff + K (x_d - x))
+    //tau_cmd.data = J_.data.transpose() * (u_ff + K*e);
     tau_cmd.data = J_.data.transpose() * (u_ff + K*e);
+
+    //ROS_INFO_THROTTLE(0.002,"u_ff %f, %f, %f, %f, %f, %f\n", u_ff[0], u_ff[1], u_ff[2], u_ff[3], u_ff[4], u_ff[5]);
+    //ROS_INFO_THROTTLE(0.002,"error at sample %d: %f, %f, %f, %f, %f, %f\n", i, cur_plan.xd[i].position.x, cur_plan.xd[i].position.y, cur_plan.xd[i].position.z, e(6), e(7), e(8));
 }
 
 
@@ -69,9 +74,9 @@ void FF_FB_cartesian::command_ff_fb(const lwr_controllers::FF_FB_planConstPtr &m
     // Copy the whole feedback plan
     cur_plan.times = msg->times;
     cur_plan.ff = msg->ff;
-    cur_plan.fb = msg->fb;
     cur_plan.xd = msg->xd;
     cur_plan.xd_dot = msg->xd_dot;
+    cur_plan.fb = msg->fb;
 
     if(!bFirst){
         change_ctrl_mode.switch_mode(lwr_controllers::CTRL_MODE::FF_FB_CARTESIAN);
