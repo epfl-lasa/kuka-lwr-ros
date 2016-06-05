@@ -235,7 +235,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     //    ROS_INFO_STREAM_THROTTLE(thrott_time,"   TORQUE_IMP    ");
         for(size_t i=0; i<joint_handles_.size(); i++) {
             K_cmd(i)         = 0;
-            D_cmd(i)         = 0;
+            D_cmd(i)         = D_(i);
             pos_cmd_(i)      = joint_msr_.q(i);
         }
     }else if(ctrl_mode != CTRL_MODE::GRAV_COMP){

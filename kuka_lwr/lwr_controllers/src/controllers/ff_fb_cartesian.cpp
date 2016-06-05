@@ -35,7 +35,7 @@ void FF_FB_cartesian::update(KDL::JntArray &tau_cmd, const KDL::Frame& x_, const
         }
     }
 
-    ROS_INFO_THROTTLE(0.002,"Exert force %f, %f, %f\n", cur_plan.ff[i].force.x, cur_plan.ff[i].force.y, cur_plan.ff[i].force.z);
+    ROS_INFO_THROTTLE(1.0,"Exert force %f, %f, %f\n", cur_plan.ff[i].force.x, cur_plan.ff[i].force.y, cur_plan.ff[i].force.z);
 
     u_ff[0] = cur_plan.ff[i].force.x;
     u_ff[1] = cur_plan.ff[i].force.y;
@@ -60,9 +60,9 @@ void FF_FB_cartesian::update(KDL::JntArray &tau_cmd, const KDL::Frame& x_, const
     }
 
     // Control law = J^T (u_ff + K (x_d - x))
-    //tau_cmd.data = J_.data.transpose() * (u_ff + K*e);
     tau_cmd.data = J_.data.transpose() * (u_ff + K*e);
 
+    //ROS_INFO_THROTTLE(0.002,"torque ->  %f, %f, %f, %f, %f, %f\n", tau_cmd.data[0], tau_cmd.data[1],tau_cmd.data[2],tau_cmd.data[3],tau_cmd.data[4],tau_cmd.data[5],tau_cmd.data[6]);
     //ROS_INFO_THROTTLE(0.002,"u_ff %f, %f, %f, %f, %f, %f\n", u_ff[0], u_ff[1], u_ff[2], u_ff[3], u_ff[4], u_ff[5]);
     //ROS_INFO_THROTTLE(0.002,"error at sample %d: %f, %f, %f, %f, %f, %f\n", i, cur_plan.xd[i].position.x, cur_plan.xd[i].position.y, cur_plan.xd[i].position.z, e(6), e(7), e(8));
 }
