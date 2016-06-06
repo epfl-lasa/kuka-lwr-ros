@@ -52,10 +52,10 @@ void FF_FB_cartesian::update(KDL::JntArray &tau_cmd, const KDL::Frame& x_, const
         }
     }
 
+    // Control law = J^T (u_ff + K (x_d - x))
     Eigen::VectorXd u;
     u = u_ff + K*e;
 
-    // Control law = J^T (u_ff + K (x_d - x))
     tau_cmd.data = J_.data.transpose() * u;
 
     //ROS_INFO_THROTTLE(0.002,"torque ->  %f, %f, %f, %f, %f, %f\n", tau_cmd.data[0], tau_cmd.data[1],tau_cmd.data[2],tau_cmd.data[3],tau_cmd.data[4],tau_cmd.data[5],tau_cmd.data[6]);
