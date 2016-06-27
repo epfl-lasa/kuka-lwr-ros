@@ -69,6 +69,7 @@ std::string getURDF(ros::NodeHandle &model_nh_, std::string param_name)
 
 void populateFloatArrayMatrix(std_msgs::Float64MultiArray &msg, float **matrix, size_t d1, size_t d2) {
   int ii = 0;
+  if (msg.data.size() != (d1*d2)) msg.data.resize(d1*d2);
   for (int j = 0; j < d1; ++j) {
     for (int k = 0; k < d2; ++k) {
       msg.data[ii++] = matrix[j][k];
@@ -114,7 +115,6 @@ int main(int argc, char** argv){
     ros::Time last(ts.tv_sec, ts.tv_nsec), now(ts.tv_sec, ts.tv_nsec);
     ros::Duration period(1.0);
 
-
     // Publish inertia matrix and Jacobian
     float **inertia_matrix =  new float*[7];
     for(int i = 0; i < 7; ++i) {
@@ -158,17 +158,16 @@ int main(int argc, char** argv){
         fri_interface.mFRI->GetCurrentJacobianMatrix(jacobian_matrix);
         populateFloatArrayMatrix(inertia_msg, inertia_matrix, 7, 7);
         populateFloatArrayMatrix(jacobian_msg, jacobian_matrix, 6, 7);
-        inertia_pub.publish(inertia_msg);
-        jacobian_pub.publish(jacobian_msg);
-
         manager.update(now, period);
 
         lwr_robot_fri.write(now, period);
 
 
         elapsed_time = elapsed_time + period.toSec();
-        if(elapsed_time > 0.02){
+        if(elapsed_time > 0.001){
             fri_interface.publish(lwr_robot_fri);
+            inertia_pub.publish(inertia_msg);
+            jacobian_pub.publish(jacobian_msg);
             elapsed_time=0;
         }
     }
