@@ -67,6 +67,15 @@ std::string getURDF(ros::NodeHandle &model_nh_, std::string param_name)
     return urdf_string;
 }
 
+void populateFloatArrayMatrix(std_msgs::Float64MultiArray &msg, float **matrix, size_t d1, size_t d2) {
+  int ii = 0;
+  for (int j = 0; j < d1; ++j) {
+    for (int k = 0; k < d2; ++k) {
+      msg.data[ii++] = matrix[j][k];
+    }
+  }
+}
+
 int main(int argc, char** argv){
 
 
@@ -106,6 +115,24 @@ int main(int argc, char** argv){
     ros::Duration period(1.0);
 
 
+    // Publish inertia matrix and Jacobian
+    float **inertia_matrix =  new float*[7];
+    for(int i = 0; i < 7; ++i) {
+        inertia_matrix[i] = new float[7];
+    }
+    float **jacobian_matrix =  new float*[6];
+    for(int i = 0; i < 7; ++i) {
+        jacobian_matrix[i] = new float[7];
+    }
+
+    std_msgs::Float64MultiArray inertia_msg;
+    std_msgs::Float64MultiArray jacobian_msg;
+
+    ros::Publisher inertia_pub  = lwr_nh.advertise<std_msgs::Float64MultiArray>("/lwr/inertia", 1);
+    ros::Publisher jacobian_pub  = lwr_nh.advertise<std_msgs::Float64MultiArray>("/lwr/jacobian", 1);
+
+
+
     ROS_INFO("==== READY TO START ====");
     double elapsed_time = 0;
     while( !g_quit )
@@ -126,6 +153,14 @@ int main(int argc, char** argv){
 
         lwr_robot_fri.read(now,period);
 
+        // Inertia and Jacobian publishing
+        fri_interface.mFRI->GetCurrentMassMatrix(inertia_matrix);
+        fri_interface.mFRI->GetCurrentJacobianMatrix(jacobian_matrix);
+        populateFloatArrayMatrix(inertia_msg, inertia_matrix, 7, 7);
+        populateFloatArrayMatrix(jacobian_msg, jacobian_matrix, 6, 7);
+        inertia_pub.publish(inertia_msg);
+        jacobian_pub.publish(jacobian_msg);
+
         manager.update(now, period);
 
         lwr_robot_fri.write(now, period);
@@ -136,6 +171,13 @@ int main(int argc, char** argv){
             fri_interface.publish(lwr_robot_fri);
             elapsed_time=0;
         }
+    }
+
+    for(int i = 0; i < 7; ++i) {
+        delete [] inertia_matrix[i];
+    }
+    for(int i = 0; i < 6; ++i) {
+        delete [] jacobian_matrix[i];
     }
 
     std::cerr<<"Stopping spinner..."<<std::endl;

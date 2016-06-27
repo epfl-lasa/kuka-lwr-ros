@@ -8,14 +8,10 @@ namespace controllers{
     : Base_controllers(lwr_controllers::CTRL_MODE::FF_FB_CARTESIAN),
       change_ctrl_mode(change_ctrl_mode), u_ff(6)
   {
-    sub_command_ff_fb_       = nh.subscribe("command_ff_fb_plan",      1, &FF_FB_cartesian::command_ff_fb,     this);
+    sub_command_ff_fb_ = nh.subscribe("command_ff_fb_plan", 1, &FF_FB_cartesian::command_ff_fb, this, ros::TransportHints().reliable().tcpNoDelay());
 
     des_pos_pub_ =  nh.advertise<geometry_msgs::PoseStamped>("selected_target_pos", 1);
     debug_control_pub_ =  nh.advertise<sensor_msgs::JointState>("control_output", 1);
-
-
-
-
 
     bFirst = false;
     u_ff.setZero();
@@ -40,14 +36,14 @@ namespace controllers{
     // Get the corresponding sample of the FF FB trajectory
     for (i = 0 ; i < static_cast<int>(cur_plan.times.size()-2); i++) {
       if ( cur_plan.times[i].data > time_now ) {
-	if (i>0) {
-	  i--;
-	}
-	break;
+        if (i>0) {
+          i--;
+        }
+        break;
       }
     }
 
-    // right now, this restarts from i=0 everytime a new trajectory has arrived. 
+    // right now, this restarts from i=0 everytime a new trajectory has arrived.
 
     ROS_INFO_THROTTLE(1.0,"Exert force %f, %f, %f\n", cur_plan.ff[i].force.x, cur_plan.ff[i].force.y, cur_plan.ff[i].force.z);
     std::cout<<"chosen index: "<<i<<std::endl;
@@ -75,7 +71,7 @@ namespace controllers{
     int ii = 0;
     for (int j = 0; j < 6; ++j) {
       for (int k = 0; k < 12; ++k) {
-	K(j, k) = cur_plan.fb[i].data[ii++];
+        K(j, k) = cur_plan.fb[i].data[ii++];
       }
     }
     //K.setZero();
@@ -87,16 +83,15 @@ namespace controllers{
     // Control law = J^T (u_ff + K (x_d - x))
     //u_ff *= 0.0;
     tau_cmd.data = J_.data.transpose() * (u_ff + K*e);
+    sensor_msgs::JointState jmsg;
+     jmsg.header.stamp = ros::Time::now();
+     jmsg.effort.resize(7);
+     for(size_t k=0; k< 7; ++k){
+       jmsg.effort[k] = tau_cmd.data(k);
+     }
+    debug_control_pub_.publish(jmsg);
 
-    // sensor_msgs::JointState jmsg;
-    // jmsg.header.stamp = ros::Time::now();
-    // jmsg.effort.resize(7);
-    // for(size_t k=0; k< 7; ++k){
-    //   jmsg.effort[k] = tau_cmd.data(k);
-    // }
-    // debug_control_pub_.publish(jmsg);
 
-    ros::spinOnce();
     // std::cout<<"aaah"<<u_ff+K*e<<std::endl;
     // ROS_INFO_THROTTLE(0.002,"torque ->  %f, %f, %f, %f, %f, %f\n", tau_cmd.data[0], tau_cmd.data[1],tau_cmd.data[2],tau_cmd.data[3],tau_cmd.data[4],tau_cmd.data[5],tau_cmd.data[6]);
     // ROS_INFO_THROTTLE(0.002,"u_ff %f, %f, %f, %f, %f, %f\n", u_ff[0], u_ff[1], u_ff[2], u_ff[3], u_ff[4], u_ff[5]);
@@ -114,13 +109,13 @@ namespace controllers{
     cur_plan.xd_dot = msg->xd_dot;
     cur_plan.fb = msg->fb;
 
-    sensor_msgs::JointState jmsg;
+    //sensor_msgs::JointState jmsg;
     // jmsg.header.stamp = ros::Time::now();
     // jmsg.effort.resize(7);
     // for(size_t k=0; k< 7; ++k){
     //   jmsg.effort[k] = tau_cmd.data(k);
     // }
-    debug_control_pub_.publish(jmsg);
+//    debug_control_pub_.publish(jmsg);
 
 
     if(!bFirst){
