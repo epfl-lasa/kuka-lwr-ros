@@ -13,6 +13,8 @@ namespace controllers{
     des_pos_pub_ =  nh.advertise<geometry_msgs::PoseStamped>("selected_target_pos", 1);
     debug_control_pub_ =  nh.advertise<sensor_msgs::JointState>("control_output", 1);
 
+    should_update = true;
+
     bFirst = false;
     u_ff.setZero();
     ROS_INFO_STREAM("constructor [FF_FB]");
@@ -63,8 +65,11 @@ namespace controllers{
     // Error vector for second order dynamics
     Eigen::VectorXd e(12);
     
+    //e << cur_plan.xd[i].position.x -x_.p[0], cur_plan.xd[i].position.y - x_.p[1], cur_plan.xd[i].position.z - x_.p[2], 0, 0, 0,
+     // cur_plan.xd_dot[i].linear.x - x_dot_.vel.x() , cur_plan.xd_dot[i].linear.y - x_dot_.vel.y() , cur_plan.xd_dot[i].linear.z - x_dot_.vel.z() , 0, 0, 0;
     e << cur_plan.xd[i].position.x -x_.p[0], cur_plan.xd[i].position.y - x_.p[1], cur_plan.xd[i].position.z - x_.p[2], 0, 0, 0,
-      cur_plan.xd_dot[i].linear.x - x_dot_.vel.x() , cur_plan.xd_dot[i].linear.y - x_dot_.vel.y() , cur_plan.xd_dot[i].linear.z - x_dot_.vel.z() , 0, 0, 0;
+      0,0,0 , 0, 0, 0;
+
 
     // Construct Eigen feedback matrix
     Eigen::MatrixXd K(6, 12);
@@ -90,6 +95,7 @@ namespace controllers{
        jmsg.effort[k] = tau_cmd.data(k);
      }
     debug_control_pub_.publish(jmsg);
+    tau_cmd.data.setZero();
 
 
     // std::cout<<"aaah"<<u_ff+K*e<<std::endl;
@@ -102,12 +108,14 @@ namespace controllers{
   void FF_FB_cartesian::command_ff_fb(const lwr_controllers::FF_FB_planConstPtr &msg){
     ROS_INFO_THROTTLE(1.0,"command_ff_fb");
 
+    if (should_update) {
     // Copy the whole feedback plan
     cur_plan.times = msg->times;
     cur_plan.ff = msg->ff;
     cur_plan.xd = msg->xd;
     cur_plan.xd_dot = msg->xd_dot;
     cur_plan.fb = msg->fb;
+    }
 
     //sensor_msgs::JointState jmsg;
     // jmsg.header.stamp = ros::Time::now();
@@ -116,6 +124,7 @@ namespace controllers{
     //   jmsg.effort[k] = tau_cmd.data(k);
     // }
 //    debug_control_pub_.publish(jmsg);
+    //should_update = false;
 
 
     if(!bFirst){

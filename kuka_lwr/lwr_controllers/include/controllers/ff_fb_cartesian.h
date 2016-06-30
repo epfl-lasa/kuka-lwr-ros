@@ -50,7 +50,7 @@ namespace controllers
     ros::Publisher debug_control_pub_;
   
     lwr_controllers::FF_FB_plan cur_plan;
-    bool                        bFirst;
+    bool                        bFirst, should_update;
 
     Eigen::VectorXd             u_ff;         // desired end-effector force
 

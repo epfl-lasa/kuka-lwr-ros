@@ -73,7 +73,7 @@ void Fri_interface::publish(const kfb::LWRRobot_FRI& kuka_robot){
     joint_states_msg.effort            = kuka_robot.joint_effort_;
 
     fri_pub.publish(fri_data);
-    joint_state_pub.publish(joint_states_msg);
+    //joint_state_pub.publish(joint_states_msg);
     cart_force_torque_pub.publish(ee_ft_msg);
     joint_external_ft_pub.publish(j_ext_ft_msg);
 }

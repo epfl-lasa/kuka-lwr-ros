@@ -114,6 +114,7 @@ int main(int argc, char** argv){
     struct timespec ts = {0, 0};
     ros::Time last(ts.tv_sec, ts.tv_nsec), now(ts.tv_sec, ts.tv_nsec);
     ros::Duration period(1.0);
+    ros::Rate rate(1000.0);
 
     // Publish inertia matrix and Jacobian
     float **inertia_matrix =  new float*[7];
@@ -164,12 +165,15 @@ int main(int argc, char** argv){
 
 
         elapsed_time = elapsed_time + period.toSec();
-        if(elapsed_time > 0.001){
+        if(elapsed_time > 0.02){
             fri_interface.publish(lwr_robot_fri);
-            inertia_pub.publish(inertia_msg);
-            jacobian_pub.publish(jacobian_msg);
             elapsed_time=0;
         }
+
+        inertia_pub.publish(inertia_msg);
+        jacobian_pub.publish(jacobian_msg);
+
+        rate.sleep();
     }
 
     for(int i = 0; i < 7; ++i) {
