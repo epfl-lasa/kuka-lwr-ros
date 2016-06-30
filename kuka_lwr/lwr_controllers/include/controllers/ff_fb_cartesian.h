@@ -25,32 +25,36 @@
 namespace controllers
 {
 
-class FF_FB_cartesian : public Base_controllers {
+  class FF_FB_cartesian : public Base_controllers {
 
-public:
+  public:
 
     FF_FB_cartesian(ros::NodeHandle &nh,
-                        controllers::Change_ctrl_mode& change_ctrl_mode);
+		    controllers::Change_ctrl_mode& change_ctrl_mode);
 
     void update(KDL::JntArray &tau_cmd, const KDL::Frame& x_, const KDL::Twist& x_dot_, const KDL::Jacobian& J_);
 
     void stop();
 
-private:
+  private:
 
     void command_ff_fb(const lwr_controllers::FF_FB_planConstPtr &msg);
 
-private:
+  private:
 
     Change_ctrl_mode &change_ctrl_mode;
 
     ros::Subscriber             sub_command_ff_fb_;
+
+    ros::Publisher des_pos_pub_;
+    ros::Publisher debug_control_pub_;
+  
     lwr_controllers::FF_FB_plan cur_plan;
-    bool                        bFirst;
+    bool                        bFirst, should_update;
 
     Eigen::VectorXd             u_ff;         // desired end-effector force
 
-};
+  };
 
 }
 

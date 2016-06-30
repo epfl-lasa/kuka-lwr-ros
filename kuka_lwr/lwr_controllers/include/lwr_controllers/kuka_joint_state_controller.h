@@ -49,7 +49,7 @@ private:
     boost::shared_ptr<KDL::ChainFkSolverVel_recursive>  fk_vel_solver_;
     boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
     KDL::Frame          x_;     // current pos
-    KDL::FrameVel          x_dot_, x_dot_prev_;     // current vel
+    KDL::FrameVel       x_dot_, x_dot_prev_;     // current vel
     KDL::Wrench         x_dotdot_;     // current accel
 
     KDL::JntArray K_, D_;
