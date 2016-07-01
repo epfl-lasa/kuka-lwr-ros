@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   passive_ds_control
   eigen_conversions
   lwr_hw
+  sg_differentiation
 )
 
 #add_definitions(-DUSE_DOUBLE_PRECISION)

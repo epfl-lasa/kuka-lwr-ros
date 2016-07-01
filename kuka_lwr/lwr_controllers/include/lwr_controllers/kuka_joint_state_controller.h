@@ -13,6 +13,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <kdl/chainfksolvervel_recursive.hpp>
 #include <control_toolbox/filters.h>
+#include "sg_filter.h"
 
 #include "KinematicChainControllerBase.h"
 
@@ -49,8 +50,9 @@ private:
     boost::shared_ptr<KDL::ChainFkSolverVel_recursive>  fk_vel_solver_;
     boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
     KDL::Frame          x_;     // current pos
-    KDL::FrameVel       x_dot_, x_dot_prev_;     // current vel
-    KDL::Wrench         x_dotdot_;     // current accel
+    KDL::FrameVel       x_dot_;     // current vel
+
+    boost::shared_ptr<SGF::SavitzkyGolayFilter> filter_velocity_;
 
     KDL::JntArray K_, D_;
     KDL::JntArrayVel joint_msr_states_;

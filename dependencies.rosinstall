@@ -7,3 +7,6 @@
 - git:
     local-name: passive-ds-control
     uri: https://github.com/epfl-lasa/passive-ds-control.git
+- git:
+    local-name: sg_differentiation
+    uri: git@github.com:epfl-lasa/sg_differentiation.git
