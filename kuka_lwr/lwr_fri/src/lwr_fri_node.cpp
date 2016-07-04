@@ -114,7 +114,7 @@ int main(int argc, char** argv){
     struct timespec ts = {0, 0};
     ros::Time last(ts.tv_sec, ts.tv_nsec), now(ts.tv_sec, ts.tv_nsec);
     ros::Duration period(1.0);
-    ros::Rate rate(1000.0);
+    ros::Rate rate(2000.0);
 
     // Publish inertia matrix and Jacobian
     float **inertia_matrix =  new float*[7];
@@ -132,10 +132,9 @@ int main(int argc, char** argv){
     ros::Publisher inertia_pub  = lwr_nh.advertise<std_msgs::Float64MultiArray>("/lwr/inertia", 1);
     ros::Publisher jacobian_pub  = lwr_nh.advertise<std_msgs::Float64MultiArray>("/lwr/jacobian", 1);
 
-
-
     ROS_INFO("==== READY TO START ====");
-    double elapsed_time = 0;
+    double elapsed_time_status = 0;
+    double elapsed_time_jacobian_inertia = 0;
     while( !g_quit )
     {
         // get the time / period
@@ -154,24 +153,32 @@ int main(int argc, char** argv){
 
         lwr_robot_fri.read(now,period);
 
-        // Inertia and Jacobian publishing
-        fri_interface.mFRI->GetCurrentMassMatrix(inertia_matrix);
-        fri_interface.mFRI->GetCurrentJacobianMatrix(jacobian_matrix);
-        populateFloatArrayMatrix(inertia_msg, inertia_matrix, 7, 7);
-        populateFloatArrayMatrix(jacobian_msg, jacobian_matrix, 6, 7);
         manager.update(now, period);
 
         lwr_robot_fri.write(now, period);
 
+        // Additional publishers apart from ROS control
+        elapsed_time_status = elapsed_time_status + period.toSec();
+        elapsed_time_jacobian_inertia = elapsed_time_jacobian_inertia + period.toSec();
 
-        elapsed_time = elapsed_time + period.toSec();
-        if(elapsed_time > 0.02){
+        fri_interface.mFRI->GetCurrentMassMatrix(inertia_matrix);
+        fri_interface.mFRI->GetCurrentJacobianMatrix(jacobian_matrix);
+        populateFloatArrayMatrix(inertia_msg, inertia_matrix, 7, 7);
+        populateFloatArrayMatrix(jacobian_msg, jacobian_matrix, 6, 7);
+
+        // Publish FRI status with 50 Hz
+        if (elapsed_time_status > 0.02) {
             fri_interface.publish(lwr_robot_fri);
-            elapsed_time=0;
+            elapsed_time_status=0.0;
+        }
+        // Publish jacobian and inertia with 1 kHz
+        if (elapsed_time_jacobian_inertia > 0.001) {
+            inertia_pub.publish(inertia_msg);
+            jacobian_pub.publish(jacobian_msg);
+            elapsed_time_jacobian_inertia=0.0;
         }
 
-        inertia_pub.publish(inertia_msg);
-        jacobian_pub.publish(jacobian_msg);
+
 
         rate.sleep();
     }
