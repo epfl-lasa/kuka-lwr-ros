@@ -77,8 +77,8 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     // Gains for cartesian velocity control
     // TODO: add to parameter server
     for(size_t i=0; i<joint_handles_.size(); i++) {
-        K_pos_(i)           = 200;
-        K_vel_(i)           = 50;
+        K_pos_(i)           = 0;
+        K_vel_(i)           = 20;
     }
 
     /// Solvers (Kinematics, etc...)
