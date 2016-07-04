@@ -31,7 +31,7 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
     }
 
     const int filter_position_order = 3;
-    const int filter_position_winlen = 33;
+    const int filter_position_winlen = 29;
 
     filter_velocity_.reset(new SGF::SavitzkyGolayFilter(3, filter_position_order,
                                                         filter_position_winlen, 1.0/publish_rate_));
@@ -40,7 +40,7 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
     realtime_pub_.reset(new realtime_tools::RealtimePublisher<sensor_msgs::JointState>(root_nh, "joint_states", 4));
 
     // get joints and allocate message
-    for (unsigned i=0; i<joint_names.size(); i++){
+    for (unsigned i=0; i<joint_names.size(); i++) {
         joint_state_.push_back(robot->getHandle(joint_names[i]));
         realtime_pub_->msg_.name.push_back(joint_names[i]);
         realtime_pub_->msg_.position.push_back(0.0);
@@ -48,21 +48,21 @@ bool KUKAJointStateController::init(hardware_interface::JointStateInterface* rob
         realtime_pub_->msg_.effort.push_back(0.0);
     }
 
-    for (unsigned i=0; i<=7; i++){
+    for (unsigned i=0; i<=7; i++) {
           realtime_pub_->msg_.name.push_back("lwr_" + boost::lexical_cast<std::string>(i) + "_joint_stiffness");
           realtime_pub_->msg_.position.push_back(0.0);
           realtime_pub_->msg_.velocity.push_back(0.0);
           realtime_pub_->msg_.effort.push_back(0.0);
       }
 
-    for (unsigned i=0; i<=7; i++){
+    for (unsigned i=0; i<=7; i++) {
           realtime_pub_->msg_.name.push_back("lwr_" + boost::lexical_cast<std::string>(i) + "_joint_damping");
           realtime_pub_->msg_.position.push_back(0.0);
           realtime_pub_->msg_.velocity.push_back(0.0);
           realtime_pub_->msg_.effort.push_back(0.0);
       }
 
-    for (unsigned i=0; i<=7; i++){
+    for (unsigned i=0; i<=7; i++) {
           realtime_pub_->msg_.name.push_back("lwr_" + boost::lexical_cast<std::string>(i) + "_joint_torque");
           realtime_pub_->msg_.position.push_back(0.0);
           realtime_pub_->msg_.velocity.push_back(0.0);
