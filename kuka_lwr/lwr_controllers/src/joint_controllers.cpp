@@ -98,7 +98,7 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
 
     /// Controllers (joint position ,cartesian velocity/position,..)
     ff_fb_controller.reset(new controllers::FF_FB_cartesian(nh_,change_ctrl_mode));
-    cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode,ik_vel_solver_));
+    cartesian_velocity_controller.reset(new controllers::Cartesian_velocity(nh_,change_ctrl_mode));
     joint_position_controller.reset(new controllers::Joint_position(nh_,change_ctrl_mode));
     gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
     cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
@@ -183,7 +183,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         case CTRL_MODE::CART_VELOCITIY:
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_VELOCITIY");
-            cartesian_velocity_controller->cart_vel_update(tau_cmd_,joint_des_,joint_msr_,D_vel_,K_vel_,period,time,x_msr_,x_dt_msr_.GetTwist(), J_);
+            cartesian_velocity_controller->cart_vel_update(tau_cmd_,D_vel_,K_vel_,x_dt_msr_.GetTwist(), J_);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
         }

@@ -8,9 +8,7 @@
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
-
-#include <tf/LinearMath/Matrix3x3.h>
-#include <tf/LinearMath/Vector3.h>
+#include <geometry_msgs/Wrench.h>
 
 #include <realtime_tools/realtime_publisher.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -37,17 +35,11 @@ public:
 public:
 
     Cartesian_velocity(ros::NodeHandle &nh,
-                        controllers::Change_ctrl_mode& change_ctrl_mode,
-                        boost::shared_ptr<KDL::ChainIkSolverVel_pinv>& ik_vel_solver);
+                        controllers::Change_ctrl_mode& change_ctrl_mode);
 
     void cart_vel_update(KDL::JntArray&             tau_cmd,
-                             KDL::JntArrayAcc&          joint_des,
-                             const KDL::JntArrayAcc&    q_msr,
                              const KDL::JntArray&       K,
                              const KDL::JntArray&       D,
-                             const ros::Duration&       period,
-                             const ros::Time&           time,
-                             const KDL::Frame&          x_,
                              const KDL::Twist&          x_dot_,
                              const KDL::Jacobian&       J_);
 
@@ -56,26 +48,18 @@ public:
 private:
 
     void command_cart_vel(const geometry_msgs::TwistConstPtr& msg);
-
-    void command_orient(const geometry_msgs::Quaternion &msg);
-
-    void publish_open_loop_pos(const ros::Duration &period, const ros::Time& time);
+    void command_grav_wrench(const geometry_msgs::WrenchConstPtr &msg);
 
 private:
 
     Change_ctrl_mode &change_ctrl_mode;
 
     ros::Subscriber     sub_command_vel_;
-    ros::Subscriber     sub_command_orient_;
+    ros::Subscriber     sub_command_grav_wrench_;
+    Eigen::Matrix<double,6,1>     grav_wrench_;
 
-    tf::Quaternion      x_des_orient_;
-    tf::Matrix3x3       x_des_orient_rot_;
-    tf::Matrix3x3       x_orient_;
-    double              rot_stiffness;
     bool                bFirst;
 
-    boost::shared_ptr<KDL::ChainIkSolverVel_pinv>           ik_vel_solver_;
-    boost::shared_ptr<KDL::ChainFkSolverPos_recursive>      fk_pos_solver;
     KDL::Twist                                              x_des_vel_;
 
 
