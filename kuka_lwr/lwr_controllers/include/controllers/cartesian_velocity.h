@@ -40,13 +40,16 @@ public:
                         controllers::Change_ctrl_mode& change_ctrl_mode,
                         boost::shared_ptr<KDL::ChainIkSolverVel_pinv>& ik_vel_solver);
 
-    void cart_vel_update(KDL::JntArray& tau_cmd,
-                KDL::JntArrayAcc& joint_des,
-                const KDL::JntArrayAcc& q_msr,
-                const KDL::JntArray& K,
-                const KDL::JntArray& D,
-                const ros::Duration& period,
-                const ros::Time &time);
+    void cart_vel_update(KDL::JntArray&             tau_cmd,
+                             KDL::JntArrayAcc&          joint_des,
+                             const KDL::JntArrayAcc&    q_msr,
+                             const KDL::JntArray&       K,
+                             const KDL::JntArray&       D,
+                             const ros::Duration&       period,
+                             const ros::Time&           time,
+                             const KDL::Frame&          x_,
+                             const KDL::Twist&          x_dot_,
+                             const KDL::Jacobian&       J_);
 
     void stop();
 

@@ -31,20 +31,24 @@ void Cartesian_velocity::stop(){
 void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
                                          KDL::JntArrayAcc&          joint_des,
                                          const KDL::JntArrayAcc&    q_msr,
-                                         const KDL::JntArray&       K,
                                          const KDL::JntArray&       D,
+                                         const KDL::JntArray&       K_vel,
                                          const ros::Duration&       period,
-                                         const ros::Time&           time)
+                                         const ros::Time&           time,
+                                         const KDL::Frame&          x_,
+                                         const KDL::Twist&          x_dot_,
+                                         const KDL::Jacobian&       J_)
 {
+    Eigen::VectorXd e(6);
+    e(0) = K_vel(0)*(x_des_vel_.vel(0) - x_dot_.vel(0));
+    e(1) = K_vel(1)*(x_des_vel_.vel(1) - x_dot_.vel(1));
+    e(2) = K_vel(2)*(x_des_vel_.vel(2) - x_dot_.vel(2));
+    e(3) = K_vel(3)*x_des_vel_.rot(0) - D(0)*x_dot_.rot(0);
+    e(4) = K_vel(4)*x_des_vel_.rot(1) - D(1)*x_dot_.rot(1);
+    e(5) = K_vel(5)*x_des_vel_.rot(2) - D(2)*x_dot_.rot(2);
 
-    ik_vel_solver_->CartToJnt(q_msr.q,x_des_vel_,joint_des.qdot);
-    for (int i = 0; i < joint_des.q.data.size(); i++){
-        // integrating q_dot -> getting q (Euler method)
-        joint_des.q(i) = joint_des.q(i) + period.toSec()*joint_des.qdot(i);
-        // joint position and velocity error to torque
-        tau_cmd(i)     =   -D(i) * (q_msr.qdot(i) - joint_des.qdot(i)) - K(i) * (q_msr.q(i)  - joint_des.q(i));
-    }
-
+    tau_cmd.data = J_.data.transpose() * e;
+    std::cout << "tau commanded "  << tau_cmd.data << std::endl;
 
 }
 

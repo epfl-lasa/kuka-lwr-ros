@@ -110,7 +110,7 @@ namespace lwr_controllers
 
         KDL::JntArray       tau_cmd_;
         KDL::JntArray       pos_cmd_;
-        KDL::JntArray       K_, D_,K_cmd,D_cmd, K_pos_, K_vel_;
+        KDL::JntArray       K_, D_,K_cmd,D_cmd, D_vel_, K_vel_;
 
         std::size_t         num_ctrl_joints;
 

@@ -27,9 +27,6 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     K_.resize(kdl_chain_.getNrOfJoints());
     D_.resize(kdl_chain_.getNrOfJoints());
 
-    K_pos_.resize(kdl_chain_.getNrOfJoints());
-    K_vel_.resize(kdl_chain_.getNrOfJoints());
-
     K_cmd.resize(kdl_chain_.getNrOfJoints());
     D_cmd.resize(kdl_chain_.getNrOfJoints());
     pos_cmd_.resize(kdl_chain_.getNrOfJoints());
@@ -75,10 +72,19 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     ROS_INFO("JointControllers::init finished initialise [dynamic reconfigure]!");
 
     // Gains for cartesian velocity control
+    D_vel_.resize(6);
+    K_vel_.resize(6);
+
     // TODO: add to parameter server
-    for(size_t i=0; i<joint_handles_.size(); i++) {
-        K_pos_(i)           = 0;
-        K_vel_(i)           = 20;
+    // Gains for translation
+    for(size_t i=0; i<3; i++) {
+        D_vel_(i)           = 0;
+        K_vel_(i)           = 40.0;
+    }
+    // Gains for rotation
+    for(size_t i=3; i<6; i++) {
+        D_vel_(i)           = 2.0;
+        K_vel_(i)           = 8.0;
     }
 
     /// Solvers (Kinematics, etc...)
@@ -177,7 +183,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         case CTRL_MODE::CART_VELOCITIY:
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_VELOCITIY");
-            cartesian_velocity_controller->cart_vel_update(tau_cmd_,joint_des_,joint_msr_,K_pos_,K_vel_,period,time);
+            cartesian_velocity_controller->cart_vel_update(tau_cmd_,joint_des_,joint_msr_,D_vel_,K_vel_,period,time,x_msr_,x_dt_msr_.GetTwist(), J_);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
         }
