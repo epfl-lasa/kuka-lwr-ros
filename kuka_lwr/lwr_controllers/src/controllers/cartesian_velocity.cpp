@@ -40,16 +40,14 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
     force_ee(0) = K_vel(0)*(x_des_vel_.vel(0) - x_dot_.vel(0));
     force_ee(1) = K_vel(1)*(x_des_vel_.vel(1) - x_dot_.vel(1));
     force_ee(2) = K_vel(2)*(x_des_vel_.vel(2) - x_dot_.vel(2));
-    force_ee(3) = K_vel(3)*x_des_vel_.rot(0) - D(0)*x_dot_.rot(0);
-    force_ee(4) = K_vel(4)*x_des_vel_.rot(1) - D(1)*x_dot_.rot(1);
-    force_ee(5) = K_vel(5)*x_des_vel_.rot(2) - D(2)*x_dot_.rot(2);
+    force_ee(3) = K_vel(3)*x_des_vel_.rot(0) - D(3)*x_dot_.rot(0);
+    force_ee(4) = K_vel(4)*x_des_vel_.rot(1) - D(4)*x_dot_.rot(1);
+    force_ee(5) = K_vel(5)*x_des_vel_.rot(2) - D(5)*x_dot_.rot(2);
 
     // Compensate for gravity
     force_ee  << force_ee + grav_wrench_;
 
     tau_cmd.data = J_.data.transpose() * force_ee;
-    std::cout << "tau commanded "  << tau_cmd.data << std::endl;
-
 }
 
 

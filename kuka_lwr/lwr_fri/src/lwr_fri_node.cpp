@@ -114,7 +114,7 @@ int main(int argc, char** argv){
     struct timespec ts = {0, 0};
     ros::Time last(ts.tv_sec, ts.tv_nsec), now(ts.tv_sec, ts.tv_nsec);
     ros::Duration period(1.0);
-    ros::Rate rate(2000.0);
+    ros::Rate rate(20000.0);
 
     // Publish inertia matrix and Jacobian
     float **inertia_matrix =  new float*[7];
