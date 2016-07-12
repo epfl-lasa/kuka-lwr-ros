@@ -78,7 +78,7 @@ namespace controllers{
         K(j, k) = cur_plan.fb[i].data[ii++];
       }
     }
-        //K.setZero();
+    K.setZero();
     // K.block(0, 0, 3, 3).setIdentity();
     // K.block(0,0,3,3) *= 1000;
     // K.block(6, 6, 3, 3).setIdentity();
@@ -94,7 +94,7 @@ namespace controllers{
        jmsg.effort[k] = tau_cmd.data(k);
      }
     debug_control_pub_.publish(jmsg);
-    tau_cmd.data.setZero();
+    //tau_cmd.data.setZero();
 
 
     // std::cout<<"aaah"<<u_ff+K*e<<std::endl;

@@ -83,8 +83,8 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     }
     // Gains for rotation
     for(size_t i=3; i<6; i++) {
-        D_vel_(i)           = 5.0;
-        K_vel_(i)           = 5.0;
+        D_vel_(i)           = 2.0;
+        K_vel_(i)           = 2.0;
     }
 
     /// Solvers (Kinematics, etc...)
