@@ -83,8 +83,8 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     }
     // Gains for rotation
     for(size_t i=3; i<6; i++) {
-        D_vel_(i)           = 2.0;
-        K_vel_(i)           = 2.0;
+        D_vel_(i)           = 4.0;
+        K_vel_(i)           = 4.0;
     }
 
     /// Solvers (Kinematics, etc...)
@@ -183,7 +183,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         case CTRL_MODE::CART_VELOCITIY:
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_VELOCITIY");
-            cartesian_velocity_controller->cart_vel_update(tau_cmd_,D_vel_,K_vel_,x_dt_msr_.GetTwist(), J_);
+            cartesian_velocity_controller->cart_vel_update(tau_cmd_,D_vel_,K_vel_,x_dt_msr_.GetTwist(), J_, joint_msr_);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
         }

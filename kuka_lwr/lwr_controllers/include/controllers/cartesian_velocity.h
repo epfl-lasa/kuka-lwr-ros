@@ -41,7 +41,8 @@ public:
                              const KDL::JntArray&       K,
                              const KDL::JntArray&       D,
                              const KDL::Twist&          x_dot_,
-                             const KDL::Jacobian&       J_);
+                             const KDL::Jacobian&       J_,
+                             const KDL::JntArrayAcc& joint_msr_);
 
     void stop();
 
@@ -57,6 +58,9 @@ private:
     ros::Subscriber     sub_command_vel_;
     ros::Subscriber     sub_command_grav_wrench_;
     Eigen::Matrix<double,6,1>     grav_wrench_;
+    Eigen::MatrixXd J_transpose_pinv_;
+    Eigen::Matrix<double,7,1> qd, nullspace_torque;
+
 
     bool                bFirst;
 
