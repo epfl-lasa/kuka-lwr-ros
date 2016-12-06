@@ -40,7 +40,6 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
                                          const KDL::Jacobian&       J_,
                                          const KDL::JntArrayAcc& joint_msr_)
 {
-    std::cout << "Until here";
     // Tracking error
     Eigen::VectorXd force_ee(6), q_d(7);
 
@@ -54,6 +53,9 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
     // Compensate for gravity
     force_ee  << force_ee + grav_wrench_;
 
+    std::cout << " Force: " << force_ee.transpose() << std::endl;
+    std::cout << "Grav Wrench:" << grav_wrench_.transpose() << std::endl;
+
     // Regulate around a good joint configuration in the nullspace
     // Compute pseudoinverse (Use mass matrix pseudoinverse to cancel out
     // correctly the accelerations, see Khatib 1987)
@@ -65,10 +67,10 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
     //std::cout << "J_pinv_: " << std::endl << J_transpose_pinv_<< std::endl;
 
 //    std::cout << "Until here!!";
-    nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J_.data.transpose()*J_transpose_pinv_)*(2.0*(qd - joint_msr_.q.data) - 0.01*joint_msr_.qdot.data);
+    //nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J_.data.transpose()*J_transpose_pinv_)*(2.0*(qd - joint_msr_.q.data) - 0.01*joint_msr_.qdot.data);
     //std::cout << "Nullspace torque: " << std::endl << nullspace_torque << std::endl;
 
-    tau_cmd.data = J_.data.transpose() * force_ee + nullspace_torque;
+    tau_cmd.data = J_.data.transpose() * force_ee ;//+ nullspace_torque;
 }
 
 
