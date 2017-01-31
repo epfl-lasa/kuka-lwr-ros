@@ -53,8 +53,8 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
     // Compensate for gravity
     force_ee  << force_ee + grav_wrench_;
 
-    std::cout << " Force: " << force_ee.transpose() << std::endl;
-    std::cout << "Grav Wrench:" << grav_wrench_.transpose() << std::endl;
+    //std::cout << " Force: " << force_ee.transpose() << std::endl;
+    //std::cout << "Grav Wrench:" << grav_wrench_.transpose() << std::endl;
 
     // Regulate around a good joint configuration in the nullspace
     // Compute pseudoinverse (Use mass matrix pseudoinverse to cancel out
