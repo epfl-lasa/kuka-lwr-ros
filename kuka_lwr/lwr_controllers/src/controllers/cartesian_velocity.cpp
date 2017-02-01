@@ -15,6 +15,14 @@ Cartesian_velocity::Cartesian_velocity(ros::NodeHandle& nh,
                                             &Cartesian_velocity::command_grav_wrench,
                                             this, ros::TransportHints().reliable().tcpNoDelay());
 
+    sub_command_grav_wrench_ = nh.subscribe("command_stiffness", 1,
+                                            &Cartesian_velocity::command_stiffness,
+                                            this, ros::TransportHints().reliable().tcpNoDelay());
+
+    sub_command_grav_wrench_ = nh.subscribe("command_damping", 1,
+                                            &Cartesian_velocity::command_damping,
+                                            this, ros::TransportHints().reliable().tcpNoDelay());
+
     x_des_vel_.vel.Zero();
     x_des_vel_.rot.Zero();
     grav_wrench_.setZero();
@@ -42,6 +50,9 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
 {
     // Tracking error
     Eigen::VectorXd force_ee(6), q_d(7);
+
+    ROS_INFO_STREAM_THROTTLE(1.0, "\n damping: " << local_damping_.topRows(3).transpose());
+
 
     force_ee(0) = K_vel(0)*(x_des_vel_.vel(0) - x_dot_.vel(0));
     force_ee(1) = K_vel(1)*(x_des_vel_.vel(1) - x_dot_.vel(1));
@@ -100,6 +111,15 @@ void Cartesian_velocity::command_grav_wrench(const geometry_msgs::WrenchConstPtr
 
 
 
+void Cartesian_velocity::command_stiffness(const geometry_msgs::TwistConstPtr &msg){
+    local_stiffness_ << msg->linear.x, msg->linear.y, msg->linear.z,
+                    msg->angular.x, msg->angular.y, msg->angular.z;
+}
+
+void Cartesian_velocity::command_damping(const geometry_msgs::TwistConstPtr &msg){
+    local_damping_ << msg->linear.x, msg->linear.y, msg->linear.z,
+                    msg->angular.x, msg->angular.y, msg->angular.z;
+}
 
 
 }

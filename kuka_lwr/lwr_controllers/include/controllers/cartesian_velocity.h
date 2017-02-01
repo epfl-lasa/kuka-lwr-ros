@@ -50,6 +50,8 @@ private:
 
     void command_cart_vel(const geometry_msgs::TwistConstPtr& msg);
     void command_grav_wrench(const geometry_msgs::WrenchConstPtr &msg);
+    void command_stiffness(const geometry_msgs::TwistConstPtr& msg);
+    void command_damping(const geometry_msgs::TwistConstPtr& msg);
 
 private:
 
@@ -57,7 +59,14 @@ private:
 
     ros::Subscriber     sub_command_vel_;
     ros::Subscriber     sub_command_grav_wrench_;
+
+    ros::Subscriber     sub_command_damping_;
+    ros::Subscriber     sub_command_stiffness_;
+
     Eigen::Matrix<double,6,1>     grav_wrench_;
+    Eigen::Matrix<double,6,1>     local_stiffness_;
+    Eigen::Matrix<double,6,1>     local_damping_;
+
     Eigen::MatrixXd J_transpose_pinv_;
     Eigen::Matrix<double,7,1> qd, nullspace_torque;
 
