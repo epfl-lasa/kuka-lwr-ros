@@ -33,8 +33,8 @@ Cartesian_velocity::Cartesian_velocity(ros::NodeHandle& nh,
     bFirst = false;
 
     local_damping_lambda_ << 1.0, 0.0, 0.0,
-                              0.0, 100.0, 0.0,
-                              0.0, 0.0, 100.0;
+                              0.0, 50.0, 0.0,
+                              0.0, 0.0, 50.0;
 }
 
 void Cartesian_velocity::stop(){
@@ -55,7 +55,7 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
     // Tracking error
     Eigen::VectorXd force_ee(6), q_d(7), x_dot_des_lin(3);
 
-    ROS_INFO_STREAM_THROTTLE(1.0, "\n damping: " << local_damping_.topRows(3).transpose());
+    //ROS_INFO_STREAM_THROTTLE(1.0, "\n damping: " << local_damping_.topRows(3).transpose());
 
 
     force_ee(0) = K_vel(0)*(x_des_vel_.vel(0) - x_dot_.vel(0));
