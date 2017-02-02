@@ -31,6 +31,10 @@ Cartesian_velocity::Cartesian_velocity(ros::NodeHandle& nh,
         -1.7890702486038208, -0.008821399882435799, -0.8749043345451355, 0.010746323503553867;
 
     bFirst = false;
+
+    local_damping_lambda_ << 1.0, 0.0, 0.0,
+                              0.0, 100.0, 0.0,
+                              0.0, 0.0, 100.0;
 }
 
 void Cartesian_velocity::stop(){
@@ -49,7 +53,7 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
                                          const KDL::JntArrayAcc& joint_msr_)
 {
     // Tracking error
-    Eigen::VectorXd force_ee(6), q_d(7);
+    Eigen::VectorXd force_ee(6), q_d(7), x_dot_des_lin(3);
 
     ROS_INFO_STREAM_THROTTLE(1.0, "\n damping: " << local_damping_.topRows(3).transpose());
 
@@ -60,6 +64,15 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
     force_ee(3) = K_vel(3)*x_des_vel_.rot(0) - D(3)*x_dot_.rot(0);
     force_ee(4) = K_vel(4)*x_des_vel_.rot(1) - D(4)*x_dot_.rot(1);
     force_ee(5) = K_vel(5)*x_des_vel_.rot(2) - D(5)*x_dot_.rot(2);
+
+    // Modifying damping
+    x_dot_des_lin << x_des_vel_.vel(0) - x_dot_.vel(0),
+                     x_des_vel_.vel(1) - x_dot_.vel(1),
+                     x_des_vel_.vel(2) - x_dot_.vel(2);
+
+
+    force_ee.topRows(3) = local_damping_*local_damping_lambda_*local_damping_.transpose()*x_dot_des_lin;
+
 
     // Compensate for gravity
     force_ee  << force_ee + grav_wrench_;
@@ -111,14 +124,16 @@ void Cartesian_velocity::command_grav_wrench(const geometry_msgs::WrenchConstPtr
 
 
 
-void Cartesian_velocity::command_stiffness(const geometry_msgs::TwistConstPtr &msg){
-    local_stiffness_ << msg->linear.x, msg->linear.y, msg->linear.z,
-                    msg->angular.x, msg->angular.y, msg->angular.z;
+void Cartesian_velocity::command_stiffness(const std_msgs::Float64MultiArray &msg){
+    local_stiffness_ << msg.data[0], msg.data[1], msg.data[2],
+                        msg.data[3], msg.data[4], msg.data[5],
+                        msg.data[6], msg.data[7], msg.data[8];
 }
 
-void Cartesian_velocity::command_damping(const geometry_msgs::TwistConstPtr &msg){
-    local_damping_ << msg->linear.x, msg->linear.y, msg->linear.z,
-                    msg->angular.x, msg->angular.y, msg->angular.z;
+void Cartesian_velocity::command_damping(const std_msgs::Float64MultiArray &msg){
+    local_damping_ << msg.data[0], msg.data[3], msg.data[6],
+                      msg.data[1], msg.data[4], msg.data[7],
+                      msg.data[2], msg.data[5], msg.data[8];
 }
 
 

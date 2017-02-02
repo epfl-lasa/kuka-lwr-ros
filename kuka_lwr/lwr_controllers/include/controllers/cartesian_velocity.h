@@ -9,6 +9,8 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
+#include <std_msgs/Float64MultiArray.h>
+
 
 #include <realtime_tools/realtime_publisher.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -50,8 +52,8 @@ private:
 
     void command_cart_vel(const geometry_msgs::TwistConstPtr& msg);
     void command_grav_wrench(const geometry_msgs::WrenchConstPtr &msg);
-    void command_stiffness(const geometry_msgs::TwistConstPtr& msg);
-    void command_damping(const geometry_msgs::TwistConstPtr& msg);
+    void command_stiffness(const std_msgs::Float64MultiArray &msg);
+    void command_damping(const std_msgs::Float64MultiArray& msg); // To do: convert to ptr
 
 private:
 
@@ -64,8 +66,9 @@ private:
     ros::Subscriber     sub_command_stiffness_;
 
     Eigen::Matrix<double,6,1>     grav_wrench_;
-    Eigen::Matrix<double,6,1>     local_stiffness_;
-    Eigen::Matrix<double,6,1>     local_damping_;
+    Eigen::Matrix<double,3,3>     local_stiffness_;
+    Eigen::Matrix<double,3,3>     local_damping_; //To Do add orientation
+    Eigen::Matrix<double,3,3>     local_damping_lambda_; //To Do add orientation
 
     Eigen::MatrixXd J_transpose_pinv_;
     Eigen::Matrix<double,7,1> qd, nullspace_torque;
