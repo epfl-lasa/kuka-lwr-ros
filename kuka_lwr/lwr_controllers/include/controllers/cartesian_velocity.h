@@ -68,7 +68,6 @@ private:
     Eigen::Matrix<double,6,1>     grav_wrench_;
     Eigen::Matrix<double,3,3>     local_stiffness_;
     Eigen::Matrix<double,3,3>     local_damping_; //To Do add orientation
-    Eigen::Matrix<double,3,3>     local_damping_lambda_; //To Do add orientation
 
     Eigen::MatrixXd J_transpose_pinv_;
     Eigen::Matrix<double,7,1> qd, nullspace_torque;

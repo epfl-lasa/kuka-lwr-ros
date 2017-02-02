@@ -15,11 +15,11 @@ Cartesian_velocity::Cartesian_velocity(ros::NodeHandle& nh,
                                             &Cartesian_velocity::command_grav_wrench,
                                             this, ros::TransportHints().reliable().tcpNoDelay());
 
-    sub_command_grav_wrench_ = nh.subscribe("command_stiffness", 1,
+    sub_command_stiffness_ = nh.subscribe("command_stiffness", 1,
                                             &Cartesian_velocity::command_stiffness,
                                             this, ros::TransportHints().reliable().tcpNoDelay());
 
-    sub_command_grav_wrench_ = nh.subscribe("command_damping", 1,
+    sub_command_damping_= nh.subscribe("command_damping", 1,
                                             &Cartesian_velocity::command_damping,
                                             this, ros::TransportHints().reliable().tcpNoDelay());
 
@@ -32,9 +32,7 @@ Cartesian_velocity::Cartesian_velocity(ros::NodeHandle& nh,
 
     bFirst = false;
 
-    local_damping_lambda_ << 1.0, 0.0, 0.0,
-                              0.0, 50.0, 0.0,
-                              0.0, 0.0, 50.0;
+
 }
 
 void Cartesian_velocity::stop(){
@@ -71,12 +69,13 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
                      x_des_vel_.vel(2) - x_dot_.vel(2);
 
 
-    force_ee.topRows(3) = local_damping_*local_damping_lambda_*local_damping_.transpose()*x_dot_des_lin;
+    force_ee.topRows(3) = local_damping_.transpose()*x_dot_des_lin;
 
 
     // Compensate for gravity
     force_ee  << force_ee + grav_wrench_;
 
+    //ROS_INFO_STREAM_THROTTLE(1.0, "\n grav_wrench: " << grav_wrench_.transpose());
     //std::cout << " Force: " << force_ee.transpose() << std::endl;
     //std::cout << "Grav Wrench:" << grav_wrench_.transpose() << std::endl;
 
@@ -128,12 +127,21 @@ void Cartesian_velocity::command_stiffness(const std_msgs::Float64MultiArray &ms
     local_stiffness_ << msg.data[0], msg.data[1], msg.data[2],
                         msg.data[3], msg.data[4], msg.data[5],
                         msg.data[6], msg.data[7], msg.data[8];
+    if(!bFirst){
+        change_ctrl_mode.switch_mode(lwr_controllers::CTRL_MODE::CART_VELOCITIY);
+    }
+    bFirst            = true;
 }
 
 void Cartesian_velocity::command_damping(const std_msgs::Float64MultiArray &msg){
     local_damping_ << msg.data[0], msg.data[3], msg.data[6],
                       msg.data[1], msg.data[4], msg.data[7],
                       msg.data[2], msg.data[5], msg.data[8];
+    if(!bFirst){
+        change_ctrl_mode.switch_mode(lwr_controllers::CTRL_MODE::CART_VELOCITIY);
+    }
+    bFirst            = true;
+
 }
 
 
