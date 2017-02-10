@@ -40,7 +40,7 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
                                          const KDL::Jacobian&       J_,
                                          const KDL::JntArrayAcc& joint_msr_)
 {
-    std::cout << "Until here";
+    //std::cout << "Until here";
     // Tracking error
     Eigen::VectorXd force_ee(6), q_d(7);
 
