@@ -51,10 +51,10 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
                                          const KDL::JntArrayAcc& joint_msr_)
 {
     // Tracking error
-    Eigen::VectorXd force_ee(6), q_d(7), x_dot_des_lin(3);
+    Eigen::VectorXd force_ee(6), q_d(7), x_dot_des_lin(3), x_dot_des_rot(3), x_dot_rot(3);
 
-    //ROS_INFO_STREAM_THROTTLE(1.0, "\n damping: " << local_damping_.topRows(3).transpose());
-
+    ROS_INFO_STREAM_THROTTLE(1.0, "\n damping: " << local_damping_);
+    ROS_INFO_STREAM_THROTTLE(1.0, "\n Stiffness " << local_stiffness_);
 
     force_ee(0) = K_vel(0)*(x_des_vel_.vel(0) - x_dot_.vel(0));
     force_ee(1) = K_vel(1)*(x_des_vel_.vel(1) - x_dot_.vel(1));
@@ -68,8 +68,16 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
                      x_des_vel_.vel(1) - x_dot_.vel(1),
                      x_des_vel_.vel(2) - x_dot_.vel(2);
 
+    x_dot_des_rot << x_des_vel_.rot(0),
+                     x_des_vel_.rot(1),
+                     x_des_vel_.rot(2);
 
-    force_ee.topRows(3) = local_damping_.transpose()*x_dot_des_lin;
+    x_dot_rot    << x_dot_.rot(0),
+                    x_dot_.rot(1),
+                    x_dot_.rot(2);
+
+    force_ee.topRows(3) = local_damping_.block<3,3>(0,0).transpose()*x_dot_des_lin;
+    force_ee.bottomRows(3) = local_stiffness_.block<3,3>(3,3).transpose()*x_dot_des_rot - local_damping_.block<3,3>(3,3).transpose()*x_dot_rot;
 
 
     // Compensate for gravity
@@ -124,9 +132,15 @@ void Cartesian_velocity::command_grav_wrench(const geometry_msgs::WrenchConstPtr
 
 
 void Cartesian_velocity::command_stiffness(const std_msgs::Float64MultiArray &msg){
-    local_stiffness_ << msg.data[0], msg.data[1], msg.data[2],
-                        msg.data[3], msg.data[4], msg.data[5],
-                        msg.data[6], msg.data[7], msg.data[8];
+    local_stiffness_.setZero();
+    local_stiffness_.block<3,3>(0,0) << msg.data[0], msg.data[3], msg.data[6],
+                                        msg.data[1], msg.data[4], msg.data[7],
+                                        msg.data[2], msg.data[5], msg.data[8];
+
+    local_stiffness_.block<3,3>(3,3) << msg.data[9], msg.data[12], msg.data[15],
+                                        msg.data[10], msg.data[13], msg.data[16],
+                                        msg.data[11], msg.data[14], msg.data[17];
+
     if(!bFirst){
         change_ctrl_mode.switch_mode(lwr_controllers::CTRL_MODE::CART_VELOCITIY);
     }
@@ -134,9 +148,15 @@ void Cartesian_velocity::command_stiffness(const std_msgs::Float64MultiArray &ms
 }
 
 void Cartesian_velocity::command_damping(const std_msgs::Float64MultiArray &msg){
-    local_damping_ << msg.data[0], msg.data[3], msg.data[6],
-                      msg.data[1], msg.data[4], msg.data[7],
-                      msg.data[2], msg.data[5], msg.data[8];
+    local_damping_.setZero();
+    local_damping_.block<3,3>(0,0) << msg.data[0], msg.data[3], msg.data[6],
+                                      msg.data[1], msg.data[4], msg.data[7],
+                                      msg.data[2], msg.data[5], msg.data[8];
+
+    local_damping_.block<3,3>(3,3) << msg.data[9], msg.data[12], msg.data[15],
+                                      msg.data[10], msg.data[13], msg.data[16],
+                                      msg.data[11], msg.data[14], msg.data[17];
+
     if(!bFirst){
         change_ctrl_mode.switch_mode(lwr_controllers::CTRL_MODE::CART_VELOCITIY);
     }
