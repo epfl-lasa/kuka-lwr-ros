@@ -53,8 +53,8 @@ void Cartesian_velocity::cart_vel_update(KDL::JntArray&             tau_cmd,
     // Tracking error
     Eigen::VectorXd force_ee(6), q_d(7), x_dot_des_lin(3), x_dot_des_rot(3), x_dot_rot(3);
 
-    ROS_INFO_STREAM_THROTTLE(1.0, "\n damping: " << local_damping_);
-    ROS_INFO_STREAM_THROTTLE(1.0, "\n Stiffness " << local_stiffness_);
+    //ROS_INFO_STREAM_THROTTLE(1.0, "\n damping: " << local_damping_);
+    //ROS_INFO_STREAM_THROTTLE(1.0, "\n Stiffness " << local_stiffness_);
 
     force_ee(0) = K_vel(0)*(x_des_vel_.vel(0) - x_dot_.vel(0));
     force_ee(1) = K_vel(1)*(x_des_vel_.vel(1) - x_dot_.vel(1));
