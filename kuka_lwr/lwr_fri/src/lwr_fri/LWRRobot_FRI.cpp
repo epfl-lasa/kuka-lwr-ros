@@ -130,15 +130,15 @@ void LWRRobot_FRI::doSwitch(const std::list<hardware_interface::ControllerInfo> 
     // If any of the controllers in the start list works on a velocity interface, the switch can't be done.
     for ( std::list<hardware_interface::ControllerInfo>::const_iterator it = start_list.begin(); it != start_list.end(); ++it )
     {
-        std::cout<< "hardware_interface: " << it->hardware_interface << std::endl;
+        std::cout<< "hardware_interface: " << it->type << std::endl;
 
-        if( it->hardware_interface.compare( std::string("hardware_interface::PositionJointInterface") ) == 0 )
+        if( it->type.compare( std::string("hardware_interface::PositionJointInterface") ) == 0 )
         {
             std::cout << "Request to switch to hardware_interface::PositionJointInterface (JOINT_IMPEDANCE)" << std::endl;
             mDesired_control_strategy = JOINT_IMPEDANCE;
             break;
         }
-        else if( it->hardware_interface.compare( std::string("hardware_interface::KUKAJointInterface") ) == 0 )
+        else if( it->type.compare( std::string("hardware_interface::KUKAJointInterface") ) == 0 )
         {
             std::cout << "Request to switch to hardware_interface::EffortJointInterface (JOINT_EFFORT)" << std::endl;
             mDesired_control_strategy = JOINT_IMPEDANCE;

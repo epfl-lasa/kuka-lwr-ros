@@ -95,7 +95,7 @@ public:
         std::vector<controller_manager_msgs::ControllerState>& controllers = list_msg.response.controller;
 
         for(std::size_t i = 0; i < controllers.size();i++){
-            if(controllers[i].state == "running" && controllers[i].hardware_interface != "hardware_interface::JointStateInterface"){
+            if(controllers[i].state == "running" && controllers[i].type != "hardware_interface::JointStateInterface"){
                 return i;
             }
         }
