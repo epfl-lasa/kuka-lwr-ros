@@ -20,7 +20,7 @@ $  wstool up
 ```
 * Query and installs all libraries and packages 
 ```
-$ rosdep install --from-paths . --ignore-src --rosdistro indigo 
+$ rosdep install --from-paths . --ignore-src --rosdistro kinetic 
 ```
 
 * Install [**Gazebo**](http://gazebosim.org/), follow this [**link**](http://gazebosim.org/tutorials?tut=install_ubuntu&) for 
@@ -28,6 +28,16 @@ instructions on how to install it on ubuntu. Make sure that the ros libraries of
 ```
 $ sudo apt-get install ros-indigo-gazeboX-*
 ```
+* Finally compile your packages
+```
+$ catkin_make
+```
+In case compliation error (finding packages), you might need to update your bash
+```
+$ source devel/setup.bash
+```
+
+
 # Description
 
 Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR).
