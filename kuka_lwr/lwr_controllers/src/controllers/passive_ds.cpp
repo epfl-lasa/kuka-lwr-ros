@@ -57,6 +57,13 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     bDebug      = config_cfg.debug;
     bSmooth     = config_cfg.bSmooth;
     smooth_val_ = config_cfg.smooth_val;
+
+    qx = 0;
+    qz = 0;
+    qy = 0;
+    qw = 0;
+
+    err_orient_angle = 0;
 }
 
 

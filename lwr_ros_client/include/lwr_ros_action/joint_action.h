@@ -23,7 +23,6 @@ public:
 
     void set_joint_values(std::array<double,KUKA_NUM_JOINTS> values,MESSAGE_TYPE type);
 
-public:
 
     double              loop_rate_hz;
     double              stop_threash;

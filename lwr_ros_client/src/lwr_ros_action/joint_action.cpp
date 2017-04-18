@@ -73,6 +73,8 @@ bool Joint_action::update(){
 bool Joint_action::stop(){
     b_run = false;
     sendJointPos(joint_sensed);
+
+    return true;
 }
 
 void Joint_action::set_joint_values(std::array<double,7> values,MESSAGE_TYPE type){
@@ -94,6 +96,7 @@ void Joint_action::set_joint_values(std::array<double,7> values,MESSAGE_TYPE typ
 
     }
 
+    return;
 }
 
 }
