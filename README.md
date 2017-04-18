@@ -1,5 +1,5 @@
 
-# kuka-lwr-ros
+# kuka-lwr-ros (ros-kinetic)
 [![Build Status](https://travis-ci.com/epfl-lasa/kuka-lwr-ros.svg?token=d6T2YmvspfmdmqrMCGYv&branch=master)](https://travis-ci.com/epfl-lasa/kuka-lwr-ros/branches)
 
 A ROS package to control the KUKA LWR 4 (both simulation and physical robot). **This was originally forked from** [CentroEPiaggio/kuka-lwr](https://github.com/CentroEPiaggio/kuka-lwr).
