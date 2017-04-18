@@ -24,7 +24,7 @@
 
 namespace ac{
 
-typedef std::function<bool()>                                                   action;
+typedef std::function<bool()>action;
 
 class Kuka_action_client{
 
