@@ -47,6 +47,11 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 
     rot_des_ = KDL::Rotation::RPY(0,0,0);
 
+
+
+   qd <<     -0.004578103311359882, 0.7503823041915894, -0.059841930866241455, -1.6525769233703613,
+         0.06038748472929001, 0.7602048516273499, 1.5380386114120483;
+
     /// ROS pub debug
 
     pub_F_                 = nh.advertise<std_msgs::Float64MultiArray>("F_ee",10);
@@ -76,7 +81,7 @@ void Passive_ds::ds_param_callback(lwr_controllers::passive_ds_paramConfig& conf
 }
 
 
-void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector& p){
+void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KDL::JntArrayAcc& joint_msr_ , const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector& p){
 
 
     F_ee_des_.setZero();
@@ -118,6 +123,12 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
     F_ee_des_(2) = F_linear_des_(2);
 
     // ----------------- Debug -----------------------//
+
+    ROS_WARN_STREAM_THROTTLE(1, "velocity :" << dx_linear_des_ );
+    ROS_WARN_STREAM_THROTTLE(1, "Froces :" << F_linear_des_ );
+    // ROS_WARN_STREAM_THROTTLE(1, "Froces :" << F_linear_des_ );
+
+
 
     if(bDebug){
         {
@@ -174,7 +185,12 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
         pub_F_.publish(F_msg_);
     }
 
-    tau_cmd.data = J.data.transpose() * F_ee_des_;
+    // computing the torques
+    Eigen::MatrixXd J_transpose_pinv;
+    pseudo_inverse(J.data.transpose(), J_transpose_pinv);
+    nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J.data.transpose()*J_transpose_pinv)*(2.0*(qd - joint_msr_.q.data) - 0.01*joint_msr_.qdot.data);
+
+    tau_cmd.data = J.data.transpose() * F_ee_des_ + nullspace_torque;
 
     if(bDebug){
         for(std::size_t i = 0; i < tau_msg_.data.size();i++)

@@ -205,8 +205,14 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         case CTRL_MODE::CART_PASSIVE_DS:
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_PASSIVE_DS");
-            passive_ds_controller->update(tau_cmd_,J_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
+            passive_ds_controller->update(tau_cmd_,J_,joint_msr_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
+
+        for(size_t i=0; i<7; i++) {
+            double tmp = tau_cmd_(i);
+            ROS_INFO_STREAM_THROTTLE(thrott_time,"CART_PASSIVE_DS: desired torques :" << i << " :" << tmp );
+        }
+
             break;
         }
         case CTRL_MODE::GRAV_COMP:
@@ -271,6 +277,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
             joint_des_.q(i)        = joint_msr_.q(i);
             joint_des_.qdot(i)     = 0;
         }
+        safety->reset();
     }
     for(size_t i=0; i<joint_handles_.size(); i++) {
         joint_handles_[i].setCommandPosition(pos_cmd_(i));

@@ -16,11 +16,14 @@
 
 #include <kdl/jntarray.hpp>
 #include <kdl/framevel.hpp>
+#include <kdl/chainiksolvervel_pinv.hpp>
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Float64.h>
+
+#include "utils/pseudo_inversion.h"
 
 namespace controllers{
 
@@ -32,7 +35,7 @@ public:
 
     void stop();
 
-    void update(KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector &p = KDL::Vector());
+    void update(KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::JntArrayAcc& joint_msr_, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector &p = KDL::Vector());
 
 private:
 
@@ -112,6 +115,9 @@ private:
     ros::Publisher                  torque_pub_;
     std_msgs::Float64MultiArray     F_msg_,tau_msg_;
     lwr_controllers::passive_ds_paramConfig config_cfg;
+
+    // null-spae control
+    Eigen::Matrix<double,7,1> qd, nullspace_torque;
 
 };
 
