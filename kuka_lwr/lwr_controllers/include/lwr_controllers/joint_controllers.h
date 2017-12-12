@@ -156,6 +156,9 @@ namespace lwr_controllers
         double                                                                              publish_rate_;
 
 
+        bool _first = false;
+
+
 	};
 
 } // namespace

@@ -16,11 +16,15 @@
 
 #include <kdl/jntarray.hpp>
 #include <kdl/framevel.hpp>
+#include <kdl/chainiksolvervel_pinv.hpp>
 
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Wrench.h>
 #include <geometry_msgs/Pose.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Float64.h>
+
+#include "utils/pseudo_inversion.h"
 
 namespace controllers{
 
@@ -32,7 +36,8 @@ public:
 
     void stop();
 
-    void update(KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector &p = KDL::Vector());
+    // void update(KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::JntArrayAcc& joint_msr_, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector &p = KDL::Vector());
+    void update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::JntArrayAcc& joint_msr_, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector &p = KDL::Vector());
 
 private:
 
@@ -45,6 +50,8 @@ private:
     /// ROS topic callbacks
 
     void command_cart_vel(const geometry_msgs::TwistConstPtr& msg);
+
+    void command_cart_force(const geometry_msgs::WrenchConstPtr& msg);
 
     void command_orient(const geometry_msgs::Quaternion &msg);
 
@@ -69,9 +76,11 @@ private:
     /// Linear
     Eigen::VectorXd     dx_msr_;
     Vec                 dx_linear_des_;
+    Vec                 dx_angular_des_;
     Vec                 dx_linear_msr_;
     Vec                 dx_angular_msr_;
     Vec                 F_linear_des_;     // desired linear force
+    Eigen::VectorXd     F_contact_des_;
     Eigen::VectorXd     F_ee_des_;         // desired end-effector force
     /// Rotation
     KDL::Rotation         err_orient;
@@ -86,6 +95,12 @@ private:
     double              rot_stiffness;
     double              rot_damping;
 
+    bool _useNullSpace;
+    double _jointLimitsGain;
+    double _desiredJointsGain;
+    double _jointVelocitiesGain;
+    
+
     boost::scoped_ptr<DSController>                     passive_ds_controller;
 
     /// Dynamic reconfigure
@@ -99,6 +114,7 @@ private:
     KDL::Rotation          rot_des_;
 
     ros::Subscriber         sub_command_vel_;
+    ros::Subscriber         sub_command_force_;
     ros::Subscriber         sub_command_orient_;
     ros::Subscriber         sub_eig_;
     ros::Subscriber         sub_stiff_;
@@ -112,6 +128,9 @@ private:
     ros::Publisher                  torque_pub_;
     std_msgs::Float64MultiArray     F_msg_,tau_msg_;
     lwr_controllers::passive_ds_paramConfig config_cfg;
+
+    // null-spae control
+    Eigen::Matrix<double,7,1> qd, nullspace_torque;
 
 };
 
