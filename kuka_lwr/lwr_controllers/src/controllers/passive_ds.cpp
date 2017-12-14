@@ -14,6 +14,7 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     /// ROS topic
 
     sub_command_vel_       = nh.subscribe("passive_ds_command_vel",      1, &Passive_ds::command_cart_vel,     this );
+    sub_command_force_     = nh.subscribe("passive_ds_command_force",    1, &Passive_ds::command_cart_force,   this );
     sub_command_orient_    = nh.subscribe("passive_ds_command_orient",   1 ,&Passive_ds::command_orient,       this );
     sub_eig_               = nh.subscribe("passive_ds_eig",              1 ,&Passive_ds::command_damping_eig,  this );
     sub_stiff_             = nh.subscribe("passive_ds_stiffness",        1 ,&Passive_ds::command_rot_stiff,    this );
@@ -38,14 +39,24 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     dx_linear_des_.resize(3);
     dx_linear_msr_.resize(3);
     dx_angular_msr_.resize(3);
+    dx_angular_des_.resize(3);
 
     F_ee_des_.resize(6);
+    F_contact_des_.resize(6);
+    F_contact_des_.setConstant(0.0f);
+
     bFirst = false;
 
     rot_stiffness = config_cfg.rot_stiffness;
     rot_damping   = config_cfg.rot_damping;
 
     rot_des_ = KDL::Rotation::RPY(0,0,0);
+
+
+
+   qd <<     -0.004578103311359882, 0.7503823041915894, -0.059841930866241455, -1.6525769233703613,
+         0.06038748472929001, 0.7602048516273499, 1.5380386114120483;
+   // qd << 0.0f, 0.0f, 0.0f, -2.094, 0.0f, 1.047f, 1.57f;
 
     /// ROS pub debug
 
@@ -58,12 +69,20 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     bSmooth     = config_cfg.bSmooth;
     smooth_val_ = config_cfg.smooth_val;
 
+
     qx = 0;
     qz = 0;
     qy = 0;
     qw = 0;
 
     err_orient_angle = 0;
+
+    _useNullSpace = config_cfg.useNullSpace;
+    _jointLimitsGain = config_cfg.jointLimitsGain;
+    _desiredJointsGain = config_cfg.desiredJointsGain;
+    _jointVelocitiesGain = config_cfg.jointVelocitiesGain;
+
+
 }
 
 
@@ -79,11 +98,16 @@ void Passive_ds::ds_param_callback(lwr_controllers::passive_ds_paramConfig& conf
     bDebug        = config.debug;
     bSmooth       = config.bSmooth;
     smooth_val_   = config.smooth_val;
+    _useNullSpace = config.useNullSpace;
+    _jointLimitsGain = config.jointLimitsGain;
+    _desiredJointsGain = config.desiredJointsGain;
+    _jointVelocitiesGain = config.jointVelocitiesGain;
+
     config_cfg    = config;
 }
 
 
-void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector& p){
+void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KDL::JntArrayAcc& joint_msr_ , const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector& p){
 
 
     F_ee_des_.setZero();
@@ -93,6 +117,9 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
     dx_linear_des_(1)   = x_des_vel_(1);
     dx_linear_des_(2)   = x_des_vel_(2);
 
+    dx_angular_des_(0) = x_des_vel_.rot(0);
+    dx_angular_des_(1) = x_des_vel_.rot(1);
+    dx_angular_des_(2) = x_des_vel_.rot(2);
 
     /// set measured linear and angular velocity
     if(bSmooth)
@@ -106,12 +133,12 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
         dx_angular_msr_(2)  = x_msr_vel_.rot(2);
     }else{
        dx_linear_msr_(0)    = filters::exponentialSmoothing(x_msr_vel_.vel(0), dx_linear_msr_(0),smooth_val_);
-       dx_linear_msr_(1)    = filters::exponentialSmoothing(x_msr_vel_.vel(1), dx_linear_msr_(2),smooth_val_);
-       dx_linear_msr_(2)    = filters::exponentialSmoothing(x_msr_vel_.vel(2), dx_linear_msr_(1),smooth_val_);
+       dx_linear_msr_(1)    = filters::exponentialSmoothing(x_msr_vel_.vel(1), dx_linear_msr_(1),smooth_val_);
+       dx_linear_msr_(2)    = filters::exponentialSmoothing(x_msr_vel_.vel(2), dx_linear_msr_(2),smooth_val_);
 
        dx_angular_msr_(0)   = filters::exponentialSmoothing(x_msr_vel_.rot(0), dx_angular_msr_(0),smooth_val_);
-       dx_angular_msr_(1)   = filters::exponentialSmoothing(x_msr_vel_.rot(1), dx_angular_msr_(2),smooth_val_);
-       dx_angular_msr_(2)   = filters::exponentialSmoothing(x_msr_vel_.rot(2), dx_angular_msr_(1),smooth_val_);
+       dx_angular_msr_(1)   = filters::exponentialSmoothing(x_msr_vel_.rot(1), dx_angular_msr_(1),smooth_val_);
+       dx_angular_msr_(2)   = filters::exponentialSmoothing(x_msr_vel_.rot(2), dx_angular_msr_(2),smooth_val_);
     }
 
 
@@ -120,11 +147,16 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
     passive_ds_controller->Update(dx_linear_msr_,dx_linear_des_);
     F_linear_des_ = passive_ds_controller->control_output(); // (3 x 1)
 
-    F_ee_des_(0) = F_linear_des_(0);
-    F_ee_des_(1) = F_linear_des_(1);
-    F_ee_des_(2) = F_linear_des_(2);
+    F_ee_des_(0) = F_linear_des_(0)+F_contact_des_(0);
+    F_ee_des_(1) = F_linear_des_(1)+F_contact_des_(1);
+    F_ee_des_(2) = F_linear_des_(2)+F_contact_des_(2);
 
     // ----------------- Debug -----------------------//
+
+    // ROS_WARN_STREAM_THROTTLE(1, "velocity :" << dx_linear_des_ );
+    // ROS_WARN_STREAM_THROTTLE(1, "Froces :" << F_linear_des_ );
+
+
 
     if(bDebug){
         {
@@ -150,16 +182,25 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
     // ----------------- Rotation target -> Force -----------------------//
 
     // damp any rotational motion
-    err_orient = rot_msr_ * rot_des_.Inverse();
+    err_orient = rot_des_*rot_msr_.Inverse();
     err_orient.GetQuaternion(qx,qy,qz,qw);
     q = tf::Quaternion(qx,qy,qz,qw);
 
     err_orient_axis = q.getAxis();
     err_orient_angle = q.getAngle();
 
+    // rotational stiffness. This is correct sign and everything!!!! do not mess with this!
+    torque_orient = err_orient_axis * err_orient_angle * (rot_stiffness);
+
+    F_ee_des_(3) = -rot_damping * (dx_angular_msr_(0)-dx_angular_des_(0)) + torque_orient.getX();
+    F_ee_des_(4) = -rot_damping * (dx_angular_msr_(1)-dx_angular_des_(1)) + torque_orient.getY();
+    F_ee_des_(5) = -rot_damping * (dx_angular_msr_(2)-dx_angular_des_(2)) + torque_orient.getZ();
+
+
     if(bDebug){
         ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_axis: " << err_orient_axis.getX() << " " << err_orient_axis.getY() << " " << err_orient_axis.getZ() );
         ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_angle: " << err_orient_angle);
+        ROS_WARN_STREAM_THROTTLE(1.0, "Forces :" << F_ee_des_ );
     }
 
     if(std::isnan(err_orient_angle) || std::isinf(err_orient_angle)){
@@ -167,12 +208,6 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
         err_orient_angle = 0;
     }
 
-    // rotational stiffness. This is correct sign and everything!!!! do not mess with this!
-    torque_orient = err_orient_axis * err_orient_angle * (-rot_stiffness);
-
-    F_ee_des_(3) = -rot_damping * dx_angular_msr_(0) + torque_orient.getX();
-    F_ee_des_(4) = -rot_damping * dx_angular_msr_(1) + torque_orient.getY();
-    F_ee_des_(5) = -rot_damping * dx_angular_msr_(2) + torque_orient.getZ();
 
     if(bDebug){
         for(std::size_t i = 0; i < F_msg_.data.size();i++){
@@ -181,7 +216,28 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
         pub_F_.publish(F_msg_);
     }
 
-    tau_cmd.data = J.data.transpose() * F_ee_des_;
+    // computing the torques
+    Eigen::MatrixXd J_transpose_pinv;
+    pseudo_inverse(J.data.transpose(), J_transpose_pinv);
+    // nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J.data.transpose()*J_transpose_pinv)*(2.0*(qd - joint_msr_.q.data) - 0.01*joint_msr_.qdot.data);
+    nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J.data.transpose()*J_transpose_pinv)*(-_jointLimitsGain*joint_msr_.q.data
+                                                                                                 -_desiredJointsGain*(joint_msr_.q.data-qd)
+                                                                                                 -_jointVelocitiesGain*joint_msr_.qdot.data);
+
+
+    if(bDebug)
+    {
+        ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace :" << nullspace_torque );
+    }
+
+    if(_useNullSpace)
+    {
+        tau_cmd.data = J.data.transpose() * F_ee_des_ + nullspace_torque;
+    }
+    else
+    {
+        tau_cmd.data = J.data.transpose() * F_ee_des_;
+    }
 
     if(bDebug){
         for(std::size_t i = 0; i < tau_msg_.data.size();i++)
@@ -190,6 +246,13 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
         }
         torque_pub_.publish(tau_msg_);
     }
+
+    wrench.force(0) = F_ee_des_(0);
+    wrench.force(1) = F_ee_des_(1);
+    wrench.force(2) = F_ee_des_(2);
+    wrench.torque(0) = F_ee_des_(3);
+    wrench.torque(1) = F_ee_des_(4);
+    wrench.torque(2) = F_ee_des_(5);
 
     // tau_cmd.data.setZero();
 }
@@ -210,6 +273,16 @@ void Passive_ds::command_cart_vel(const geometry_msgs::TwistConstPtr &msg){
 }
 void Passive_ds::command_orient(const geometry_msgs::Quaternion &msg){
     rot_des_ = KDL::Rotation::Quaternion(msg.x,msg.y,msg.z,msg.w);
+}
+
+void Passive_ds::command_cart_force(const geometry_msgs::WrenchConstPtr &msg){
+    // rot_des_ = KDL::Rotation::Quaternion(msg.x,msg.y,msg.z,msg.w);
+    F_contact_des_(0) = msg->force.x;
+    F_contact_des_(1) = msg->force.y;
+    F_contact_des_(2) = msg->force.z;
+    F_contact_des_(3) = msg->torque.x;
+    F_contact_des_(4) = msg->torque.y;
+    F_contact_des_(5) = msg->torque.z;
 }
 
 void Passive_ds::command_damping_eig(const std_msgs::Float64MultiArray& msg){

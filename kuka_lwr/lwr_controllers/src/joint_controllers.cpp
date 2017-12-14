@@ -163,6 +163,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     fk_pos_solver_->JntToCart(joint_msr_.q, x_msr_);
     fk_vel_solver_->JntToCart(joint_vel_msr_,x_dt_msr_);
 
+    KDL::Wrench wrench;
 
     if(change_ctrl_mode.is_switching())
     {
@@ -191,7 +192,8 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         case CTRL_MODE::CART_POSITION:
         {
          //   ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_POSITION");
-            cartesian_position_controller->update(x_msr_,J_,joint_des_,period);
+            // cartesian_position_controller->update(x_msr_,J_,joint_des_,period);
+            cartesian_position_controller->update(x_msr_,J_,joint_des_,period,joint_msr_,*fk_pos_solver_,*jnt_to_jac_solver_);
             robot_ctrl_mode = ROBOT_CTRL_MODE::POSITION_IMP;
             break;
         }
@@ -205,7 +207,9 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         case CTRL_MODE::CART_PASSIVE_DS:
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_PASSIVE_DS");
-            passive_ds_controller->update(tau_cmd_,J_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
+            // passive_ds_controller->update(tau_cmd_,J_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
+            passive_ds_controller->update(wrench,tau_cmd_,J_,joint_msr_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
+
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
         }
@@ -236,6 +240,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         for(size_t i=0; i<joint_handles_.size(); i++) {
             K_cmd(i)         = 0;
             D_cmd(i)         = D_(i);
+            // D_cmd(i)         = 0;
             pos_cmd_(i)      = joint_msr_.q(i);
         }
     }else if(ctrl_mode != CTRL_MODE::GRAV_COMP){
@@ -249,19 +254,35 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         publish_open_loop_pos(joint_des_.q,period,time);
     }
 
+    KDL::Twist x_msr_vel = x_dt_msr_.GetTwist();
 
-  /*  ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
+    ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
     ROS_INFO_STREAM_THROTTLE(thrott_time,"K_cmd:    " << K_cmd(0) << " " << K_cmd(1) << " " << K_cmd(2) << " " << K_cmd(3) << " " << K_cmd(4) << " " << K_cmd(5) << " " << K_cmd(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"D_cmd:    " << D_cmd(0) << " " << D_cmd(1) << " " << D_cmd(2) << " " << D_cmd(3) << " " << D_cmd(4) << " " << D_cmd(5) << " " << D_cmd(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"tau_cmd_: " << tau_cmd_(0) << " " <<  tau_cmd_(1) << " " <<  tau_cmd_(2) << " " << tau_cmd_(3) << " " <<  tau_cmd_(4) << " " <<  tau_cmd_(5) << " " << tau_cmd_(6));
     ROS_INFO_STREAM_THROTTLE(thrott_time,"pos_cmd_: " << pos_cmd_(0) << " " <<  pos_cmd_(1) << " " <<  pos_cmd_(2) << " " << pos_cmd_(3) << " " <<  pos_cmd_(4) << " " <<  pos_cmd_(5) << " " << pos_cmd_(6));
+    ROS_INFO_STREAM_THROTTLE(thrott_time,"wrench: " << wrench.force(0) << " " <<  wrench.force(1) << " " <<  wrench.force(2) << " " << wrench.torque(0) << " " <<  wrench.torque(1) << " " <<  wrench.torque(2));
+    ROS_INFO_STREAM_THROTTLE(thrott_time,"x_meas_vel: " << x_msr_vel.vel(0) << " " <<  x_msr_vel.vel(1) << " " <<  x_msr_vel.vel(2) << " " << x_msr_vel.rot(0) << " " <<  x_msr_vel.rot(1) << " " <<  x_msr_vel.rot(2));
+
     ROS_INFO_STREAM_THROTTLE(thrott_time,"--------------");
-*/
+
 //    tau_cmd_.data.setZero();
 
     /// Safety check if measured joint velocity is above specified threashold set torque and command to zero
 
     if(!safety->is_safe()){
+
+        if(!_first)
+        {
+            std::cerr << "SAFETY" << std::endl;
+        std::cerr << "K_cmd:    " << K_cmd(0) << " " << K_cmd(1) << " " << K_cmd(2) << " " << K_cmd(3) << " " << K_cmd(4) << " " << K_cmd(5) << " " << K_cmd(6) << std::endl;
+        std::cerr << "D_cmd:    " << D_cmd(0) << " " << D_cmd(1) << " " << D_cmd(2) << " " << D_cmd(3) << " " << D_cmd(4) << " " << D_cmd(5) << " " << D_cmd(6) << std::endl;
+        std::cerr << "tau_cmd_: " << tau_cmd_(0) << " " <<  tau_cmd_(1) << " " <<  tau_cmd_(2) << " " << tau_cmd_(3) << " " <<  tau_cmd_(4) << " " <<  tau_cmd_(5) << " " << tau_cmd_(6) << std::endl;
+        std::cerr << "pos_cmd_: " << pos_cmd_(0) << " " <<  pos_cmd_(1) << " " <<  pos_cmd_(2) << " " << pos_cmd_(3) << " " <<  pos_cmd_(4) << " " <<  pos_cmd_(5) << " " << pos_cmd_(6) << std::endl;
+        std::cerr << "wrench: " << wrench.force(0) << " " <<  wrench.force(1) << " " <<  wrench.force(2) << " " << wrench.torque(0) << " " <<  wrench.torque(1) << " " <<  wrench.torque(2) << std::endl;
+        std::cerr << "x_meas_vel: " << x_msr_vel.vel(0) << " " <<  x_msr_vel.vel(1) << " " <<  x_msr_vel.vel(2) << " " << x_msr_vel.rot(0) << " " <<  x_msr_vel.rot(1) << " " <<  x_msr_vel.rot(2) << std::endl;
+        _first = true;
+        }
         ROS_WARN_STREAM_THROTTLE(1.0,"Safety activated... you were going to do something bad!");
         for(size_t i=0; i<joint_handles_.size(); i++) {
             K_cmd(i)               = 0;
@@ -271,7 +292,11 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
             joint_des_.q(i)        = joint_msr_.q(i);
             joint_des_.qdot(i)     = 0;
         }
+        safety->reset();
     }
+    // else
+    // {
+    // }
     for(size_t i=0; i<joint_handles_.size(); i++) {
         joint_handles_[i].setCommandPosition(pos_cmd_(i));
         joint_handles_[i].setCommandTorque(tau_cmd_(i));

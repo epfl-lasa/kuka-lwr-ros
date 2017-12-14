@@ -10,6 +10,10 @@
 #include <ros/ros.h>
 #include "controllers/change_ctrl_mode.h"
 #include <geometry_msgs/Pose.h>
+#include <kdl/chainfksolverpos_recursive.hpp>
+#include <kdl/chainjnttojacsolver.hpp>
+#include <kdl/chainiksolvervel_pinv.hpp>
+#include <kdl/chainiksolverpos_nr_jl.hpp>
 
 namespace controllers{
 
@@ -20,6 +24,11 @@ public:
     Cartesian_position(ros::NodeHandle &nh,controllers::Change_ctrl_mode& change_ctrl_mode);
 
     void update(const KDL::Frame& x_,const KDL::Jacobian& J_,KDL::JntArrayAcc& joint_des, const ros::Duration& period);
+    void update(const KDL::Frame& x_,const KDL::Jacobian& J_,KDL::JntArrayAcc& joint_des, const ros::Duration& period, 
+                const KDL::JntArrayAcc& joint_msr_, KDL::ChainFkSolverPos_recursive fkSolver, KDL::ChainJntToJacSolver jacSolver);
+
+
+    bool checkEndEffectorTolerance(KDL::Twist xerr);
 
     void stop();
 
