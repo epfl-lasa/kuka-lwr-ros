@@ -119,6 +119,8 @@ private:
     ros::Subscriber         sub_eig_;
     ros::Subscriber         sub_stiff_;
     ros::Subscriber         sub_damp_;
+    ros::Publisher pub_twist_;
+
 
 
 

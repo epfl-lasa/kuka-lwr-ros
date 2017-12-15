@@ -13,12 +13,13 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 
     /// ROS topic
 
-    sub_command_vel_       = nh.subscribe("passive_ds_command_vel",      1, &Passive_ds::command_cart_vel,     this );
-    sub_command_force_     = nh.subscribe("passive_ds_command_force",    1, &Passive_ds::command_cart_force,   this );
-    sub_command_orient_    = nh.subscribe("passive_ds_command_orient",   1 ,&Passive_ds::command_orient,       this );
-    sub_eig_               = nh.subscribe("passive_ds_eig",              1 ,&Passive_ds::command_damping_eig,  this );
-    sub_stiff_             = nh.subscribe("passive_ds_stiffness",        1 ,&Passive_ds::command_rot_stiff,    this );
-    sub_damp_              = nh.subscribe("passive_ds_damping",          1 ,&Passive_ds::command_rot_damp,     this );
+    sub_command_vel_       = nh.subscribe("passive_ds_command_vel",      1, &Passive_ds::command_cart_vel,     this ,ros::TransportHints().reliable().tcpNoDelay());
+    sub_command_force_     = nh.subscribe("passive_ds_command_force",    1, &Passive_ds::command_cart_force,   this ,ros::TransportHints().reliable().tcpNoDelay());
+    sub_command_orient_    = nh.subscribe("passive_ds_command_orient",   1 ,&Passive_ds::command_orient,       this ,ros::TransportHints().reliable().tcpNoDelay());
+    sub_eig_               = nh.subscribe("passive_ds_eig",              1 ,&Passive_ds::command_damping_eig,  this ,ros::TransportHints().reliable().tcpNoDelay());
+    sub_stiff_             = nh.subscribe("passive_ds_stiffness",        1 ,&Passive_ds::command_rot_stiff,    this ,ros::TransportHints().reliable().tcpNoDelay());
+    sub_damp_              = nh.subscribe("passive_ds_damping",          1 ,&Passive_ds::command_rot_damp,     this ,ros::TransportHints().reliable().tcpNoDelay());
+    pub_twist_ = nh.advertise<geometry_msgs::Twist>("twist", 1);
 
     /// Passive dynamical system
 
@@ -198,9 +199,10 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
 
 
     if(bDebug){
-        ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_axis: " << err_orient_axis.getX() << " " << err_orient_axis.getY() << " " << err_orient_axis.getZ() );
-        ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_angle: " << err_orient_angle);
+        // ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_axis: " << err_orient_axis.getX() << " " << err_orient_axis.getY() << " " << err_orient_axis.getZ() );
+        // ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_angle: " << err_orient_angle);
         ROS_WARN_STREAM_THROTTLE(1.0, "Forces :" << F_ee_des_ );
+        // std::cerr << "Contact force: " << F_contact_des_ << std::endl;
     }
 
     if(std::isnan(err_orient_angle) || std::isinf(err_orient_angle)){
@@ -253,6 +255,15 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     wrench.torque(0) = F_ee_des_(3);
     wrench.torque(1) = F_ee_des_(4);
     wrench.torque(2) = F_ee_des_(5);
+
+    geometry_msgs::Twist msg;
+    msg.linear.x = dx_linear_msr_(0);
+    msg.linear.y = dx_linear_msr_(1);
+    msg.linear.z = dx_linear_msr_(2);
+    msg.angular.x = dx_angular_msr_(0);
+    msg.angular.y = dx_angular_msr_(1);
+    msg.angular.z = dx_angular_msr_(2);
+    pub_twist_.publish(msg);
 
     // tau_cmd.data.setZero();
 }

@@ -120,6 +120,8 @@ namespace lwr_controllers
         KDL::Jacobian       J_;             // Jacobian
         KDL::JntArrayVel    joint_vel_msr_;
 
+        bool _first = false;
+
 
         boost::scoped_ptr<KDL::ChainDynParam>               id_solver_gravity_;
         boost::scoped_ptr<KDL::ChainJntToJacSolver>         jnt_to_jac_solver_;
@@ -154,9 +156,6 @@ namespace lwr_controllers
         double                                                                              last_publish_time_;
         double                                                                              q_x,q_y,q_z,q_w; // Quaternion parameters
         double                                                                              publish_rate_;
-
-
-        bool _first = false;
 
 
 	};
