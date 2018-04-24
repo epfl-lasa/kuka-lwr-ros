@@ -16,10 +16,12 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     sub_command_vel_       = nh.subscribe("passive_ds_command_vel",      1, &Passive_ds::command_cart_vel,     this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_command_force_     = nh.subscribe("passive_ds_command_force",    1, &Passive_ds::command_cart_force,   this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_command_orient_    = nh.subscribe("passive_ds_command_orient",   1 ,&Passive_ds::command_orient,       this ,ros::TransportHints().reliable().tcpNoDelay());
+    sub_command_orient_integrator    = nh.subscribe("passive_ds_command_orient_integrator",   1 ,&Passive_ds::command_orient_integrator,       this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_eig_               = nh.subscribe("passive_ds_eig",              1 ,&Passive_ds::command_damping_eig,  this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_stiff_             = nh.subscribe("passive_ds_stiffness",        1 ,&Passive_ds::command_rot_stiff,    this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_damp_              = nh.subscribe("passive_ds_damping",          1 ,&Passive_ds::command_rot_damp,     this ,ros::TransportHints().reliable().tcpNoDelay());
     pub_twist_ = nh.advertise<geometry_msgs::Twist>("twist", 1);
+    pub_damping_matrix_ = nh.advertise<std_msgs::Float32MultiArray>("/lwr/joint_controllers/passive_ds_damping_matrix", 1);
 
     /// Passive dynamical system
 
@@ -52,6 +54,8 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     rot_damping   = config_cfg.rot_damping;
 
     rot_des_ = KDL::Rotation::RPY(0,0,0);
+
+    torque_orient_integrator.setConstant(0.0f);
 
 
 
@@ -86,6 +90,7 @@ void Passive_ds::ds_param_callback(lwr_controllers::passive_ds_paramConfig& conf
     passive_ds_controller->set_damping_eigval(config.damping_eigval0,config.damping_eigval1);
     rot_stiffness = config.rot_stiffness;
     rot_damping   = config.rot_damping;
+    rot_integrator   = config.rot_integrator;
     bDebug        = config.debug;
     bSmooth       = config.bSmooth;
     smooth_val_   = config.smooth_val;
@@ -137,6 +142,7 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
 
     passive_ds_controller->Update(dx_linear_msr_,dx_linear_des_);
     F_linear_des_ = passive_ds_controller->control_output(); // (3 x 1)
+    _damping = (passive_ds_controller->damping_matrix()).cast<float>();
 
     F_ee_des_(0) = F_linear_des_(0)+F_contact_des_(0);
     F_ee_des_(1) = F_linear_des_(1)+F_contact_des_(1);
@@ -180,12 +186,23 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     err_orient_axis = q.getAxis();
     err_orient_angle = q.getAngle();
 
+
     // rotational stiffness. This is correct sign and everything!!!! do not mess with this!
     torque_orient = err_orient_axis * err_orient_angle * (rot_stiffness);
 
-    F_ee_des_(3) = -rot_damping * (dx_angular_msr_(0)-dx_angular_des_(0)) + torque_orient.getX();
-    F_ee_des_(4) = -rot_damping * (dx_angular_msr_(1)-dx_angular_des_(1)) + torque_orient.getY();
-    F_ee_des_(5) = -rot_damping * (dx_angular_msr_(2)-dx_angular_des_(2)) + torque_orient.getZ();
+    Eigen::Vector3f temp;
+    temp << err_orient_axis.getX(),err_orient_axis.getY(),err_orient_axis.getZ();
+    torque_orient_integrator += rot_integrator*err_orient_angle*temp;
+
+    if(torque_orient_integrator.norm()>rot_integrator*M_PI)
+    {
+        torque_orient_integrator *= rot_integrator*M_PI/torque_orient_integrator.norm();
+    }
+
+
+    F_ee_des_(3) = -rot_damping * (dx_angular_msr_(0)-dx_angular_des_(0)) + torque_orient.getX()+torque_orient_integrator(0)+F_contact_des_(3);
+    F_ee_des_(4) = -rot_damping * (dx_angular_msr_(1)-dx_angular_des_(1)) + torque_orient.getY()+torque_orient_integrator(1)+F_contact_des_(4);
+    F_ee_des_(5) = -rot_damping * (dx_angular_msr_(2)-dx_angular_des_(2)) + torque_orient.getZ()+torque_orient_integrator(2)+F_contact_des_(5);
 
 
     if(bDebug){
@@ -255,6 +272,18 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     msg.angular.z = dx_angular_msr_(2);
     pub_twist_.publish(msg);
 
+    std_msgs::Float32MultiArray msgDamping;
+    msgDamping.data.resize(9);
+    msgDamping.data[0] = _damping(0,0);
+    msgDamping.data[1] = _damping(0,1);
+    msgDamping.data[2] = _damping(0,2);
+    msgDamping.data[3] = _damping(1,0);
+    msgDamping.data[4] = _damping(1,1);
+    msgDamping.data[5] = _damping(1,2);
+    msgDamping.data[6] = _damping(2,0);
+    msgDamping.data[7] = _damping(2,1);
+    msgDamping.data[8] = _damping(2,2);
+    pub_damping_matrix_.publish(msgDamping);
     // tau_cmd.data.setZero();
 }
 
@@ -320,4 +349,13 @@ void Passive_ds::command_rot_damp(const std_msgs::Float64& msg){
     dynamic_server_ds_param->updateConfig(config_cfg);
 }
 
+void Passive_ds::command_orient_integrator(const std_msgs::Float32& msg){
+    torque_orient_integrator.setConstant(0.0f);
+    std::cerr << "Reset integrator" << std::endl;
+    config_cfg.rot_integrator = 0.0f;
+    rot_integrator = 0.0f;
+    dynamic_server_ds_param->updateConfig(config_cfg);
 }
+
+}
+

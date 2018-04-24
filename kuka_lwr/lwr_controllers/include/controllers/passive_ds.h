@@ -22,7 +22,9 @@
 #include <geometry_msgs/Wrench.h>
 #include <geometry_msgs/Pose.h>
 #include <std_msgs/Float64MultiArray.h>
+#include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Float32.h>
 
 #include "utils/pseudo_inversion.h"
 
@@ -63,6 +65,9 @@ private:
 
     void publish_open_loop_pos(const ros::Duration &period, const ros::Time& time);
 
+    void command_orient_integrator(const std_msgs::Float32& msg);
+
+
 private:
 
     /// Ctrl mode
@@ -87,13 +92,16 @@ private:
     tf::Vector3           err_orient_axis;
     double                err_orient_angle;
     tf::Vector3           torque_orient;
+    Eigen::Vector3f       torque_orient_integrator;
     double                qx, qy, qz, qw;
     tf::Quaternion        q;
 
+    Eigen::Matrix3f _damping;
 
     double              smooth_val_;
     double              rot_stiffness;
     double              rot_damping;
+    double              rot_integrator;
 
     bool _useNullSpace;
     double _jointLimitsGain;
@@ -116,10 +124,12 @@ private:
     ros::Subscriber         sub_command_vel_;
     ros::Subscriber         sub_command_force_;
     ros::Subscriber         sub_command_orient_;
+    ros::Subscriber         sub_command_orient_integrator;
     ros::Subscriber         sub_eig_;
     ros::Subscriber         sub_stiff_;
     ros::Subscriber         sub_damp_;
     ros::Publisher pub_twist_;
+    ros::Publisher pub_damping_matrix_;
 
 
 
