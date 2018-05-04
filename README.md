@@ -28,6 +28,11 @@ instructions on how to install it on ubuntu. Make sure that the ros libraries of
 ```
 $ sudo apt-get install ros-indigo-gazeboX-*
 ```
+*** Software Version Combinations
+- ROS-Inidigo + Gazebo2 (If you are having troubles starting-up the simulation, you need to install Gazebo7)
+- ROS-Inidigo + Gazebo7
+
+
 # Description
 
 Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR).
