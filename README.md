@@ -56,7 +56,7 @@ caption below Rviz is on the left and Gazebo is on the right.
 
 A new functionality is added where you can apply external forces to the end-effector, to launch an interactive GUI to set the forces and when to apply them run the following:
 ```sh
-$ roslaunch lwr_simple_example sim.launch force-interactive:true
+$ roslaunch lwr_simple_example sim.launch force-interface:=true
 ```
 
 ![alt text](readme/gazebo_rviz.png "Gazebo and Rviz GUIs")
