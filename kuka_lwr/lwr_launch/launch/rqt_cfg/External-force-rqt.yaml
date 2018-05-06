@@ -1,0 +1,11 @@
+publish_interval: 100
+settings:
+  /lwr/joint_controllers/passive_ds_apply_force/data: {is_repeat: true, max: 0, min: 0}
+  /lwr/joint_controllers/passive_ds_external_force/force/x: {is_repeat: true, max: 50.0,
+    min: -50.0}
+  /lwr/joint_controllers/passive_ds_external_force/force/y: {is_repeat: true, max: 50.0,
+    min: -50.0}
+  /lwr/joint_controllers/passive_ds_external_force/force/z: {is_repeat: true, max: 50.0,
+    min: -50.0}
+texts: [/lwr/joint_controllers/passive_ds_external_force/force/x, /lwr/joint_controllers/passive_ds_external_force/force/y,
+  /lwr/joint_controllers/passive_ds_external_force/force/z, /lwr/joint_controllers/passive_ds_apply_force/data]
