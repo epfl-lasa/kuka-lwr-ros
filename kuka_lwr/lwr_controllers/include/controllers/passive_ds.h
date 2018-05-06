@@ -20,8 +20,10 @@
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Wrench.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Bool.h>
 
 #include "utils/pseudo_inversion.h"
 
@@ -51,6 +53,10 @@ private:
 
     void command_orient(const geometry_msgs::Quaternion &msg);
 
+    void command_pert_force(const geometry_msgs::Wrench &msg);
+
+    void command_apply_force(const std_msgs::Bool &msg);
+
     void command_damping_eig(const std_msgs::Float64MultiArray& msg);
 
     void command_rot_stiff(const std_msgs::Float64& msg);
@@ -64,6 +70,7 @@ private:
     /// Ctrl mode
     Change_ctrl_mode&   change_ctrl_mode;
     bool                bFirst;
+    bool                bPert;
     bool                bDebug;
     bool                bSmooth;
 
@@ -76,6 +83,8 @@ private:
     Vec                 dx_angular_msr_;
     Vec                 F_linear_des_;     // desired linear force
     Eigen::VectorXd     F_ee_des_;         // desired end-effector force
+    Eigen::VectorXd     F_ee_perturb_;     // "simulated" external perturbation on end-effector
+
     /// Rotation
     KDL::Rotation         err_orient;
     tf::Vector3           err_orient_axis;
@@ -106,6 +115,8 @@ private:
     ros::Subscriber         sub_eig_;
     ros::Subscriber         sub_stiff_;
     ros::Subscriber         sub_damp_;
+    ros::Subscriber         sub_pert_force_;
+    ros::Subscriber         sub_apply_force_;
 
 
 

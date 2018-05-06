@@ -18,6 +18,9 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     sub_eig_               = nh.subscribe("passive_ds_eig",              1 ,&Passive_ds::command_damping_eig,  this );
     sub_stiff_             = nh.subscribe("passive_ds_stiffness",        1 ,&Passive_ds::command_rot_stiff,    this );
     sub_damp_              = nh.subscribe("passive_ds_damping",          1 ,&Passive_ds::command_rot_damp,     this );
+    sub_pert_force_        = nh.subscribe("passive_ds_external_force",   1 ,&Passive_ds::command_pert_force,  this );
+    sub_apply_force_        = nh.subscribe("passive_ds_apply_force",     1 ,&Passive_ds::command_apply_force,  this );
+
 
     /// Passive dynamical system
 
@@ -40,7 +43,10 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     dx_angular_msr_.resize(3);
 
     F_ee_des_.resize(6);
+    F_ee_perturb_.resize(6);
+    F_ee_perturb_.setZero();
     bFirst = false;
+    bPert  = false;
 
     rot_stiffness = config_cfg.rot_stiffness;
     rot_damping   = config_cfg.rot_damping;
@@ -85,12 +91,14 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
 
 
     F_ee_des_.setZero();
+    if (bPert==false){
+        F_ee_perturb_.setZero();
+    }
 
     /// set desired linear velocity
     dx_linear_des_(0)   = x_des_vel_(0);
     dx_linear_des_(1)   = x_des_vel_(1);
     dx_linear_des_(2)   = x_des_vel_(2);
-
 
     /// set measured linear and angular velocity
     if(bSmooth)
@@ -117,18 +125,14 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
 
     passive_ds_controller->Update(dx_linear_msr_,dx_linear_des_);
     F_linear_des_ = passive_ds_controller->control_output(); // (3 x 1)
-
     F_ee_des_(0) = F_linear_des_(0);
     F_ee_des_(1) = F_linear_des_(1);
     F_ee_des_(2) = F_linear_des_(2);
 
     // ----------------- Debug -----------------------//
-
-    ROS_WARN_STREAM_THROTTLE(1, "velocity :" << dx_linear_des_ );
-    ROS_WARN_STREAM_THROTTLE(1, "Froces :" << F_linear_des_ );
-    // ROS_WARN_STREAM_THROTTLE(1, "Froces :" << F_linear_des_ );
-
-
+    ROS_WARN_STREAM_THROTTLE(1, "Desired Velocity :" << dx_linear_des_(0) << " " << dx_linear_des_(1) <<  " " << dx_linear_des_(2));
+    ROS_WARN_STREAM_THROTTLE(1, "Control Forces :" << F_linear_des_(0) << " " << F_linear_des_(1) << " " << F_linear_des_(2));
+    ROS_WARN_STREAM_THROTTLE(1, "Perturb. Forces :" << F_ee_perturb_(0) << " " << F_ee_perturb_(1) << " " << F_ee_perturb_(2));
 
     if(bDebug){
         {
@@ -180,17 +184,18 @@ void Passive_ds::update(KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KD
 
     if(bDebug){
         for(std::size_t i = 0; i < F_msg_.data.size();i++){
-            F_msg_.data[i] =F_ee_des_(i);
+            F_msg_.data[i] = F_ee_des_(i);
         }
         pub_F_.publish(F_msg_);
     }
+
 
     // computing the torques
     Eigen::MatrixXd J_transpose_pinv;
     pseudo_inverse(J.data.transpose(), J_transpose_pinv);
     nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J.data.transpose()*J_transpose_pinv)*(2.0*(qd - joint_msr_.q.data) - 0.01*joint_msr_.qdot.data);
 
-    tau_cmd.data = J.data.transpose() * F_ee_des_ + nullspace_torque;
+    tau_cmd.data = J.data.transpose() * (F_ee_des_ + F_ee_perturb_) + nullspace_torque;
 
     if(bDebug){
         for(std::size_t i = 0; i < tau_msg_.data.size();i++)
@@ -255,4 +260,16 @@ void Passive_ds::command_rot_damp(const std_msgs::Float64& msg){
     dynamic_server_ds_param->updateConfig(config_cfg);
 }
 
+
+void Passive_ds::command_pert_force(const geometry_msgs::Wrench &msg){
+    F_ee_perturb_(0) = msg.force.x;
+    F_ee_perturb_(1) = msg.force.y;
+    F_ee_perturb_(2) = msg.force.z;
+    F_ee_perturb_(3) = msg.torque.x;
+    F_ee_perturb_(4) = msg.torque.y;
+    F_ee_perturb_(5) = msg.torque.z;
+}
+void Passive_ds::command_apply_force(const std_msgs::Bool &msg){
+    bPert = msg.data;
+}
 }
