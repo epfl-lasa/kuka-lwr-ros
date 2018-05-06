@@ -54,7 +54,7 @@ This will run the simulator and the Gazebo simulator and ROS Rviz visualiser GUI
 window does not open this is because a flag is set in the sim.launch file. In the
 caption below Rviz is on the left and Gazebo is on the right.
 
-A new functionality is added where you can apply external forces to the end-effector, to launch an interactive GUI to set the forces and when to apply them run the following:
+A new functionality is added where you can simlulate external forces being applied to the end-effector. To launch an interactive GUI to set the forces and when to apply them run the following:
 ```sh
 $ roslaunch lwr_simple_example sim.launch force-interface:=true
 ```
