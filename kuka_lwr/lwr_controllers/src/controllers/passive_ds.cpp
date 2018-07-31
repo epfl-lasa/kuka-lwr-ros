@@ -21,7 +21,7 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     sub_stiff_             = nh.subscribe("passive_ds_stiffness",        1 ,&Passive_ds::command_rot_stiff,    this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_damp_              = nh.subscribe("passive_ds_damping",          1 ,&Passive_ds::command_rot_damp,     this ,ros::TransportHints().reliable().tcpNoDelay());
     pub_twist_ = nh.advertise<geometry_msgs::Twist>("twist", 1);
-    pub_damping_matrix_ = nh.advertise<std_msgs::Float32MultiArray>("/lwr/joint_controllers/passive_ds_damping_matrix", 1);
+    pub_damping_matrix_ = nh.advertise<std_msgs::Float32MultiArray>("/lwr2/joint_controllers/passive_ds_damping_matrix", 1);
 
     /// Passive dynamical system
 

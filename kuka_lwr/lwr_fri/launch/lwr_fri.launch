@@ -29,7 +29,7 @@
 
   <param name="fri_drivers" type="str" value="$(arg fri_driver_file)"/>
 
-  <group ns="lwr">
+  <group ns="lwr2">
     <param name="robot_description" command="$(find xacro)/xacro.py $(arg robot_urdf_file)"/>
 
     <node  name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
@@ -40,8 +40,13 @@
     <node name="lwr_fri" pkg="lwr_fri" type="lwr_fri_node" output="screen"/>
   </group>
 
+<!--   <node name="tf_publisher_2_kukas" 
+      pkg="tf" 
+      type="static_transform_publisher"  
+      args="0.078 0.9 0 0.0 0.0 0.0 world world_2 5" /> -->
+
   <!-- LAUNCH RVIZ -->
   <group if="$(arg rviz_bringup)">
-    <node name="lwr_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rviz_config)" output="screen"/>
+    <node name="lwr2_rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rviz_config)" output="screen"/>
   </group>
 </launch>

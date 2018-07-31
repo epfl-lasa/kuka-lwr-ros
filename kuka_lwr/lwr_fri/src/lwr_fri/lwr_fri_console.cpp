@@ -22,9 +22,9 @@ int Console_Interface::Execute(string args){
 Fri_console::Fri_console(ros::NodeHandle &nh)
 {
 
-    service_client = nh.serviceClient<controller_manager_msgs::SwitchController>("/lwr/controller_manager/switch_controller");
+    service_client = nh.serviceClient<controller_manager_msgs::SwitchController>("/lwr2/controller_manager/switch_controller");
 
-    fri_sub = nh.subscribe("/lwr/FRI_data",1,&Fri_console::fri_callback,this);
+    fri_sub = nh.subscribe("/lwr2/FRI_data",1,&Fri_console::fri_callback,this);
 
 
     if(!ros::param::get("/start_controller",start_controller))

@@ -93,9 +93,9 @@ int main(int argc, char** argv){
     fri_interface.start_fri();
 
     /// Load robot description
-    std::string urdf_string = getURDF(lwr_nh, "/lwr/robot_description");
+    std::string urdf_string = getURDF(lwr_nh, "/lwr2/robot_description");
     kfb::LWRRobot_FRI lwr_robot_fri(fri_interface.mFRI);
-    lwr_robot_fri.create("lwr", urdf_string);
+    lwr_robot_fri.create("lwr2", urdf_string);
     lwr_robot_fri.init();
 
     //the controller manager
