@@ -20,7 +20,7 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     sub_stiff_             = nh.subscribe("passive_ds_stiffness",        1 ,&Passive_ds::command_rot_stiff,    this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_damp_              = nh.subscribe("passive_ds_damping",          1 ,&Passive_ds::command_rot_damp,     this ,ros::TransportHints().reliable().tcpNoDelay());
     pub_twist_ = nh.advertise<geometry_msgs::Twist>("twist", 1);
-
+    pub_damping_matrix_ = nh.advertise<std_msgs::Float32MultiArray>("/lwr/joint_controllers/passive_ds_damping_matrix", 1);
     /// Passive dynamical system
 
     passive_ds_controller.reset(new DSController(3,50.0,50.0));
@@ -147,6 +147,7 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
 
     passive_ds_controller->Update(dx_linear_msr_,dx_linear_des_);
     F_linear_des_ = passive_ds_controller->control_output(); // (3 x 1)
+    _damping = (passive_ds_controller->damping_matrix()).cast<float>();
 
     F_ee_des_(0) = F_linear_des_(0)+F_contact_des_(0);
     F_ee_des_(1) = F_linear_des_(1)+F_contact_des_(1);
@@ -265,6 +266,18 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     msg.angular.z = dx_angular_msr_(2);
     pub_twist_.publish(msg);
 
+    std_msgs::Float32MultiArray msgDamping;
+    msgDamping.data.resize(9);
+    msgDamping.data[0] = _damping(0,0);
+    msgDamping.data[1] = _damping(0,1);
+    msgDamping.data[2] = _damping(0,2);
+    msgDamping.data[3] = _damping(1,0);
+    msgDamping.data[4] = _damping(1,1);
+    msgDamping.data[5] = _damping(1,2);
+    msgDamping.data[6] = _damping(2,0);
+    msgDamping.data[7] = _damping(2,1);
+    msgDamping.data[8] = _damping(2,2);
+    pub_damping_matrix_.publish(msgDamping);
     // tau_cmd.data.setZero();
 }
 

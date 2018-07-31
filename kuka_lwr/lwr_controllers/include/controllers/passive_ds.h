@@ -25,6 +25,7 @@
 #include <std_msgs/Float64.h>
 
 #include "utils/pseudo_inversion.h"
+#include <std_msgs/Float32MultiArray.h>
 
 namespace controllers{
 
@@ -90,7 +91,7 @@ private:
     double                qx, qy, qz, qw;
     tf::Quaternion        q;
 
-
+    Eigen::Matrix3f _damping;
     double              smooth_val_;
     double              rot_stiffness;
     double              rot_damping;
@@ -120,6 +121,7 @@ private:
     ros::Subscriber         sub_stiff_;
     ros::Subscriber         sub_damp_;
     ros::Publisher pub_twist_;
+    ros::Publisher pub_damping_matrix_;
 
 
 
