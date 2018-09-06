@@ -54,9 +54,17 @@ This will run the simulator and the Gazebo simulator and ROS Rviz visualiser GUI
 window does not open this is because a flag is set in the sim.launch file. In the
 caption below Rviz is on the left and Gazebo is on the right.
 
-A new functionality is added where you can apply external forces to the end-effector, to launch an interactive GUI to set the forces and when to apply them run the following:
-```sh
+A new functionality is added where you can simlulate external forces being applied to the end-effector. To launch an interactive GUI to set the forces and when to apply them run the following:
+```
 $ roslaunch lwr_simple_example sim.launch force-interface:=true
+```
+To apply external forces during the execution of the passive-DS controller you can define the force in the following topicL
+```
+/lwr/joint_controllers/passive_ds_external_force
+```
+the force will be applied by manipulating the boolean command:
+```
+/lwr/joint_controllers/passive_ds_apply_force
 ```
 
 ![alt text](readme/gazebo_rviz.png "Gazebo and Rviz GUIs")
