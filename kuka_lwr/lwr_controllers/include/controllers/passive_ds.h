@@ -127,7 +127,7 @@ private:
     std_msgs::Float64MultiArray     F_msg_,tau_msg_;
     lwr_controllers::passive_ds_paramConfig config_cfg;
 
-    // null-spae control
+    // null-space control
     Eigen::Matrix<double,7,1> qd, nullspace_torque;
 
 };

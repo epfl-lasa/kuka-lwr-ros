@@ -268,6 +268,8 @@ void Passive_ds::command_pert_force(const geometry_msgs::Wrench &msg){
     F_ee_perturb_(3) = msg.torque.x;
     F_ee_perturb_(4) = msg.torque.y;
     F_ee_perturb_(5) = msg.torque.z;
+
+    ROS_WARN_STREAM_THROTTLE(1, "MESSAGE RECEIEVED Perturb. Forces :" << F_ee_perturb_(0) << " " << F_ee_perturb_(1) << " " << F_ee_perturb_(2));
 }
 void Passive_ds::command_apply_force(const std_msgs::Bool &msg){
     bPert = msg.data;
