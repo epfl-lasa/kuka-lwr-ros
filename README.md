@@ -119,3 +119,17 @@ Drives are in state GO.
 
 To send actions to the robot proceed as in Quick start (**simulation**). Essentially open two new terminals and launch
 the simple client and server nodes.
+
+
+### FAQ
+If the real-time control interface is not working, you might need to provide your user name with real time priority and memlock limits higher than the default ones. You can do it permanently like this:
+```
+    sudo nano /etc/security/limits.conf and add these lines:
+```
+YOUR_USERNAME hard rtprio 95
+YOUR_USERNAME soft rtprio 95
+YOUR_USERNAME hard memlock unlimited
+YOUR_USERNAME soft memlock unlimited
+```sudo nano /etc/pam.d/common-session``` and add ```session required pam_limits.so```
+Reboot, open a terminal, and check that ```ulimit -r -l``` gives you the values set above.
+
