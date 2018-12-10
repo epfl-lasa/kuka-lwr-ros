@@ -12,7 +12,6 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 {
 
     /// ROS topic
-
     sub_command_vel_       = nh.subscribe("passive_ds_command_vel",      1, &Passive_ds::command_cart_vel,     this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_command_force_     = nh.subscribe("passive_ds_command_force",    1, &Passive_ds::command_cart_force,   this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_command_orient_    = nh.subscribe("passive_ds_command_orient",   1 ,&Passive_ds::command_orient,       this ,ros::TransportHints().reliable().tcpNoDelay());
@@ -25,7 +24,7 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 
     passive_ds_controller.reset(new DSController(3,50.0,50.0));
 
-    nd5 = ros::NodeHandle("ds_param");
+    nd5 = ros::NodeHandle(nh.getNamespace()+"/ds_param");
 
     dynamic_server_ds_param.reset(new       dynamic_reconfigure::Server< lwr_controllers::passive_ds_paramConfig>(nd5));
 
