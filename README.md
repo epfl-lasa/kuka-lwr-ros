@@ -26,7 +26,7 @@ $ rosdep install --from-paths . --ignore-src --rosdistro kinetic
 * Install [**Gazebo**](http://gazebosim.org/), follow this [**link**](http://gazebosim.org/tutorials?tut=install_ubuntu&) for 
 instructions on how to install it on ubuntu. Make sure that the ros libraries of Gazebo are also installed:
 ```
-$ sudo apt-get install ros-indigo-gazeboX-*
+$ sudo apt-get install ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control
 ```
 * Finally compile your packages
 ```
