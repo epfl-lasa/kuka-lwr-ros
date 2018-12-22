@@ -28,7 +28,7 @@ instructions on how to install it on ubuntu. Make sure that the ros libraries of
 ```
 $ sudo apt-get install ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control
 ```
-* Finally compile your packages
+* Finally compile your packages from catkin_ws directory
 ```
 $ catkin_make
 ```
