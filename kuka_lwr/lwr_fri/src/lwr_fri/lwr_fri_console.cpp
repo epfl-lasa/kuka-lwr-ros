@@ -19,12 +19,12 @@ int Console_Interface::Execute(string args){
     return fri_console->RespondToConsoleCommand(m_Name,Tokenize(args));
 }
 
-Fri_console::Fri_console(ros::NodeHandle &nh)
+Fri_console::Fri_console(ros::NodeHandle &nh, std::string robot_name)
 {
 
-    service_client = nh.serviceClient<controller_manager_msgs::SwitchController>("/lwr/controller_manager/switch_controller");
+    service_client = nh.serviceClient<controller_manager_msgs::SwitchController>("/"+robot_name+"/controller_manager/switch_controller");
 
-    fri_sub = nh.subscribe("/lwr/FRI_data",1,&Fri_console::fri_callback,this);
+    fri_sub = nh.subscribe("/"+robot_name+"/FRI_data",1,&Fri_console::fri_callback,this);
 
 
     if(!ros::param::get("/start_controller",start_controller))

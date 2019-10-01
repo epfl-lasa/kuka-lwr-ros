@@ -70,7 +70,7 @@ class Fri_console{
 
 public:
 
-       Fri_console(ros::NodeHandle& nh);
+       Fri_console(ros::NodeHandle& nh, std::string robot_name);
 
        int start();
        int stop();
