@@ -14,20 +14,20 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     /// ROS topic
 
     sub_command_vel_       = nh.subscribe("passive_ds_command_vel",      1, &Passive_ds::command_cart_vel,     this ,ros::TransportHints().reliable().tcpNoDelay());
-    sub_command_force_     = nh.subscribe("passive_ds_command_force",    1, &Passive_ds::command_cart_force,   this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_command_orient_    = nh.subscribe("passive_ds_command_orient",   1 ,&Passive_ds::command_orient,       this ,ros::TransportHints().reliable().tcpNoDelay());
-    sub_command_orient_integrator    = nh.subscribe("passive_ds_command_orient_integrator",   1 ,&Passive_ds::command_orient_integrator,       this ,ros::TransportHints().reliable().tcpNoDelay());
+    sub_command_force_     = nh.subscribe("passive_ds_command_wrench",    1, &Passive_ds::command_wrench,   this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_eig_               = nh.subscribe("passive_ds_eig",              1 ,&Passive_ds::command_damping_eig,  this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_stiff_             = nh.subscribe("passive_ds_stiffness",        1 ,&Passive_ds::command_rot_stiff,    this ,ros::TransportHints().reliable().tcpNoDelay());
     sub_damp_              = nh.subscribe("passive_ds_damping",          1 ,&Passive_ds::command_rot_damp,     this ,ros::TransportHints().reliable().tcpNoDelay());
-    pub_twist_ = nh.advertise<geometry_msgs::Twist>("twist", 1);
-    pub_damping_matrix_ = nh.advertise<std_msgs::Float32MultiArray>("/lwr/joint_controllers/passive_ds_damping_matrix", 1);
+    sub_command_nullspace_    = nh.subscribe("passive_ds_command_nullspace",  1 ,&Passive_ds::command_nullspace,       this ,ros::TransportHints().reliable().tcpNoDelay());
 
+    pub_twist_ = nh.advertise<geometry_msgs::Twist>("twist", 1);
+    pub_damping_matrix_ = nh.advertise<std_msgs::Float32MultiArray>("passive_ds_damping_matrix", 1);
     /// Passive dynamical system
 
     passive_ds_controller.reset(new DSController(3,50.0,50.0));
 
-    nd5 = ros::NodeHandle("ds_param");
+    nd5 = ros::NodeHandle(nh.getNamespace()+"/ds_param");
 
     dynamic_server_ds_param.reset(new       dynamic_reconfigure::Server< lwr_controllers::passive_ds_paramConfig>(nd5));
 
@@ -45,8 +45,8 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     dx_angular_des_.resize(3);
 
     F_ee_des_.resize(6);
-    F_contact_des_.resize(6);
-    F_contact_des_.setConstant(0.0f);
+    wrench_des_.resize(6);
+    wrench_des_.setConstant(0.0f);
 
     bFirst = false;
 
@@ -54,10 +54,6 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     rot_damping   = config_cfg.rot_damping;
 
     rot_des_ = KDL::Rotation::RPY(0,0,0);
-
-    torque_orient_integrator.setConstant(0.0f);
-
-
 
    qd <<     -0.004578103311359882, 0.7503823041915894, -0.059841930866241455, -1.6525769233703613,
          0.06038748472929001, 0.7602048516273499, 1.5380386114120483;
@@ -77,7 +73,7 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     _jointLimitsGain = config_cfg.jointLimitsGain;
     _desiredJointsGain = config_cfg.desiredJointsGain;
     _jointVelocitiesGain = config_cfg.jointVelocitiesGain;
-
+    _wrenchGain = config_cfg.wrenchGain;
 }
 
 
@@ -90,7 +86,6 @@ void Passive_ds::ds_param_callback(lwr_controllers::passive_ds_paramConfig& conf
     passive_ds_controller->set_damping_eigval(config.damping_eigval0,config.damping_eigval1);
     rot_stiffness = config.rot_stiffness;
     rot_damping   = config.rot_damping;
-    rot_integrator   = config.rot_integrator;
     bDebug        = config.debug;
     bSmooth       = config.bSmooth;
     smooth_val_   = config.smooth_val;
@@ -98,6 +93,8 @@ void Passive_ds::ds_param_callback(lwr_controllers::passive_ds_paramConfig& conf
     _jointLimitsGain = config.jointLimitsGain;
     _desiredJointsGain = config.desiredJointsGain;
     _jointVelocitiesGain = config.jointVelocitiesGain;
+    _wrenchGain = config.wrenchGain;
+    _nullspaceCommandGain = config.nullspaceCommandGain;
 
     config_cfg    = config;
 }
@@ -144,9 +141,9 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     F_linear_des_ = passive_ds_controller->control_output(); // (3 x 1)
     _damping = (passive_ds_controller->damping_matrix()).cast<float>();
 
-    F_ee_des_(0) = F_linear_des_(0)+F_contact_des_(0);
-    F_ee_des_(1) = F_linear_des_(1)+F_contact_des_(1);
-    F_ee_des_(2) = F_linear_des_(2)+F_contact_des_(2);
+    F_ee_des_(0) = F_linear_des_(0);
+    F_ee_des_(1) = F_linear_des_(1);
+    F_ee_des_(2) = F_linear_des_(2);
 
     // ----------------- Debug -----------------------//
 
@@ -154,8 +151,9 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     // ROS_WARN_STREAM_THROTTLE(1, "Froces :" << F_linear_des_ );
 
 
-
     if(bDebug){
+
+        std::string robot_name = nd5.getNamespace().substr(0,nd5.getNamespace().find("/",1));
         {
             static tf::TransformBroadcaster br;
             tf::Transform transform;
@@ -163,7 +161,7 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
             rot_msr_.GetQuaternion(qx,qy,qz,qw);
             q = tf::Quaternion(qx,qy,qz,qw);
             transform.setRotation(q);
-            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "rot_msr_"));
+            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", robot_name+"/rot_msr_"));
         }
         {
             static tf::TransformBroadcaster br;
@@ -172,7 +170,7 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
             rot_des_.GetQuaternion(qx,qy,qz,qw);
             q = tf::Quaternion(qx,qy,qz,qw);
             transform.setRotation(q);
-            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "rot_target_"));
+            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", robot_name+"/rot_target_"));
         }
     }
 
@@ -186,30 +184,19 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     err_orient_axis = q.getAxis();
     err_orient_angle = q.getAngle();
 
-
     // rotational stiffness. This is correct sign and everything!!!! do not mess with this!
     torque_orient = err_orient_axis * err_orient_angle * (rot_stiffness);
 
-    Eigen::Vector3f temp;
-    temp << err_orient_axis.getX(),err_orient_axis.getY(),err_orient_axis.getZ();
-    torque_orient_integrator += rot_integrator*err_orient_angle*temp;
-
-    if(torque_orient_integrator.norm()>rot_integrator*M_PI)
-    {
-        torque_orient_integrator *= rot_integrator*M_PI/torque_orient_integrator.norm();
-    }
-
-
-    F_ee_des_(3) = -rot_damping * (dx_angular_msr_(0)-dx_angular_des_(0)) + torque_orient.getX()+torque_orient_integrator(0)+F_contact_des_(3);
-    F_ee_des_(4) = -rot_damping * (dx_angular_msr_(1)-dx_angular_des_(1)) + torque_orient.getY()+torque_orient_integrator(1)+F_contact_des_(4);
-    F_ee_des_(5) = -rot_damping * (dx_angular_msr_(2)-dx_angular_des_(2)) + torque_orient.getZ()+torque_orient_integrator(2)+F_contact_des_(5);
+    F_ee_des_(3) = -rot_damping * (dx_angular_msr_(0)-dx_angular_des_(0)) + torque_orient.getX();
+    F_ee_des_(4) = -rot_damping * (dx_angular_msr_(1)-dx_angular_des_(1)) + torque_orient.getY();
+    F_ee_des_(5) = -rot_damping * (dx_angular_msr_(2)-dx_angular_des_(2)) + torque_orient.getZ();
 
 
     if(bDebug){
         // ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_axis: " << err_orient_axis.getX() << " " << err_orient_axis.getY() << " " << err_orient_axis.getZ() );
         // ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_angle: " << err_orient_angle);
         ROS_WARN_STREAM_THROTTLE(1.0, "Forces :" << F_ee_des_ );
-        // std::cerr << "Contact force: " << F_contact_des_ << std::endl;
+        // std::cerr << "Contact force: " << wrench_des_ << std::endl;
     }
 
     if(std::isnan(err_orient_angle) || std::isinf(err_orient_angle)){
@@ -231,12 +218,21 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     // nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J.data.transpose()*J_transpose_pinv)*(2.0*(qd - joint_msr_.q.data) - 0.01*joint_msr_.qdot.data);
     nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J.data.transpose()*J_transpose_pinv)*(-_jointLimitsGain*joint_msr_.q.data
                                                                                                  -_desiredJointsGain*(joint_msr_.q.data-qd)
-                                                                                                 -_jointVelocitiesGain*joint_msr_.qdot.data);
+                                                                                                 -_jointVelocitiesGain*joint_msr_.qdot.data
+                                                                                                 +_wrenchGain*J.data.transpose()*wrench_des_
+                                                                                                 + _nullspaceCommandGain*nullspace_command);
+
+    // Eigen::Matrix<double,7,1> temp;
+    // temp = -_jointLimitsGain*joint_msr_.q.data-_desiredJointsGain*(joint_msr_.q.data-qd)
+    //        -_jointVelocitiesGain*joint_msr_.qdot.data+_wrenchGain*J.data.transpose()*wrench_des_
+    //        +_nullspaceCommandGain*nullspace_command;
 
 
     if(bDebug)
     {
-        ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace :" << nullspace_torque );
+        ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace torques:" << nullspace_torque );
+        ROS_WARN_STREAM_THROTTLE(1.0, "Force nullspace :" << _wrenchGain*J.data.transpose()*wrench_des_);
+        ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace command :" << _nullspaceCommandGain*nullspace_command);
     }
 
     if(_useNullSpace)
@@ -305,15 +301,16 @@ void Passive_ds::command_orient(const geometry_msgs::Quaternion &msg){
     rot_des_ = KDL::Rotation::Quaternion(msg.x,msg.y,msg.z,msg.w);
 }
 
-void Passive_ds::command_cart_force(const geometry_msgs::WrenchConstPtr &msg){
+void Passive_ds::command_wrench(const geometry_msgs::WrenchConstPtr &msg){
     // rot_des_ = KDL::Rotation::Quaternion(msg.x,msg.y,msg.z,msg.w);
-    F_contact_des_(0) = msg->force.x;
-    F_contact_des_(1) = msg->force.y;
-    F_contact_des_(2) = msg->force.z;
-    F_contact_des_(3) = msg->torque.x;
-    F_contact_des_(4) = msg->torque.y;
-    F_contact_des_(5) = msg->torque.z;
+    wrench_des_(0) = msg->force.x;
+    wrench_des_(1) = msg->force.y;
+    wrench_des_(2) = msg->force.z;
+    wrench_des_(3) = msg->torque.x;
+    wrench_des_(4) = msg->torque.y;
+    wrench_des_(5) = msg->torque.z;
 }
+
 
 void Passive_ds::command_damping_eig(const std_msgs::Float64MultiArray& msg){
 
@@ -349,13 +346,21 @@ void Passive_ds::command_rot_damp(const std_msgs::Float64& msg){
     dynamic_server_ds_param->updateConfig(config_cfg);
 }
 
-void Passive_ds::command_orient_integrator(const std_msgs::Float32& msg){
-    torque_orient_integrator.setConstant(0.0f);
-    std::cerr << "Reset integrator" << std::endl;
-    config_cfg.rot_integrator = 0.0f;
-    rot_integrator = 0.0f;
-    dynamic_server_ds_param->updateConfig(config_cfg);
+
+void Passive_ds::command_nullspace(const std_msgs::Float32MultiArray& msg){
+
+    if(msg.data.size() == 7)
+    {
+        for(int k = 0 ; k < 7; k++)
+        {
+            nullspace_command(k) = msg.data[k];
+        }
+    }
 }
 
 }
+
+
+
+
 

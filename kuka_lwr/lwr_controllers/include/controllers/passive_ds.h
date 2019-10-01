@@ -53,7 +53,7 @@ private:
 
     void command_cart_vel(const geometry_msgs::TwistConstPtr& msg);
 
-    void command_cart_force(const geometry_msgs::WrenchConstPtr& msg);
+    void command_wrench(const geometry_msgs::WrenchConstPtr& msg);
 
     void command_orient(const geometry_msgs::Quaternion &msg);
 
@@ -65,9 +65,7 @@ private:
 
     void publish_open_loop_pos(const ros::Duration &period, const ros::Time& time);
 
-    void command_orient_integrator(const std_msgs::Float32& msg);
-
-
+    void command_nullspace(const std_msgs::Float32MultiArray& msg);
 private:
 
     /// Ctrl mode
@@ -85,14 +83,13 @@ private:
     Vec                 dx_linear_msr_;
     Vec                 dx_angular_msr_;
     Vec                 F_linear_des_;     // desired linear force
-    Eigen::VectorXd     F_contact_des_;
+    Eigen::VectorXd     wrench_des_;
     Eigen::VectorXd     F_ee_des_;         // desired end-effector force
     /// Rotation
     KDL::Rotation         err_orient;
     tf::Vector3           err_orient_axis;
     double                err_orient_angle;
     tf::Vector3           torque_orient;
-    Eigen::Vector3f       torque_orient_integrator;
     double                qx, qy, qz, qw;
     tf::Quaternion        q;
 
@@ -101,20 +98,22 @@ private:
     double              smooth_val_;
     double              rot_stiffness;
     double              rot_damping;
-    double              rot_integrator;
 
     bool _useNullSpace;
     double _jointLimitsGain;
     double _desiredJointsGain;
     double _jointVelocitiesGain;
+    double _wrenchGain;
+    double _nullspaceCommandGain;
     
-
     boost::scoped_ptr<DSController>                     passive_ds_controller;
 
     /// Dynamic reconfigure
 
     boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::passive_ds_paramConfig> >      dynamic_server_ds_param;
     ros::NodeHandle nd5;
+
+
 
 private:
     /// ROS topic
@@ -124,10 +123,10 @@ private:
     ros::Subscriber         sub_command_vel_;
     ros::Subscriber         sub_command_force_;
     ros::Subscriber         sub_command_orient_;
-    ros::Subscriber         sub_command_orient_integrator;
     ros::Subscriber         sub_eig_;
     ros::Subscriber         sub_stiff_;
     ros::Subscriber         sub_damp_;
+    ros::Subscriber         sub_command_nullspace_;
     ros::Publisher pub_twist_;
     ros::Publisher pub_damping_matrix_;
 
@@ -142,7 +141,7 @@ private:
     lwr_controllers::passive_ds_paramConfig config_cfg;
 
     // null-spae control
-    Eigen::Matrix<double,7,1> qd, nullspace_torque;
+    Eigen::Matrix<double,7,1> qd, nullspace_torque, nullspace_command;
 
 };
 

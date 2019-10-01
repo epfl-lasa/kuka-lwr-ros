@@ -56,10 +56,10 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     sub_damp_              = nh_.subscribe("damping",          1, &JointControllers::setDamping,           this);
 
     /// Dynamic reconfigure
-    nd1 = ros::NodeHandle("D_param");
-    nd2 = ros::NodeHandle("K_param");
-    nd3 = ros::NodeHandle("D_all_param");
-    nd4 = ros::NodeHandle("K_all_param");
+    nd1 = ros::NodeHandle(nh_.getNamespace()+"/D_param");
+    nd2 = ros::NodeHandle(nh_.getNamespace()+"/K_param");
+    nd3 = ros::NodeHandle(nh_.getNamespace()+"/D_all_param");
+    nd4 = ros::NodeHandle(nh_.getNamespace()+"/K_all_param");
 
     dynamic_server_D_param.reset(new        dynamic_reconfigure::Server< lwr_controllers::damping_paramConfig   >(nd1));
     dynamic_server_K_param.reset(new        dynamic_reconfigure::Server< lwr_controllers::stiffness_paramConfig >(nd2));
