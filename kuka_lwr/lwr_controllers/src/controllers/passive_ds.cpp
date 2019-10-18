@@ -47,6 +47,8 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     F_ee_des_.resize(6);
     wrench_des_.resize(6);
     wrench_des_.setConstant(0.0f);
+    nullspace_command.setConstant(0.0f);
+    nullspace_torque.setConstant(0.0f);
 
     bFirst = false;
 
