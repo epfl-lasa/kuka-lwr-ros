@@ -23,7 +23,8 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 
     pub_twist_ = nh.advertise<geometry_msgs::Twist>("twist", 1);
     // pub_damping_matrix_ = nh.advertise<std_msgs::Float32MultiArray>("passive_ds_damping_matrix", 1);
-
+    pub_F_                 = nh.advertise<std_msgs::Float64MultiArray>("F_ee", 10);
+    torque_pub_            = nh.advertise<std_msgs::Float64MultiArray>("tau_pds", 10);
 
     /// Passive dynamical system
     //assive_ds_controller.reset(new DSController(3, 50.0, 50.0));
@@ -34,7 +35,9 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 
 
     dynamic_server_ds_param->setCallback(    boost::bind(&Passive_ds::ds_param_callback,     this, _1, _2));
-    dynamic_server_ds_param->getConfigDefault(config_cfg);
+    dynamic_server_ds_param->getConfigDefault(config_cfg);  // using the defaul values
+    dynamic_server_ds_param->updateConfig(config_cfg);      // display the default values on the server (GUI)       
+    ds_param_callback(config_cfg, ~0);   // calling the callback to update the class variables
 
     for (std::size_t i = 0; i < 9; i++) {
         err_orient.data[i] = 0;
@@ -44,53 +47,27 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     dx_linear_msr_.resize(3);
     dx_angular_msr_.resize(3);
     dx_angular_des_.resize(3);
-
-
-    F_linear_des_.resize(3);   
+    F_linear_des_.resize(3);
 
     F_ee_des_.resize(6);
     wrench_des_.resize(6);
+    F_msg_.data.resize(6);
+
+    tau_msg_.data.resize(7);
+
     wrench_des_.setConstant(0.0f);
     nullspace_command.setConstant(0.0f);
     nullspace_torque.setConstant(0.0f);
 
-
-
-
     bFirst = false;
 
-    rot_stiffness = config_cfg.rot_stiffness;
-    rot_damping   = config_cfg.rot_damping;
-
-
-    damping_x_ = config_cfg.damping_x;
-    damping_y_ = config_cfg.damping_y;
-    damping_z_ = config_cfg.damping_z;
-
     rot_des_ = KDL::Rotation::RPY(0, 0, 0);
-
-    // qd <<     -0.004578103311359882, 0.7503823041915894, -0.059841930866241455, -1.6525769233703613,
-    //       0.06038748472929001, 0.7602048516273499, 1.5380386114120483;
-    // qd << 0.0f, 0.0f, 0.0f, -2.094, 0.0f, 1.047f, 1.57f;
 
     qd <<     0.7055363655090332, 1.0911303758621216, -0.7358396053314209, -0.9389236569404602,
     0.5496764779090881, 0.8971629738807678, -1.3657774925231934;
 
-    /// ROS pub debug
 
-    pub_F_                 = nh.advertise<std_msgs::Float64MultiArray>("F_ee", 10);
-    torque_pub_            = nh.advertise<std_msgs::Float64MultiArray>("tau_pds", 10);
-    F_msg_.data.resize(6);
-    tau_msg_.data.resize(7);
 
-    bDebug      = config_cfg.debug;
-    bSmooth     = config_cfg.bSmooth;
-    smooth_val_ = config_cfg.smooth_val;
-    _useNullSpace = config_cfg.useNullSpace;
-    _jointLimitsGain = config_cfg.jointLimitsGain;
-    _desiredJointsGain = config_cfg.desiredJointsGain;
-    _jointVelocitiesGain = config_cfg.jointVelocitiesGain;
-    _wrenchGain = config_cfg.wrenchGain;
 }
 
 
@@ -348,6 +325,8 @@ void Passive_ds::command_linear_damping_(const std_msgs::Float64MultiArray& msg)
         config_cfg.damping_y = msg.data[1];
         config_cfg.damping_z = msg.data[2];
         dynamic_server_ds_param->updateConfig(config_cfg);
+        ds_param_callback(config_cfg, ~0);   // forcing the callback
+
 
     } else {
         ROS_ERROR_STREAM_THROTTLE(thrott_time, "[Passive_ds::command_damping_eig]   msg.data.size() is not equal to 3 (x-y-z), it is : " << msg.data.size());
@@ -359,7 +338,9 @@ void Passive_ds::command_rot_stiff(const std_msgs::Float64& msg) {
     rot_stiffness = msg.data;
 
     config_cfg.rot_stiffness = rot_stiffness;
-    dynamic_server_ds_param->updateConfig(config_cfg);
+    dynamic_server_ds_param->updateConfig(config_cfg);  // This only update internal configuration and wouldn't call the callback
+    ds_param_callback(config_cfg, ~0);   // forcing the callback
+
 }
 
 void Passive_ds::command_rot_damp(const std_msgs::Float64& msg) {
@@ -367,6 +348,8 @@ void Passive_ds::command_rot_damp(const std_msgs::Float64& msg) {
 
     config_cfg.rot_damping = rot_damping;
     dynamic_server_ds_param->updateConfig(config_cfg);
+    ds_param_callback(config_cfg, ~0);   // forcing the callback
+
 }
 
 
@@ -380,8 +363,4 @@ void Passive_ds::command_nullspace(const std_msgs::Float32MultiArray& msg) {
 }
 
 }
-
-
-
-
 
