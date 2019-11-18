@@ -36,7 +36,7 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 
     dynamic_server_ds_param->setCallback(    boost::bind(&Passive_ds::ds_param_callback,     this, _1, _2));
     dynamic_server_ds_param->getConfigDefault(config_cfg);  // using the defaul values
-    dynamic_server_ds_param->updateConfig(config_cfg);      // display the default values on the server (GUI)       
+    dynamic_server_ds_param->updateConfig(config_cfg);      // display the default values on the server (GUI)
     ds_param_callback(config_cfg, ~0);   // calling the callback to update the class variables
 
     for (std::size_t i = 0; i < 9; i++) {
@@ -321,34 +321,50 @@ void Passive_ds::command_linear_damping_(const std_msgs::Float64MultiArray& msg)
 
     if (msg.data.size() == 3) {
 
-        config_cfg.damping_x = msg.data[0];
-        config_cfg.damping_y = msg.data[1];
-        config_cfg.damping_z = msg.data[2];
-        dynamic_server_ds_param->updateConfig(config_cfg);
-        ds_param_callback(config_cfg, ~0);   // forcing the callback
+        if (msg.data[0] >= 0 && msg.data[1] >= 0 && msg.data[2] >= 0 ) {
+
+            config_cfg.damping_x = msg.data[0];
+            config_cfg.damping_y = msg.data[1];
+            config_cfg.damping_z = msg.data[2];
+            dynamic_server_ds_param->updateConfig(config_cfg);
+            ds_param_callback(config_cfg, ~0);   // forcing the callback
+        } else {
+            ROS_ERROR_STREAM_THROTTLE(thrott_time, "[Passive_ds]  damping gains cannot be negative ");
+        }
 
 
     } else {
-        ROS_ERROR_STREAM_THROTTLE(thrott_time, "[Passive_ds::command_damping_eig]   msg.data.size() is not equal to 3 (x-y-z), it is : " << msg.data.size());
+        ROS_ERROR_STREAM_THROTTLE(thrott_time, "[Passive_ds::damping gains]   msg.data.size() is not equal to 3 (x-y-z), it is : " << msg.data.size());
     }
 
 }
 
 void Passive_ds::command_rot_stiff(const std_msgs::Float64& msg) {
-    rot_stiffness = msg.data;
 
-    config_cfg.rot_stiffness = rot_stiffness;
-    dynamic_server_ds_param->updateConfig(config_cfg);  // This only update internal configuration and wouldn't call the callback
-    ds_param_callback(config_cfg, ~0);   // forcing the callback
+    if (msg.data >= 0) {
+        config_cfg.rot_stiffness = msg.data;
+        dynamic_server_ds_param->updateConfig(config_cfg);  // This only update internal configuration and wouldn't call the callback
+        ds_param_callback(config_cfg, ~0);   // forcing the callback
+    }
+    else {
+        ROS_ERROR_STREAM_THROTTLE(thrott_time, "[Passive_ds]  rotation stiffness cannot be negative ");
+    }
+
+
 
 }
 
 void Passive_ds::command_rot_damp(const std_msgs::Float64& msg) {
-    rot_damping  = msg.data;
 
-    config_cfg.rot_damping = rot_damping;
-    dynamic_server_ds_param->updateConfig(config_cfg);
-    ds_param_callback(config_cfg, ~0);   // forcing the callback
+    if (msg.data >= 0) {
+        config_cfg.rot_damping = msg.data;
+        dynamic_server_ds_param->updateConfig(config_cfg);
+        ds_param_callback(config_cfg, ~0);   // forcing the callback
+    }
+    else {
+        ROS_ERROR_STREAM_THROTTLE(thrott_time, "[Passive_ds]  rotation damping cannot be negative ");
+
+    }
 
 }
 
