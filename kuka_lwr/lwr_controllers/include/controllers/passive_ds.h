@@ -9,7 +9,7 @@
 #include <tf/LinearMath/Vector3.h>
 
 #include <lwr_controllers/passive_ds_paramConfig.h>
-#include <passive_ds_controller.h>
+// #include <passive_ds_controller.h>
 #include <boost/scoped_ptr.hpp>
 #include <Eigen/Eigen>
 #include <dynamic_reconfigure/server.h>
@@ -28,13 +28,13 @@
 
 #include "utils/pseudo_inversion.h"
 
-namespace controllers{
+namespace controllers {
 
 class Passive_ds  : public Base_controllers {
 
 public:
 
-    Passive_ds(ros::NodeHandle& nh,controllers::Change_ctrl_mode& change_ctrl_mode);
+    Passive_ds(ros::NodeHandle& nh, controllers::Change_ctrl_mode& change_ctrl_mode);
 
     void stop();
 
@@ -45,7 +45,7 @@ private:
 
     /// Dynamic reconfigure
 
-    void ds_param_callback(lwr_controllers::passive_ds_paramConfig& config,uint32_t level);
+    void ds_param_callback(lwr_controllers::passive_ds_paramConfig& config, uint32_t level);
 
 private:
 
@@ -57,7 +57,7 @@ private:
 
     void command_orient(const geometry_msgs::Quaternion &msg);
 
-    void command_damping_eig(const std_msgs::Float64MultiArray& msg);
+    void command_linear_damping_(const std_msgs::Float64MultiArray& msg);
 
     void command_rot_stiff(const std_msgs::Float64& msg);
 
@@ -77,12 +77,12 @@ private:
 
     /// DS parameters
     /// Linear
-    Eigen::VectorXd     dx_msr_;
-    Vec                 dx_linear_des_;
-    Vec                 dx_angular_des_;
-    Vec                 dx_linear_msr_;
-    Vec                 dx_angular_msr_;
-    Vec                 F_linear_des_;     // desired linear force
+    // Eigen::VectorXd     dx_msr_;
+    Eigen::VectorXd     dx_linear_des_;
+    Eigen::VectorXd     dx_angular_des_;
+    Eigen::VectorXd     dx_linear_msr_;
+    Eigen::VectorXd     dx_angular_msr_;
+    Eigen::VectorXd     F_linear_des_;     // desired linear force
     Eigen::VectorXd     wrench_des_;
     Eigen::VectorXd     F_ee_des_;         // desired end-effector force
     /// Rotation
@@ -93,7 +93,11 @@ private:
     double                qx, qy, qz, qw;
     tf::Quaternion        q;
 
-    Eigen::Matrix3f _damping;
+    // Eigen::Matrix3f _damping;
+
+    double damping_x_;
+    double damping_y_;
+    double damping_z_;
 
     double              smooth_val_;
     double              rot_stiffness;
@@ -105,8 +109,8 @@ private:
     double _jointVelocitiesGain;
     double _wrenchGain;
     double _nullspaceCommandGain;
-    
-    boost::scoped_ptr<DSController>                     passive_ds_controller;
+
+    // boost::scoped_ptr<DSController>                     passive_ds_controller;
 
     /// Dynamic reconfigure
 
@@ -123,12 +127,12 @@ private:
     ros::Subscriber         sub_command_vel_;
     ros::Subscriber         sub_command_force_;
     ros::Subscriber         sub_command_orient_;
-    ros::Subscriber         sub_eig_;
-    ros::Subscriber         sub_stiff_;
-    ros::Subscriber         sub_damp_;
+    ros::Subscriber         sub_linear_damp_;
+    ros::Subscriber         sub_rot_stiff_;
+    ros::Subscriber         sub_rot_damp_;
     ros::Subscriber         sub_command_nullspace_;
     ros::Publisher pub_twist_;
-    ros::Publisher pub_damping_matrix_;
+    // ros::Publisher pub_damping_matrix_;
 
 
 
@@ -137,11 +141,11 @@ private:
 
     ros::Publisher                  pub_F_;
     ros::Publisher                  torque_pub_;
-    std_msgs::Float64MultiArray     F_msg_,tau_msg_;
+    std_msgs::Float64MultiArray     F_msg_, tau_msg_;
     lwr_controllers::passive_ds_paramConfig config_cfg;
 
     // null-spae control
-    Eigen::Matrix<double,7,1> qd, nullspace_torque, nullspace_command;
+    Eigen::Matrix<double, 7, 1> qd, nullspace_torque, nullspace_command;
 
 };
 

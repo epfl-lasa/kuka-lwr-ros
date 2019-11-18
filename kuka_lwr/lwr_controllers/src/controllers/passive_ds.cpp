@@ -2,7 +2,7 @@
 #include <tf/transform_broadcaster.h>
 #include <control_toolbox/filters.h>
 
-namespace controllers{
+namespace controllers {
 
 static const double thrott_time = 3.0;
 
@@ -13,21 +13,22 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 
     /// ROS topic
 
-    sub_command_vel_       = nh.subscribe("passive_ds_command_vel",      1, &Passive_ds::command_cart_vel,     this ,ros::TransportHints().reliable().tcpNoDelay());
-    sub_command_orient_    = nh.subscribe("passive_ds_command_orient",   1 ,&Passive_ds::command_orient,       this ,ros::TransportHints().reliable().tcpNoDelay());
-    sub_command_force_     = nh.subscribe("passive_ds_command_wrench",    1, &Passive_ds::command_wrench,   this ,ros::TransportHints().reliable().tcpNoDelay());
-    sub_eig_               = nh.subscribe("passive_ds_eig",              1 ,&Passive_ds::command_damping_eig,  this ,ros::TransportHints().reliable().tcpNoDelay());
-    sub_stiff_             = nh.subscribe("passive_ds_stiffness",        1 ,&Passive_ds::command_rot_stiff,    this ,ros::TransportHints().reliable().tcpNoDelay());
-    sub_damp_              = nh.subscribe("passive_ds_damping",          1 ,&Passive_ds::command_rot_damp,     this ,ros::TransportHints().reliable().tcpNoDelay());
-    sub_command_nullspace_    = nh.subscribe("passive_ds_command_nullspace",  1 ,&Passive_ds::command_nullspace,       this ,ros::TransportHints().reliable().tcpNoDelay());
+    sub_command_vel_       = nh.subscribe("passive_ds_command_vel",      1, &Passive_ds::command_cart_vel,     this , ros::TransportHints().reliable().tcpNoDelay());
+    sub_command_orient_    = nh.subscribe("passive_ds_command_orient",   1 , &Passive_ds::command_orient,       this , ros::TransportHints().reliable().tcpNoDelay());
+    sub_command_force_     = nh.subscribe("passive_ds_command_wrench",    1, &Passive_ds::command_wrench,   this , ros::TransportHints().reliable().tcpNoDelay());
+    sub_rot_stiff_         = nh.subscribe("passive_ds_stiffness",        1 , &Passive_ds::command_rot_stiff,    this , ros::TransportHints().reliable().tcpNoDelay());
+    sub_rot_damp_          = nh.subscribe("passive_ds_damping",          1 , &Passive_ds::command_rot_damp,     this , ros::TransportHints().reliable().tcpNoDelay());
+    sub_command_nullspace_ = nh.subscribe("passive_ds_command_nullspace",  1 , &Passive_ds::command_nullspace,       this , ros::TransportHints().reliable().tcpNoDelay());
+    sub_linear_damp_       = nh.subscribe("passive_ds_linear_damping",     1 , &Passive_ds::command_linear_damping_,  this , ros::TransportHints().reliable().tcpNoDelay());
 
     pub_twist_ = nh.advertise<geometry_msgs::Twist>("twist", 1);
-    pub_damping_matrix_ = nh.advertise<std_msgs::Float32MultiArray>("passive_ds_damping_matrix", 1);
+    // pub_damping_matrix_ = nh.advertise<std_msgs::Float32MultiArray>("passive_ds_damping_matrix", 1);
+
+
     /// Passive dynamical system
+    //assive_ds_controller.reset(new DSController(3, 50.0, 50.0));
 
-    passive_ds_controller.reset(new DSController(3,50.0,50.0));
-
-    nd5 = ros::NodeHandle(nh.getNamespace()+"/ds_param");
+    nd5 = ros::NodeHandle(nh.getNamespace() + "/ds_param");
 
     dynamic_server_ds_param.reset(new       dynamic_reconfigure::Server< lwr_controllers::passive_ds_paramConfig>(nd5));
 
@@ -35,7 +36,7 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     dynamic_server_ds_param->setCallback(    boost::bind(&Passive_ds::ds_param_callback,     this, _1, _2));
     dynamic_server_ds_param->getConfigDefault(config_cfg);
 
-    for(std::size_t i = 0; i < 9; i++){
+    for (std::size_t i = 0; i < 9; i++) {
         err_orient.data[i] = 0;
     }
 
@@ -44,27 +45,41 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     dx_angular_msr_.resize(3);
     dx_angular_des_.resize(3);
 
+
+    F_linear_des_.resize(3);   
+
     F_ee_des_.resize(6);
     wrench_des_.resize(6);
     wrench_des_.setConstant(0.0f);
     nullspace_command.setConstant(0.0f);
     nullspace_torque.setConstant(0.0f);
 
+
+
+
     bFirst = false;
 
     rot_stiffness = config_cfg.rot_stiffness;
     rot_damping   = config_cfg.rot_damping;
 
-    rot_des_ = KDL::Rotation::RPY(0,0,0);
 
-   qd <<     -0.004578103311359882, 0.7503823041915894, -0.059841930866241455, -1.6525769233703613,
-         0.06038748472929001, 0.7602048516273499, 1.5380386114120483;
-   // qd << 0.0f, 0.0f, 0.0f, -2.094, 0.0f, 1.047f, 1.57f;
+    damping_x_ = config_cfg.damping_x;
+    damping_y_ = config_cfg.damping_y;
+    damping_z_ = config_cfg.damping_z;
+
+    rot_des_ = KDL::Rotation::RPY(0, 0, 0);
+
+    // qd <<     -0.004578103311359882, 0.7503823041915894, -0.059841930866241455, -1.6525769233703613,
+    //       0.06038748472929001, 0.7602048516273499, 1.5380386114120483;
+    // qd << 0.0f, 0.0f, 0.0f, -2.094, 0.0f, 1.047f, 1.57f;
+
+    qd <<     0.7055363655090332, 1.0911303758621216, -0.7358396053314209, -0.9389236569404602,
+    0.5496764779090881, 0.8971629738807678, -1.3657774925231934;
 
     /// ROS pub debug
 
-    pub_F_                 = nh.advertise<std_msgs::Float64MultiArray>("F_ee",10);
-    torque_pub_            = nh.advertise<std_msgs::Float64MultiArray>("tau_pds",10);
+    pub_F_                 = nh.advertise<std_msgs::Float64MultiArray>("F_ee", 10);
+    torque_pub_            = nh.advertise<std_msgs::Float64MultiArray>("tau_pds", 10);
     F_msg_.data.resize(6);
     tau_msg_.data.resize(7);
 
@@ -79,13 +94,18 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 }
 
 
-void Passive_ds::stop(){
+void Passive_ds::stop() {
     ROS_INFO_STREAM("stopping [PASSIVE_DS]");
     bFirst      = false;
 }
 
-void Passive_ds::ds_param_callback(lwr_controllers::passive_ds_paramConfig& config,uint32_t level){
-    passive_ds_controller->set_damping_eigval(config.damping_eigval0,config.damping_eigval1);
+void Passive_ds::ds_param_callback(lwr_controllers::passive_ds_paramConfig& config, uint32_t level) {
+    // passive_ds_controller->set_damping_eigval(config.damping_eigval0, config.damping_eigval1);
+
+    damping_x_ = config.damping_x;
+    damping_y_ = config.damping_y;
+    damping_z_ = config.damping_z;
+
     rot_stiffness = config.rot_stiffness;
     rot_damping   = config.rot_damping;
     bDebug        = config.debug;
@@ -102,7 +122,7 @@ void Passive_ds::ds_param_callback(lwr_controllers::passive_ds_paramConfig& conf
 }
 
 
-void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KDL::JntArrayAcc& joint_msr_ , const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector& p){
+void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KDL::JntArrayAcc& joint_msr_ , const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector& p) {
 
 
     F_ee_des_.setZero();
@@ -117,7 +137,7 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     dx_angular_des_(2) = x_des_vel_.rot(2);
 
     /// set measured linear and angular velocity
-    if(bSmooth)
+    if (bSmooth)
     {
         dx_linear_msr_(0)   = x_msr_vel_.vel(0);
         dx_linear_msr_(1)   = x_msr_vel_.vel(1);
@@ -126,22 +146,28 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
         dx_angular_msr_(0)  = x_msr_vel_.rot(0);
         dx_angular_msr_(1)  = x_msr_vel_.rot(1);
         dx_angular_msr_(2)  = x_msr_vel_.rot(2);
-    }else{
-       dx_linear_msr_(0)    = filters::exponentialSmoothing(x_msr_vel_.vel(0), dx_linear_msr_(0),smooth_val_);
-       dx_linear_msr_(1)    = filters::exponentialSmoothing(x_msr_vel_.vel(1), dx_linear_msr_(1),smooth_val_);
-       dx_linear_msr_(2)    = filters::exponentialSmoothing(x_msr_vel_.vel(2), dx_linear_msr_(2),smooth_val_);
+    } else {
+        dx_linear_msr_(0)    = filters::exponentialSmoothing(x_msr_vel_.vel(0), dx_linear_msr_(0), smooth_val_);
+        dx_linear_msr_(1)    = filters::exponentialSmoothing(x_msr_vel_.vel(1), dx_linear_msr_(1), smooth_val_);
+        dx_linear_msr_(2)    = filters::exponentialSmoothing(x_msr_vel_.vel(2), dx_linear_msr_(2), smooth_val_);
 
-       dx_angular_msr_(0)   = filters::exponentialSmoothing(x_msr_vel_.rot(0), dx_angular_msr_(0),smooth_val_);
-       dx_angular_msr_(1)   = filters::exponentialSmoothing(x_msr_vel_.rot(1), dx_angular_msr_(1),smooth_val_);
-       dx_angular_msr_(2)   = filters::exponentialSmoothing(x_msr_vel_.rot(2), dx_angular_msr_(2),smooth_val_);
+        dx_angular_msr_(0)   = filters::exponentialSmoothing(x_msr_vel_.rot(0), dx_angular_msr_(0), smooth_val_);
+        dx_angular_msr_(1)   = filters::exponentialSmoothing(x_msr_vel_.rot(1), dx_angular_msr_(1), smooth_val_);
+        dx_angular_msr_(2)   = filters::exponentialSmoothing(x_msr_vel_.rot(2), dx_angular_msr_(2), smooth_val_);
     }
 
 
     // ----------------- Linear velocity -> Force -----------------------//
 
-    passive_ds_controller->Update(dx_linear_msr_,dx_linear_des_);
-    F_linear_des_ = passive_ds_controller->control_output(); // (3 x 1)
-    _damping = (passive_ds_controller->damping_matrix()).cast<float>();
+    // passive_ds_controller->Update(dx_linear_msr_, dx_linear_des_);
+    // F_linear_des_ = passive_ds_controller->control_output(); // (3 x 1)
+    // _damping = (passive_ds_controller->damping_matrix()).cast<float>();
+
+    // the damping controller:
+    F_linear_des_(0) = - damping_x_ * (dx_linear_msr_(0) - dx_linear_des_(0));
+    F_linear_des_(1) = - damping_y_ * (dx_linear_msr_(1) - dx_linear_des_(1));
+    F_linear_des_(2) = - damping_z_ * (dx_linear_msr_(2) - dx_linear_des_(2));
+
 
     F_ee_des_(0) = F_linear_des_(0);
     F_ee_des_(1) = F_linear_des_(1);
@@ -153,35 +179,35 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     // ROS_WARN_STREAM_THROTTLE(1, "Froces :" << F_linear_des_ );
 
 
-    if(bDebug){
+    if (bDebug) {
 
-        std::string robot_name = nd5.getNamespace().substr(0,nd5.getNamespace().find("/",1));
+        std::string robot_name = nd5.getNamespace().substr(0, nd5.getNamespace().find("/", 1));
         {
             static tf::TransformBroadcaster br;
             tf::Transform transform;
-            transform.setOrigin( tf::Vector3(p(0),p(1),p(2)) );
-            rot_msr_.GetQuaternion(qx,qy,qz,qw);
-            q = tf::Quaternion(qx,qy,qz,qw);
+            transform.setOrigin( tf::Vector3(p(0), p(1), p(2)) );
+            rot_msr_.GetQuaternion(qx, qy, qz, qw);
+            q = tf::Quaternion(qx, qy, qz, qw);
             transform.setRotation(q);
-            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", robot_name+"/rot_msr_"));
+            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", robot_name + "/rot_msr_"));
         }
         {
             static tf::TransformBroadcaster br;
             tf::Transform transform;
-            transform.setOrigin( tf::Vector3(p(0),p(1),p(2)) );
-            rot_des_.GetQuaternion(qx,qy,qz,qw);
-            q = tf::Quaternion(qx,qy,qz,qw);
+            transform.setOrigin( tf::Vector3(p(0), p(1), p(2)) );
+            rot_des_.GetQuaternion(qx, qy, qz, qw);
+            q = tf::Quaternion(qx, qy, qz, qw);
             transform.setRotation(q);
-            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", robot_name+"/rot_target_"));
+            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", robot_name + "/rot_target_"));
         }
     }
 
     // ----------------- Rotation target -> Force -----------------------//
 
     // damp any rotational motion
-    err_orient = rot_des_*rot_msr_.Inverse();
-    err_orient.GetQuaternion(qx,qy,qz,qw);
-    q = tf::Quaternion(qx,qy,qz,qw);
+    err_orient = rot_des_ * rot_msr_.Inverse();
+    err_orient.GetQuaternion(qx, qy, qz, qw);
+    q = tf::Quaternion(qx, qy, qz, qw);
 
     err_orient_axis = q.getAxis();
     err_orient_angle = q.getAngle();
@@ -189,27 +215,27 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     // rotational stiffness. This is correct sign and everything!!!! do not mess with this!
     torque_orient = err_orient_axis * err_orient_angle * (rot_stiffness);
 
-    F_ee_des_(3) = -rot_damping * (dx_angular_msr_(0)-dx_angular_des_(0)) + torque_orient.getX();
-    F_ee_des_(4) = -rot_damping * (dx_angular_msr_(1)-dx_angular_des_(1)) + torque_orient.getY();
-    F_ee_des_(5) = -rot_damping * (dx_angular_msr_(2)-dx_angular_des_(2)) + torque_orient.getZ();
+    F_ee_des_(3) = -rot_damping * (dx_angular_msr_(0) - dx_angular_des_(0)) + torque_orient.getX();
+    F_ee_des_(4) = -rot_damping * (dx_angular_msr_(1) - dx_angular_des_(1)) + torque_orient.getY();
+    F_ee_des_(5) = -rot_damping * (dx_angular_msr_(2) - dx_angular_des_(2)) + torque_orient.getZ();
 
 
-    if(bDebug){
+    if (bDebug) {
         // ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_axis: " << err_orient_axis.getX() << " " << err_orient_axis.getY() << " " << err_orient_axis.getZ() );
         // ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_angle: " << err_orient_angle);
         ROS_WARN_STREAM_THROTTLE(1.0, "Forces :" << F_ee_des_ );
         // std::cerr << "Contact force: " << wrench_des_ << std::endl;
     }
 
-    if(std::isnan(err_orient_angle) || std::isinf(err_orient_angle)){
-        ROS_WARN_STREAM_THROTTLE(thrott_time,"err_orient_angle: " << err_orient_angle );
+    if (std::isnan(err_orient_angle) || std::isinf(err_orient_angle)) {
+        ROS_WARN_STREAM_THROTTLE(thrott_time, "err_orient_angle: " << err_orient_angle );
         err_orient_angle = 0;
     }
 
 
-    if(bDebug){
-        for(std::size_t i = 0; i < F_msg_.data.size();i++){
-            F_msg_.data[i] =F_ee_des_(i);
+    if (bDebug) {
+        for (std::size_t i = 0; i < F_msg_.data.size(); i++) {
+            F_msg_.data[i] = F_ee_des_(i);
         }
         pub_F_.publish(F_msg_);
     }
@@ -218,11 +244,11 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     Eigen::MatrixXd J_transpose_pinv;
     pseudo_inverse(J.data.transpose(), J_transpose_pinv);
     // nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J.data.transpose()*J_transpose_pinv)*(2.0*(qd - joint_msr_.q.data) - 0.01*joint_msr_.qdot.data);
-    nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J.data.transpose()*J_transpose_pinv)*(-_jointLimitsGain*joint_msr_.q.data
-                                                                                                 -_desiredJointsGain*(joint_msr_.q.data-qd)
-                                                                                                 -_jointVelocitiesGain*joint_msr_.qdot.data
-                                                                                                 +_wrenchGain*J.data.transpose()*wrench_des_
-                                                                                                 + _nullspaceCommandGain*nullspace_command);
+    nullspace_torque << (Eigen::MatrixXd::Identity(7, 7) - J.data.transpose()*J_transpose_pinv)*(-_jointLimitsGain * joint_msr_.q.data
+                     - _desiredJointsGain * (joint_msr_.q.data - qd)
+                     - _jointVelocitiesGain * joint_msr_.qdot.data
+                     + _wrenchGain * J.data.transpose()*wrench_des_
+                     + _nullspaceCommandGain * nullspace_command);
 
     // Eigen::Matrix<double,7,1> temp;
     // temp = -_jointLimitsGain*joint_msr_.q.data-_desiredJointsGain*(joint_msr_.q.data-qd)
@@ -230,14 +256,14 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     //        +_nullspaceCommandGain*nullspace_command;
 
 
-    if(bDebug)
+    if (bDebug)
     {
         ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace torques:" << nullspace_torque );
-        ROS_WARN_STREAM_THROTTLE(1.0, "Force nullspace :" << _wrenchGain*J.data.transpose()*wrench_des_);
-        ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace command :" << _nullspaceCommandGain*nullspace_command);
+        ROS_WARN_STREAM_THROTTLE(1.0, "Force nullspace :" << _wrenchGain * J.data.transpose()*wrench_des_);
+        ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace command :" << _nullspaceCommandGain * nullspace_command);
     }
 
-    if(_useNullSpace)
+    if (_useNullSpace)
     {
         tau_cmd.data = J.data.transpose() * F_ee_des_ + nullspace_torque;
     }
@@ -246,8 +272,8 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
         tau_cmd.data = J.data.transpose() * F_ee_des_;
     }
 
-    if(bDebug){
-        for(std::size_t i = 0; i < tau_msg_.data.size();i++)
+    if (bDebug) {
+        for (std::size_t i = 0; i < tau_msg_.data.size(); i++)
         {
             tau_msg_.data[i] = tau_cmd.data[i];
         }
@@ -270,22 +296,22 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     msg.angular.z = dx_angular_msr_(2);
     pub_twist_.publish(msg);
 
-    std_msgs::Float32MultiArray msgDamping;
-    msgDamping.data.resize(9);
-    msgDamping.data[0] = _damping(0,0);
-    msgDamping.data[1] = _damping(0,1);
-    msgDamping.data[2] = _damping(0,2);
-    msgDamping.data[3] = _damping(1,0);
-    msgDamping.data[4] = _damping(1,1);
-    msgDamping.data[5] = _damping(1,2);
-    msgDamping.data[6] = _damping(2,0);
-    msgDamping.data[7] = _damping(2,1);
-    msgDamping.data[8] = _damping(2,2);
-    pub_damping_matrix_.publish(msgDamping);
+    // std_msgs::Float32MultiArray msgDamping;
+    // msgDamping.data.resize(9);
+    // msgDamping.data[0] = _damping(0, 0);
+    // msgDamping.data[1] = _damping(0, 1);
+    // msgDamping.data[2] = _damping(0, 2);
+    // msgDamping.data[3] = _damping(1, 0);
+    // msgDamping.data[4] = _damping(1, 1);
+    // msgDamping.data[5] = _damping(1, 2);
+    // msgDamping.data[6] = _damping(2, 0);
+    // msgDamping.data[7] = _damping(2, 1);
+    // msgDamping.data[8] = _damping(2, 2);
+    // pub_damping_matrix_.publish(msgDamping);
     // tau_cmd.data.setZero();
 }
 
-void Passive_ds::command_cart_vel(const geometry_msgs::TwistConstPtr &msg){
+void Passive_ds::command_cart_vel(const geometry_msgs::TwistConstPtr &msg) {
     x_des_vel_.vel(0) = msg->linear.x;
     x_des_vel_.vel(1) = msg->linear.y;
     x_des_vel_.vel(2) = msg->linear.z;
@@ -294,16 +320,16 @@ void Passive_ds::command_cart_vel(const geometry_msgs::TwistConstPtr &msg){
     x_des_vel_.rot(1) = msg->angular.y;
     x_des_vel_.rot(2) = msg->angular.z;
 
-    if(!bFirst){
+    if (!bFirst) {
         change_ctrl_mode.switch_mode(lwr_controllers::CTRL_MODE::CART_PASSIVE_DS);
     }
     bFirst            = true;
 }
-void Passive_ds::command_orient(const geometry_msgs::Quaternion &msg){
-    rot_des_ = KDL::Rotation::Quaternion(msg.x,msg.y,msg.z,msg.w);
+void Passive_ds::command_orient(const geometry_msgs::Quaternion &msg) {
+    rot_des_ = KDL::Rotation::Quaternion(msg.x, msg.y, msg.z, msg.w);
 }
 
-void Passive_ds::command_wrench(const geometry_msgs::WrenchConstPtr &msg){
+void Passive_ds::command_wrench(const geometry_msgs::WrenchConstPtr &msg) {
     // rot_des_ = KDL::Rotation::Quaternion(msg.x,msg.y,msg.z,msg.w);
     wrench_des_(0) = msg->force.x;
     wrench_des_(1) = msg->force.y;
@@ -314,34 +340,29 @@ void Passive_ds::command_wrench(const geometry_msgs::WrenchConstPtr &msg){
 }
 
 
-void Passive_ds::command_damping_eig(const std_msgs::Float64MultiArray& msg){
+void Passive_ds::command_linear_damping_(const std_msgs::Float64MultiArray& msg) {
 
-    if(msg.data.size() == 2){
-        if(passive_ds_controller != NULL){
-            passive_ds_controller->set_damping_eigval(msg.data[0],msg.data[1]);
-            lwr_controllers::passive_ds_paramConfig config;
-            dynamic_server_ds_param->getConfigDefault(config);
+    if (msg.data.size() == 3) {
 
-            config_cfg.damping_eigval0 = msg.data[0];
-            config_cfg.damping_eigval1 = msg.data[1];
-            dynamic_server_ds_param->updateConfig(config_cfg);
+        config_cfg.damping_x = msg.data[0];
+        config_cfg.damping_y = msg.data[1];
+        config_cfg.damping_z = msg.data[2];
+        dynamic_server_ds_param->updateConfig(config_cfg);
 
-        }else{
-            ROS_ERROR_STREAM_THROTTLE(thrott_time,"[Passive_ds::command_damping_eig]  passive_ds_controller == NULL");
-        }
-    }else{
-        ROS_ERROR_STREAM_THROTTLE(thrott_time,"[Passive_ds::command_damping_eig]   msg.data.size() is not equal to 2, it is : " << msg.data.size());
+    } else {
+        ROS_ERROR_STREAM_THROTTLE(thrott_time, "[Passive_ds::command_damping_eig]   msg.data.size() is not equal to 3 (x-y-z), it is : " << msg.data.size());
     }
+
 }
 
-void Passive_ds::command_rot_stiff(const std_msgs::Float64& msg){
+void Passive_ds::command_rot_stiff(const std_msgs::Float64& msg) {
     rot_stiffness = msg.data;
 
     config_cfg.rot_stiffness = rot_stiffness;
     dynamic_server_ds_param->updateConfig(config_cfg);
 }
 
-void Passive_ds::command_rot_damp(const std_msgs::Float64& msg){
+void Passive_ds::command_rot_damp(const std_msgs::Float64& msg) {
     rot_damping  = msg.data;
 
     config_cfg.rot_damping = rot_damping;
@@ -349,12 +370,10 @@ void Passive_ds::command_rot_damp(const std_msgs::Float64& msg){
 }
 
 
-void Passive_ds::command_nullspace(const std_msgs::Float32MultiArray& msg){
+void Passive_ds::command_nullspace(const std_msgs::Float32MultiArray& msg) {
 
-    if(msg.data.size() == 7)
-    {
-        for(int k = 0 ; k < 7; k++)
-        {
+    if (msg.data.size() == 7)  {
+        for (int k = 0 ; k < 7; k++)  {
             nullspace_command(k) = msg.data[k];
         }
     }
