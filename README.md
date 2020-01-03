@@ -28,6 +28,7 @@ instructions on how to install it on ubuntu. Make sure that the ros libraries of
 
 ```
 $ sudo apt-get install ros-indigo-gazebo-ros-pkgs ros-indigo-gazebo-ros-control
+$ sudo apt-get install ros-indigo-ros-control ros-indigo-ros-controllers
 ```
 #### Software Version Combinations
 - ROS-Indigo + Gazebo2 (If you are having troubles starting-up the simulation, you need to install Gazebo7)
