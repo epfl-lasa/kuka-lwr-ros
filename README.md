@@ -38,6 +38,12 @@ $ sudo apt-get install ros-indigo-ros-control ros-indigo-ros-controllers
 ```
 sudo apt-get install ros-indigo-moveit
 ```
+
+If not yet installed, <ncurses> c++ library is needed:
+```
+sudo apt-get install libncurses5-dev libncursesw5-dev
+```
+  
 # Description
 
 Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR).
