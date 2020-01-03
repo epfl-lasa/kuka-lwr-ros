@@ -25,9 +25,10 @@ $ rosdep install --from-paths . --ignore-src --rosdistro indigo
 
 * Install [**Gazebo**](http://gazebosim.org/), follow this [**link**](http://gazebosim.org/tutorials?tut=install_ubuntu&) for 
 instructions on how to install it on ubuntu. Make sure that the ros libraries of Gazebo are also installed:
+
 ```
-$ sudo apt-get install ros-indigo-gazeboX-*
-```
+$ sudo apt-get install ros-indigo-gazebo-ros-pkgs ros-indigo-gazebo-ros-control
+``
 #### Software Version Combinations
 - ROS-Indigo + Gazebo2 (If you are having troubles starting-up the simulation, you need to install Gazebo7)
 - ROS-Kinetic + Gazebo7
