@@ -34,7 +34,10 @@ $ sudo apt-get install ros-indigo-ros-control ros-indigo-ros-controllers
 - ROS-Indigo + Gazebo2 (If you are having troubles starting-up the simulation, you need to install Gazebo7)
 - ROS-Kinetic + Gazebo7
 
-
+* Install [**move_it_library**](https://moveit.ros.org/)
+```
+sudo apt-get install ros-indigo-moveit
+```
 # Description
 
 Set of packages for simulating and controlling the KUKA Light Weight Robot (LWR).
