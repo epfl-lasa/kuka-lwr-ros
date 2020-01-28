@@ -105,6 +105,8 @@ private:
     double _jointVelocitiesGain;
     double _wrenchGain;
     double _nullspaceCommandGain;
+
+    Eigen::Matrix<float,7,1> _torqueLimits;
     
     boost::scoped_ptr<DSController>                     passive_ds_controller;
 

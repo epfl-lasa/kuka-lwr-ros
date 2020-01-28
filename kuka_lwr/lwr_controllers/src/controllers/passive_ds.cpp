@@ -57,9 +57,13 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
 
     rot_des_ = KDL::Rotation::RPY(0,0,0);
 
-   qd <<     -0.004578103311359882, 0.7503823041915894, -0.059841930866241455, -1.6525769233703613,
-         0.06038748472929001, 0.7602048516273499, 1.5380386114120483;
+   // qd << -0.004578103311359882, 0.7503823041915894, -0.059841930866241455, -1.6525769233703613,
+   //       0.06038748472929001, 0.7602048516273499, 1.5380386114120483;
    // qd << 0.0f, 0.0f, 0.0f, -2.094, 0.0f, 1.047f, 1.57f;
+
+   qd << -0.05035164952278137, 0.586331844329834, -0.10019383579492569, -1.8283051252365112, 1.500396490097046, 1.7245664596557617, 0.6142861247062683;
+
+     _torqueLimits << 176.0f, 176.0f, 100.0f, 100.0f, 100.0f, 38.0f,38.0f;
 
     /// ROS pub debug
 
@@ -229,7 +233,7 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     //        -_jointVelocitiesGain*joint_msr_.qdot.data+_wrenchGain*J.data.transpose()*wrench_des_
     //        +_nullspaceCommandGain*nullspace_command;
 
-
+    nullspace_torque(6) = 0.0f;
     if(bDebug)
     {
         ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace torques:" << nullspace_torque );
@@ -252,6 +256,20 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
             tau_msg_.data[i] = tau_cmd.data[i];
         }
         torque_pub_.publish(tau_msg_);
+    }
+
+    float alpha = 0.95f;
+
+    for(int k = 0; k < 7; k++)
+    {
+        if(tau_cmd.data(k)>alpha*_torqueLimits(k))
+        {
+            tau_cmd.data(k) = alpha*_torqueLimits(k);
+        } 
+        else if(tau_cmd.data(k)<-alpha*_torqueLimits(k))
+        {
+            tau_cmd.data(k) = -alpha*_torqueLimits(k);
+        }    
     }
 
     wrench.force(0) = F_ee_des_(0);
