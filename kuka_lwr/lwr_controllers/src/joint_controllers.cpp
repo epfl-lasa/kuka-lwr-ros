@@ -72,6 +72,7 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
 
     dynamic_server_D_all_param->setCallback( boost::bind(&JointControllers::damping_all_callback,  this, _1, _2));
     dynamic_server_K_all_param->setCallback( boost::bind(&JointControllers::stiffness_all_callback,this, _1, _2));
+
     ROS_INFO("JointControllers::init finished initialise [dynamic reconfigure]!");
 
     // Gains for cartesian velocity control
@@ -87,6 +88,9 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     fk_vel_solver_.reset(       new KDL::ChainFkSolverVel_recursive(kdl_chain_));
     ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(kdl_chain_));
     ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(kdl_chain_,joint_limits_.min,joint_limits_.max,*fk_pos_solver_,*ik_vel_solver_));
+    _chainDynParam.reset(new KDL::ChainDynParam(kdl_chain_,KDL::Vector(0,0,-9.8065)));
+
+
     ROS_INFO("JointControllers::init finished initialise [kinematic solvers]!");
 
 
@@ -97,6 +101,7 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
     cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
     passive_ds_controller.reset(new controllers::Passive_ds(nh_,change_ctrl_mode));
+
 
     change_ctrl_mode.add(ff_fb_controller.get());
     change_ctrl_mode.add(cartesian_velocity_controller.get());
@@ -165,6 +170,11 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
 
     KDL::Wrench wrench;
 
+    KDL::JntSpaceInertiaMatrix inertiaMatrix(kdl_chain_.getNrOfJoints());
+    _chainDynParam->JntToMass(joint_msr_.q,inertiaMatrix);
+    KDL::JntArray coriolis(kdl_chain_.getNrOfJoints());
+    _chainDynParam->JntToCoriolis(joint_msr_.q,joint_msr_.qdot,coriolis);
+
     if(change_ctrl_mode.is_switching())
     {
         change_ctrl_mode.switching();
@@ -208,7 +218,7 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
         {
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_PASSIVE_DS");
             // passive_ds_controller->update(tau_cmd_,J_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
-            passive_ds_controller->update(wrench,tau_cmd_,J_,joint_msr_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
+            passive_ds_controller->update(wrench,tau_cmd_,J_,joint_msr_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p,inertiaMatrix.data,coriolis.data);
 
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;

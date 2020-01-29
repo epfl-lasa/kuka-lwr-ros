@@ -20,6 +20,11 @@ find_package(catkin REQUIRED COMPONENTS
   lwr_hw
 )
 
+find_package(qpOASES QUIET)
+if(NOT qpOASES_FOUND)
+  include(cmake/FindqpOASES.cmake)
+endif() 
+
 #add_definitions(-DUSE_DOUBLE_PRECISION)
 
 set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -mtune=native -fPIC -Wall -Wno-deprecated-declarations")
@@ -70,11 +75,15 @@ catkin_package(
 )
 
 
+# find_package(orocos_kdl)
+
+
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 include_directories(${INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${INCLUDE_STATISTICS})
-
+include_directories(${qpOASES_INCLUDE_DIRS})
+# include_directories(${orocos_kdl_INCLUDE_DIRS})
 
 set(INC_FILES ${INCLUDE_DIR}/controllers/gravity_compensation.h
               ${INCLUDE_DIR}/controllers/base_controllers.h
@@ -131,7 +140,7 @@ add_library(${PROJECT_NAME}
 )
 
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencpp ${PROJECT_NAME}_gencfg)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${qpOASES_LIBRARIES})
 
 
 install(DIRECTORY include/${PROJECT_NAME}/

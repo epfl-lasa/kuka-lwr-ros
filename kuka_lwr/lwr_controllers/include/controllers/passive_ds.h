@@ -16,7 +16,8 @@
 
 #include <kdl/jntarray.hpp>
 #include <kdl/framevel.hpp>
-#include <kdl/chainiksolvervel_pinv.hpp>
+#include <kdl/jntarrayacc.hpp>
+// #include <kdl/chainiksolvervel_pinv.hpp>
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Wrench.h>
@@ -27,10 +28,12 @@
 #include <std_msgs/Float32.h>
 
 #include "utils/pseudo_inversion.h"
+#include <qpOASES.hpp>
 
 namespace controllers{
 
 class Passive_ds  : public Base_controllers {
+
 
 public:
 
@@ -39,7 +42,7 @@ public:
     void stop();
 
     // void update(KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::JntArrayAcc& joint_msr_, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector &p = KDL::Vector());
-    void update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::JntArrayAcc& joint_msr_, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector &p = KDL::Vector());
+    void update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::Jacobian&  J, const KDL::JntArrayAcc& joint_msr_, const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector &p, Eigen::MatrixXd inertiaMatrix,  Eigen::VectorXd coriolis);
 
 private:
 
@@ -107,6 +110,8 @@ private:
     double _nullspaceCommandGain;
 
     Eigen::Matrix<float,7,1> _torqueLimits;
+    Eigen::Matrix<float,7,1> _jointVelocityLimits;
+    Eigen::Matrix<float,7,1> _jointLimits;
     
     boost::scoped_ptr<DSController>                     passive_ds_controller;
 
@@ -116,6 +121,15 @@ private:
     ros::NodeHandle nd5;
 
 
+    qpOASES::SQProblem *_sqp;
+  // qpOASES uses row-major storing
+    qpOASES::real_t H_qp[14*14];
+    qpOASES::real_t A_qp[7*14];
+    qpOASES::real_t g_qp[14];
+    qpOASES::real_t lb_qp[14];
+    qpOASES::real_t ub_qp[14];
+    qpOASES::real_t lbA_qp[7];
+    qpOASES::real_t ubA_qp[7];
 
 private:
     /// ROS topic
@@ -133,7 +147,7 @@ private:
     ros::Publisher pub_damping_matrix_;
 
 
-
+    bool _initQP;
 
     /// ROS debug
 
@@ -144,6 +158,15 @@ private:
 
     // null-spae control
     Eigen::Matrix<double,7,1> qd, nullspace_torque, nullspace_command;
+
+    bool _useQP;
+    bool _useKDLInertiaMatrix;
+    bool _useCoriolis;
+    double _alpha1;
+    double _alpha2;
+    double _alpha3;
+
+
 
 };
 

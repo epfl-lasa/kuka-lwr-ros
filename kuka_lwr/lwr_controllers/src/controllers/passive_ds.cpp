@@ -61,9 +61,14 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
    //       0.06038748472929001, 0.7602048516273499, 1.5380386114120483;
    // qd << 0.0f, 0.0f, 0.0f, -2.094, 0.0f, 1.047f, 1.57f;
 
-   qd << -0.05035164952278137, 0.586331844329834, -0.10019383579492569, -1.8283051252365112, 1.500396490097046, 1.7245664596557617, 0.6142861247062683;
-
+   // qd << -0.05035164952278137, 0.586331844329834, -0.10019383579492569, -1.8283051252365112, 1.500396490097046, 1.7245664596557617, 0.6142861247062683;
+   qd << 0.7853982958343035, 1.2217446372146226, -1.2217300551038797, -1.5707990882732297, 0.7853982891845535, 1.5707970122758415, 1.9831067620046383e-05;
      _torqueLimits << 176.0f, 176.0f, 100.0f, 100.0f, 100.0f, 38.0f,38.0f;
+     _jointVelocityLimits << 110.0f,110.0f,128.0f,128.0f,204.0f,184.0f,184.0f;
+     _jointVelocityLimits *=M_PI/180.0f;
+     // _jointLimits << 170.0f,120.0f,170.0f,120.0f,170.0f,120.0f,170.0f;
+     _jointLimits << 150.0f,100.0f,150.0f,100.0f,150.0f,100.0f,150.0f;
+     _jointLimits *=M_PI/180.0f;
 
     /// ROS pub debug
 
@@ -80,6 +85,24 @@ Passive_ds::Passive_ds(ros::NodeHandle &nh, controllers::Change_ctrl_mode &chang
     _desiredJointsGain = config_cfg.desiredJointsGain;
     _jointVelocitiesGain = config_cfg.jointVelocitiesGain;
     _wrenchGain = config_cfg.wrenchGain;
+
+    _sqp = new qpOASES::SQProblem(14,7);
+
+    auto options = _sqp->getOptions();
+    // options.printLevel = qpOASES::PL_NONE;
+    options.printLevel = qpOASES::PL_LOW;
+    // options.enableFarBounds = qpOASES::BT_TRUE;
+    // options.enableFlippingBounds = qpOASES::BT_TRUE;
+    options.enableRamping = qpOASES::BT_FALSE;
+    options.enableNZCTests = qpOASES::BT_FALSE;
+    // options.enableRegularisation = qpOASES::BT_TRUE;
+    options.enableDriftCorrection = 0;
+    options.terminationTolerance = 1e-6;
+    options.boundTolerance = 1e-4;
+    options.epsIterRef = 1e-6;
+    _sqp->setOptions(options);
+
+    _initQP = true;
 }
 
 
@@ -101,12 +124,23 @@ void Passive_ds::ds_param_callback(lwr_controllers::passive_ds_paramConfig& conf
     _jointVelocitiesGain = config.jointVelocitiesGain;
     _wrenchGain = config.wrenchGain;
     _nullspaceCommandGain = config.nullspaceCommandGain;
+    if(_useQP == false && config.useQP == true)
+    {
+        _initQP = true;
+    }
+     _useQP = config.useQP;
+     _useKDLInertiaMatrix = config.useKDLInertiaMatrix;
+     _useCoriolis = config.useCoriolis;
+     _alpha1 = config.alpha1;
+     _alpha2 = config.alpha2;
+     _alpha3 = config.alpha3;
+
 
     config_cfg    = config;
 }
 
 
-void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KDL::JntArrayAcc& joint_msr_ , const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector& p){
+void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::Jacobian &J, const KDL::JntArrayAcc& joint_msr_ , const KDL::Twist x_msr_vel_, const KDL::Rotation& rot_msr_, const KDL::Vector& p, Eigen::MatrixXd inertiaMatrix, Eigen::VectorXd coriolis){
 
 
     F_ee_des_.setZero();
@@ -234,43 +268,236 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
     //        +_nullspaceCommandGain*nullspace_command;
 
     nullspace_torque(6) = 0.0f;
-    if(bDebug)
-    {
-        ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace torques:" << nullspace_torque );
-        ROS_WARN_STREAM_THROTTLE(1.0, "Force nullspace :" << _wrenchGain*J.data.transpose()*wrench_des_);
-        ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace command :" << _nullspaceCommandGain*nullspace_command);
-    }
 
-    if(_useNullSpace)
+    if(_useQP)
     {
-        tau_cmd.data = J.data.transpose() * F_ee_des_ + nullspace_torque;
+        if(!_useKDLInertiaMatrix)
+        {
+            inertiaMatrix = Eigen::Matrix<double,7,7>::Identity();
+        }
+        Eigen::Matrix<double,7,6> Jp;
+        Jp = inertiaMatrix.inverse()*J.data.transpose()*(J.data*inertiaMatrix.inverse()*J.data.transpose()).inverse();
+
+        Eigen::Matrix<double,7,7> Np;
+        Np = Eigen::Matrix<double,7,7>::Identity()-J.data.transpose()*Jp.transpose();
+
+        Eigen::Matrix<double,14,14> H;
+        H.setConstant(0.0f);
+        // inertiaMatrix.inverse();
+        // J.data.transpose()*J;
+        // H.block(0,0,7,7) = inertiaMatrix.inverse()*(J.data.transpose()*J.data)*inertiaMatrix.inverse()+1.0f*Eigen::Matrix<double,7,7>::Identity();
+        // H.block(0,0,7,7) = inertiaMatrix.inverse()*(J.data.transpose()*J.data)*inertiaMatrix.inverse()+100.0f*(Np*Np.transpose());
+        H.block(0,0,7,7) = Eigen::Matrix<double,7,7>::Identity()+_alpha1*(Np*Np.transpose())+_alpha2*Eigen::Matrix<double,7,7>::Identity();
+        H.block(7,7,7,7) = Eigen::Matrix<double,7,7>::Identity()+_alpha3*Eigen::Matrix<double,7,7>::Identity();
+
+        Eigen::Matrix<double,14,1> g;
+        // g.segment(0,7) = -H.block(0,0,7,7)*J.data.transpose()*F_ee_des_;
+        g.segment(0,7) = -J.data.transpose()*F_ee_des_;
+        g.segment(7,7) = _desiredJointsGain*(joint_msr_.q.data-qd)+_jointVelocitiesGain*joint_msr_.qdot.data;
+
+        Eigen::Matrix<double,7,14> A;
+        A.block(0,0,7,7) = Eigen::Matrix<double,7,7>::Identity();
+        A.block(0,7,7,7) = Np;
+
+        Eigen::Matrix<double,14,1> lb, ub;
+        ub.segment(0,7) = 2.0f*_torqueLimits.cast <double> ();
+        ub.segment(7,7) = 2.0f*_torqueLimits.cast <double> ();
+        lb = -ub;
+
+        Eigen::Matrix<double,7,1> Alb, Aub, temp1, temp2, qdotdotmax, qdotdotmin, taumin,taumax;
+
+
+        float dt = 0.005f;
+        temp1 = (_jointVelocityLimits.cast<double>()-joint_msr_.qdot.data)/dt;
+        temp2 = (_jointLimits.cast<double>()-joint_msr_.q.data-joint_msr_.qdot.data*dt)/(0.5f*dt*dt);
+        qdotdotmax = temp1.cwiseMin(temp2);
+
+        temp1 = (-_jointVelocityLimits.cast<double>()-joint_msr_.qdot.data)/dt;
+        temp2 = (-_jointLimits.cast<double>()-joint_msr_.q.data-joint_msr_.qdot.data*dt)/(0.5f*dt*dt);
+        qdotdotmin = temp1.cwiseMax(temp2);
+
+
+
+
+        // temp1 = inertiaMatrix*qdotdotmax;    
+        // temp2 = inertiaMatrix*qdotdotmin;
+
+        // if(_useCoriolis)
+        // {
+
+        //     temp1 += coriolis;
+        //     temp2 += coriolis;
+        // }
+
+        // Aub = (_torqueLimits.cast<double>()).cwiseMin(temp1.cwiseMax(temp2));
+        // Alb = (-_torqueLimits.cast<double>()).cwiseMax(temp1.cwiseMin(temp2));
+
+        for(int k = 0; k < inertiaMatrix.rows(); k++)
+        {
+            temp1(k) = 0.0f;
+            temp2(k) = 0.0f;
+            for(int m = 0; m < inertiaMatrix.cols(); m++)
+            {
+
+                // temp1(k) += std::max(inertiaMatrix(k,m)*qdotdotmin(m),inertiaMatrix(k,m)*qdotdotmax(m));
+                // temp2(k) += std::min(inertiaMatrix(k,m)*qdotdotmin(m),inertiaMatrix(k,m)*qdotdotmax(m));
+
+                temp1(k) += (inertiaMatrix(k,m) > 0.0f)?  inertiaMatrix(k,m)*qdotdotmax(m):  inertiaMatrix(k,m)*qdotdotmin(m);
+                temp2(k) += (inertiaMatrix(k,m) > 0.0f)?  inertiaMatrix(k,m)*qdotdotmin(m):  inertiaMatrix(k,m)*qdotdotmax(m);
+
+            }
+        }
+
+        // std::cerr << "before max: " <<temp1.transpose() << std::endl;
+        // std::cerr << "before min: " <<  temp2.transpose() << std::endl;
+        if(_useCoriolis)
+        {
+
+            temp1 += coriolis;
+            temp2 += coriolis;
+        }
+        // std::cerr << "after max: " <<temp1.transpose() << std::endl;
+        // std::cerr << "after min: " << temp2.transpose() << std::endl;
+
+
+        Aub = (_torqueLimits.cast<double>()).cwiseMin(temp1);
+        Alb = (-_torqueLimits.cast<double>()).cwiseMax(temp2);
+
+
+
+        for (int i = 0; i < H.rows(); i++) 
+        {
+            for (int j = 0; j < H.cols(); j++)
+            {
+              H_qp[i*H.cols()+j] = H(i,j);
+            }
+        }
+
+        for (int i = 0; i < A.rows(); i++)
+        {
+            for (int j = 0; j < A.cols(); j++)
+            {
+              A_qp[i*A.cols()+j] = A(i,j);
+            }
+        }
+
+        for (int i = 0; i < g.size(); i++) 
+        {
+            g_qp[i] = g(i);
+            lb_qp[i] = lb(i);
+            ub_qp[i] = ub(i);
+        }
+
+        for (size_t i = 0; i < 7; i++) 
+        {
+            lbA_qp[i] = Alb(i);
+            ubA_qp[i] = Aub(i);
+        }
+
+        qpOASES::SymSparseMat H_mat(H.rows(), H.cols(), H.cols(), H_qp);
+        H_mat.createDiagInfo();
+        qpOASES::SparseMatrix A_mat(A.rows(), A.cols(), A.cols(), A_qp);
+        qpOASES::returnValue ret = qpOASES::TERMINAL_LIST_ELEMENT;
+
+        // std::cerr << "H" << std::endl;
+        // std::cerr << H << std::endl;
+        // std::cerr << "A" << std::endl;
+        // std::cerr << A << std::endl;
+        // std::cerr << "inertiaMatrix" << std::endl;
+        // std::cerr << inertiaMatrix << std::endl;
+        // std::cerr << "eigenvalues" << std::endl;
+        // std::cerr << inertiaMatrix.eigenvalues() << std::endl;
+        // std::cerr << "qdotdotmax" << std::endl;
+        // std::cerr << qdotdotmax << std::endl;
+        // std::cerr << "qdotdotmin" << std::endl;
+        // std::cerr << qdotdotmin << std::endl;
+        // std::cerr << "qdotdotmax" << std::endl;
+        // std::cerr << inertiaMatrix*qdotdotmax << std::endl;
+        // std::cerr << "qdotdotmin" << std::endl;
+        // std::cerr << inertiaMatrix*qdotdotmin << std::endl;
+        // std::cerr << "Alb" << std::endl;
+        // std::cerr << Alb << std::endl;
+        // std::cerr << "Aub" << std::endl;
+        // std::cerr << Aub << std::endl;
+        // std::cerr << "lb" << std::endl;
+        // std::cerr << lb << std::endl;
+        // std::cerr << "ub" << std::endl;
+        // std::cerr << ub << std::endl;
+        // std::cerr << "g" << std::endl;
+        // std::cerr << g << std::endl;
+
+        int max_iters = 100;
+        if(_initQP)
+        {
+            ret = _sqp->init(&H_mat, g_qp, &A_mat, lb_qp, ub_qp, lbA_qp, ubA_qp, max_iters);
+            _initQP = false;
+
+        }
+        else
+        {
+            ret = _sqp->hotstart(&H_mat, g_qp, &A_mat, lb_qp, ub_qp, lbA_qp, ubA_qp, max_iters);
+        }
+
+        qpOASES::real_t xOpt[14];
+          
+        _sqp->getPrimalSolution(xOpt);
+
+        Eigen::Matrix<double,14,1> result; 
+        for(int k = 0; k < 14; k++)
+        {
+            result(k) = xOpt[k];
+        }
+    
+        if(ret == qpOASES::SUCCESSFUL_RETURN)
+        {
+            tau_cmd.data = result.segment(0,7)+Np*result.segment(7,7);
+        }
+        else
+        {
+            tau_cmd.data.setConstant(0.0f);
+        }
     }
     else
     {
-        tau_cmd.data = J.data.transpose() * F_ee_des_;
-    }
 
-    if(bDebug){
-        for(std::size_t i = 0; i < tau_msg_.data.size();i++)
+        if(_useNullSpace)
         {
-            tau_msg_.data[i] = tau_cmd.data[i];
+            tau_cmd.data = J.data.transpose() * F_ee_des_ + nullspace_torque;
         }
-        torque_pub_.publish(tau_msg_);
+        else
+        {
+            tau_cmd.data = J.data.transpose() * F_ee_des_;
+        }
+        
+        float alpha = 0.95f;
+
+        for(int k = 0; k < 7; k++)
+        {
+            if(tau_cmd.data(k)>alpha*_torqueLimits(k))
+            {
+                tau_cmd.data(k) = alpha*_torqueLimits(k);
+            } 
+            else if(tau_cmd.data(k)<-alpha*_torqueLimits(k))
+            {
+                tau_cmd.data(k) = -alpha*_torqueLimits(k);
+            }    
+        }
     }
 
-    float alpha = 0.95f;
+    // if(bDebug)
+    // {
+    //     ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace torques:" << nullspace_torque );
+    //     ROS_WARN_STREAM_THROTTLE(1.0, "Force nullspace :" << _wrenchGain*J.data.transpose()*wrench_des_);
+    //     ROS_WARN_STREAM_THROTTLE(1.0, "Nullspace command :" << _nullspaceCommandGain*nullspace_command);
+    // }
 
-    for(int k = 0; k < 7; k++)
-    {
-        if(tau_cmd.data(k)>alpha*_torqueLimits(k))
-        {
-            tau_cmd.data(k) = alpha*_torqueLimits(k);
-        } 
-        else if(tau_cmd.data(k)<-alpha*_torqueLimits(k))
-        {
-            tau_cmd.data(k) = -alpha*_torqueLimits(k);
-        }    
-    }
+    // if(bDebug){
+    //     for(std::size_t i = 0; i < tau_msg_.data.size();i++)
+    //     {
+    //         tau_msg_.data[i] = tau_cmd.data[i];
+    //     }
+    //     torque_pub_.publish(tau_msg_);
+    // }
 
     wrench.force(0) = F_ee_des_(0);
     wrench.force(1) = F_ee_des_(1);
@@ -314,6 +541,7 @@ void Passive_ds::command_cart_vel(const geometry_msgs::TwistConstPtr &msg){
 
     if(!bFirst){
         change_ctrl_mode.switch_mode(lwr_controllers::CTRL_MODE::CART_PASSIVE_DS);
+        _initQP = true;
     }
     bFirst            = true;
 }

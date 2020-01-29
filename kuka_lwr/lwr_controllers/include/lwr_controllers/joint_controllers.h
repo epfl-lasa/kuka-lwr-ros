@@ -30,7 +30,7 @@
 #include <kdl/chainfksolvervel_recursive.hpp>
 #include <kdl/chainiksolvervel_pinv.hpp>
 #include <kdl/chainiksolverpos_nr_jl.hpp>
-
+// #include <kdl/chainjnttojacdotsolver.hpp>
 
 #include <boost/scoped_ptr.hpp>
 
@@ -130,6 +130,7 @@ namespace lwr_controllers
         boost::shared_ptr<KDL::ChainFkSolverVel_recursive>  fk_vel_solver_;
         boost::shared_ptr<KDL::ChainIkSolverVel_pinv>       ik_vel_solver_;
         boost::shared_ptr<KDL::ChainIkSolverPos_NR_JL>      ik_pos_solver_;
+        boost::shared_ptr<KDL::ChainDynParam> _chainDynParam;
 
         /// Safety
 
@@ -156,7 +157,6 @@ namespace lwr_controllers
         double                                                                              last_publish_time_;
         double                                                                              q_x,q_y,q_z,q_w; // Quaternion parameters
         double                                                                              publish_rate_;
-
 
 	};
 
