@@ -53,15 +53,7 @@ private:
 
     void command_cart_vel(const geometry_msgs::TwistConstPtr& msg);
 
-    void command_wrench(const geometry_msgs::WrenchConstPtr& msg);
-
-    void command_orient(const geometry_msgs::Quaternion &msg);
-
     void command_linear_damping_(const std_msgs::Float64MultiArray& msg);
-
-    void command_rot_stiff(const std_msgs::Float64& msg);
-
-    void command_rot_damp(const std_msgs::Float64& msg);
 
     void publish_open_loop_pos(const ros::Duration &period, const ros::Time& time);
 
@@ -79,19 +71,16 @@ private:
     /// Linear
     // Eigen::VectorXd     dx_msr_;
     Eigen::VectorXd     dx_linear_des_;
-    Eigen::VectorXd     dx_angular_des_;
     Eigen::VectorXd     dx_linear_msr_;
     Eigen::VectorXd     dx_angular_msr_;
-    Eigen::VectorXd     F_linear_des_;     // desired linear force
-    Eigen::VectorXd     wrench_des_;
     Eigen::VectorXd     F_ee_des_;         // desired end-effector force
     /// Rotation
-    KDL::Rotation         err_orient;
-    tf::Vector3           err_orient_axis;
-    double                err_orient_angle;
-    tf::Vector3           torque_orient;
-    double                qx, qy, qz, qw;
-    tf::Quaternion        q;
+    // KDL::Rotation         err_orient;
+    // tf::Vector3           err_orient_axis;
+    // double                err_orient_angle;
+    // tf::Vector3           torque_orient;
+    // double                qx, qy, qz, qw;
+    // tf::Quaternion        q;
 
     // Eigen::Matrix3f _damping;
 
@@ -100,15 +89,14 @@ private:
     double damping_z_;
 
     double              smooth_val_;
-    double              rot_stiffness;
-    double              rot_damping;
+    // double              rot_stiffness;
+    // double              rot_damping;
 
     bool _useNullSpace;
-    double _jointLimitsGain;
+
+    // double _jointLimitsGain;
     double _desiredJointsGain;
     double _jointVelocitiesGain;
-    double _wrenchGain;
-    double _nullspaceCommandGain;
 
     // boost::scoped_ptr<DSController>                     passive_ds_controller;
 
@@ -122,17 +110,18 @@ private:
 private:
     /// ROS topic
     KDL::Twist             x_des_vel_;
-    KDL::Rotation          rot_des_;
+    // KDL::Rotation          rot_des_;
 
     ros::Subscriber         sub_command_vel_;
     ros::Subscriber         sub_command_force_;
-    ros::Subscriber         sub_command_orient_;
     ros::Subscriber         sub_linear_damp_;
-    ros::Subscriber         sub_rot_stiff_;
-    ros::Subscriber         sub_rot_damp_;
     ros::Subscriber         sub_command_nullspace_;
-    ros::Publisher pub_twist_;
-    // ros::Publisher pub_damping_matrix_;
+    ros::Publisher          pub_twist_;
+
+    // ros::Subscriber         sub_command_orient_;
+    // ros::Subscriber         sub_rot_stiff_;
+    // ros::Subscriber         sub_rot_damp_;
+    // ros::Publisher          pub_damping_matrix_;
 
 
 
@@ -141,11 +130,18 @@ private:
 
     ros::Publisher                  pub_F_;
     ros::Publisher                  torque_pub_;
-    std_msgs::Float64MultiArray     F_msg_, tau_msg_;
+    std_msgs::Float64MultiArray     tau_msg_;
     lwr_controllers::passive_ds_paramConfig config_cfg;
 
     // null-spae control
-    Eigen::Matrix<double, 7, 1> qd, nullspace_torque, nullspace_command;
+    Eigen::Matrix<double, 7, 1> qd;
+    Eigen::Matrix<double, 7, 1> nullspace_torque;
+    Eigen::Matrix<float, 7, 1> _jointLimits;
+
+
+    // the reduced jacobian which only cares about the linear motion of EE
+    // Eigen::Matrix<double, 3,7> Jr_;
+
 
 };
 
