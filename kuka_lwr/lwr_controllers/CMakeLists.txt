@@ -111,6 +111,10 @@ set(SRC_FILES_UTIL
     ${SRC_DIR}/utils/contact_safety.cpp
 )
 
+# ign_import_target(UUID)
+# message(STATUS "Applying patch to ${PROJECT_NAME} to avoid error with GZ9: Target UUID::UUID not found.")
+
+
 add_library(${PROJECT_NAME}
   include/lwr_controllers/KinematicChainControllerBase.h
   include/lwr_controllers/one_task_inverse_kinematics.h

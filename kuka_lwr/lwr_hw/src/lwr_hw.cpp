@@ -242,8 +242,10 @@ namespace lwr_hw
 
     if (urdf_model != NULL)
     {
-      const boost::shared_ptr<const urdf::Joint> urdf_joint = urdf_model->getJoint(joint_name);
-      const boost::shared_ptr<const urdf::Joint> urdf_joint_sitffness = urdf_model->getJoint(joint_name + std::string("_stiffness"));
+      // const boost::shared_ptr<const urdf::Joint> urdf_joint = urdf_model->getJoint(joint_name);
+      urdf::JointConstSharedPtr urdf_joint = urdf_model->getJoint(joint_name);
+      // const boost::shared_ptr<const urdf::Joint> urdf_joint_sitffness = urdf_model->getJoint(joint_name + std::string("_stiffness"));
+      urdf::JointConstSharedPtr urdf_joint_sitffness = urdf_model->getJoint(joint_name + std::string("_stiffness"));
       if (urdf_joint != NULL)
       {
         // Get limits from the URDF file.

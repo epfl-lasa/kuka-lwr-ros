@@ -10,12 +10,13 @@ message_runtime
 message_generation
 lwr_console
 lwr_ros_interface
+# gazebo_dev
 )
 
 set(CMAKE_CXX_FLAGS "-O2 -O3 -std=c++11 -isystem -mtune=native -fPIC -Wall -Wno-deprecated-declarations -Wno-reorder")
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
 
 ## INCLUDE_DIRS: uncomment this if you package contains header files
 ## LIBRARIES: libraries you create in this project that dependent projects also need
@@ -38,6 +39,17 @@ catkin_package(
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+
+find_package(UUID REQUIRED)
+find_package(gazebo REQUIRED)
+# ign_import_target(UUID)
+add_library(uuid INTERFACE)
+find_library( UUID_LIBRARY uuid )
+# if(gazebo_VERSION_MAJOR GREATER 8)
+#   ign_import_target(UUID)
+#   message(STATUS "Applying patch to ${PROJECT_NAME} to avoid error with GZ9: Target UUID::UUID not found.")
+# endif()
+
 include_directories(include ${catkin_INCLUDE_DIRS} ${INCLUDE_DIR} )
 
 set(H_FILES     ${INCLUDE_DIR}/lwr_ros_client/kuka_action_client.h
@@ -59,7 +71,7 @@ set(H_FILES_ACTION ${INCLUDE_DIR}/lwr_ros_action/joint_action.h
 set(SRC_FILES_ACTION ${SRC_DIR}/lwr_ros_action/joint_action.cpp)
 
 add_library(${PROJECT_NAME} ${H_FILES} ${H_FILES_ACTION} ${SRC_FILES} ${SRC_FILES_ACTION})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${UUID_LIBRARIES})
 
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 

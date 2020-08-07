@@ -146,7 +146,7 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
 
     passive_ds_controller->Update(dx_linear_msr_,dx_linear_des_);
     F_linear_des_ = passive_ds_controller->control_output(); // (3 x 1)
-    _damping = (passive_ds_controller->damping_matrix()).cast<float>();
+    // _damping = (passive_ds_controller->damping_matrix()).cast<float>();
 
     F_ee_des_(0) = F_linear_des_(0)+F_contact_des_(0);
     F_ee_des_(1) = F_linear_des_(1)+F_contact_des_(1);
@@ -199,9 +199,9 @@ void Passive_ds::update(KDL::Wrench &wrench, KDL::JntArray& tau_cmd, const KDL::
 
 
     if(bDebug){
-        // ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_axis: " << err_orient_axis.getX() << " " << err_orient_axis.getY() << " " << err_orient_axis.getZ() );
-        // ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_angle: " << err_orient_angle);
-        ROS_WARN_STREAM_THROTTLE(1.0, "Forces :" << F_ee_des_ );
+        ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_axis: " << err_orient_axis.getX() << " " << err_orient_axis.getY() << " " << err_orient_axis.getZ() );
+        ROS_WARN_STREAM_THROTTLE(2.0,"err_orient_angle: " << err_orient_angle);
+        // ROS_WARN_STREAM_THROTTLE(1.0, "Forces :" << F_ee_des_ );
         // std::cerr << "Contact force: " << F_contact_des_ << std::endl;
     }
 
