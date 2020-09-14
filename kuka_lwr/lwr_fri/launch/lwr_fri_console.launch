@@ -1,5 +1,8 @@
 <?xml version="1.0" ?>
 <launch>
-	<node name="lwr_fri_console" pkg="lwr_fri" type="lwr_fri_console_node" output="screen"/>
+<arg name="robot_name"   default="lwr"/>
+<group ns="$(arg robot_name)">
+	<node name="lwr_fri_console" pkg="lwr_fri" type="lwr_fri_console_node" output="screen" args="$(arg robot_name)"/>
+</group>
 </launch>
 

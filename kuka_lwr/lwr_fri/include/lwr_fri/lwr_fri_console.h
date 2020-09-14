@@ -1,12 +1,12 @@
 #ifndef LWR_FRI_CONSOLE_H_
 #define LWR_FRI_CONSOLE_H_
 
-#include "ros/ros.h"
-#include "sensor_msgs/JointState.h"
-#include "lwr_fri/JointStates.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/WrenchStamped.h"
+#include "lwr_fri/JointStates.h"
+#include "ros/ros.h"
+#include "sensor_msgs/JointState.h"
 #include "std_msgs/Empty.h"
 
 #include "lwr_fri/utilities.h"
@@ -24,95 +24,82 @@
 #include <deque>
 #include <ros/package.h>
 
+#include "lwr_fri/FRI.h"
 #include "lwr_fri/LWRRobot_FRI.h"
 #include <controller_manager/controller_manager.h>
-#include "lwr_fri/FRI.h"
-
 
 #define MEASUREMENT_HISTORY_LENGTH 20
 
 #define MODE_NONE 0
-#define MODE_REC  1
+#define MODE_REC 1
 #define MODE_PREP 2
-#define MODE_GO   3
+#define MODE_GO 3
 
 #ifndef RAD
-#define RAD(A)	((A) * M_PI / 180.0 )
+#define RAD(A) ((A)*M_PI / 180.0)
 #endif
 
 #ifndef DEG
-#define DEG(A)	((A) * 180.0 / M_PI )
+#define DEG(A) ((A)*180.0 / M_PI)
 #endif
-
 
 namespace kfb {
 
-class Fri_console;
+    class Fri_console;
 
-class Console_Interface : public Console::Command {
+    class Console_Interface : public Console::Command {
 
-public:
+    public:
+        Console_Interface(string name, Fri_console* fri_console);
 
-    Console_Interface(string name, Fri_console *fri_console);
+        Fri_console* GetInterface();
 
-    Fri_console*    GetInterface();
+        virtual int Execute(string args);
 
-    virtual int Execute(string args);
+    protected:
+        Fri_console* fri_console;
+    };
 
-protected:
+    class Fri_console {
 
-    Fri_console  *fri_console;
+    public:
+        Fri_console(ros::NodeHandle& nh, std::string robot_name);
 
-};
+        int start();
+        int stop();
 
+        int RespondToConsoleCommand(const string cmd, const vector<string>& args);
+        void addConsole(Console& console);
+        void ConsoleUpdate();
 
-class Fri_console{
+    private:
+        void fri_callback(const lwr_fri::FRI::ConstPtr& msg);
 
-public:
+        void call_service_async();
 
-       Fri_console(ros::NodeHandle& nh);
+    private:
+        ros::ServiceClient service_client;
+        ros::Subscriber fri_sub;
+        controller_manager_msgs::SwitchController switch_msg;
+        std::string start_controller;
 
-       int start();
-       int stop();
+        FRI_STATE mFRI_STATE;
+        FRI_QUALITY mFRI_QUALITY;
+        FRI_CTRL mFRI_CTRL;
+        lwr_hw::LWRHW::ControlStrategy mROBOT_CTRL_MODE;
 
-       int RespondToConsoleCommand(const string cmd, const vector<string> &args);
-       void addConsole(Console& console);
-       void ConsoleUpdate();
+        std::vector<double> position, effort, damping, stiffness;
 
-private:
+        bool IsRobotArmPowerOn, DoesAnyDriveSignalAnError;
 
-    void fri_callback(const lwr_fri::FRI::ConstPtr& msg);
+        NCConsole mNCConsole;
+        Console mConsole;
 
-    void call_service_async();
+        streambuf* mStdout;
+        stringstream mOutputStream;
+        char static_txt[1025];
+    };
 
-private:
-
-    ros::ServiceClient                          service_client;
-    ros::Subscriber                             fri_sub;
-    controller_manager_msgs::SwitchController   switch_msg;
-    std::string                                 start_controller;
-
-    FRI_STATE                                   mFRI_STATE;
-    FRI_QUALITY                                 mFRI_QUALITY;
-    FRI_CTRL                                    mFRI_CTRL;
-    lwr_hw::LWRHW::ControlStrategy              mROBOT_CTRL_MODE;
-
-    std::vector<double>                         position, effort, damping, stiffness;
-
-    bool    IsRobotArmPowerOn, DoesAnyDriveSignalAnError;
-
-
-    NCConsole               mNCConsole;
-    Console                 mConsole;
-
-    streambuf *mStdout;
-    stringstream mOutputStream;
-    char static_txt[1025];
-
-};
-
-
-}
-
+} // namespace kfb
 
 #endif

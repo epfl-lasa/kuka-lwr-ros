@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   realtime_tools
   joint_limits_interface
   roscpp
+  fri_library_ros
   tf
   urdf
   # cmake_modules
@@ -122,7 +123,7 @@ add_dependencies(lwr_hw_fril_node
   ${PROJECT_NAME} 
 )
 target_link_libraries(lwr_hw_fril_node
-  fril
+  # fril
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )

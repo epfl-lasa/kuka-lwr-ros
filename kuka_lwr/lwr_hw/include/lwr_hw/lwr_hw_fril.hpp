@@ -40,7 +40,7 @@ public:
     // construct a low-level lwr
     device_.reset( new FastResearchInterface( init_file_.c_str() ) );
 
-    ResultValue	=	device_->StartRobot( FRI_CONTROL_POSITION );
+    ResultValue	=	device_->StartRobot( FRI_CTRL_POSITION );
     if (ResultValue != EOK)
     {
       std::cout << "An error occurred during starting up the robot...\n" << std::endl;
@@ -85,7 +85,7 @@ public:
         case JOINT_POSITION:
 
           // Ensure the robot is in this mode
-          if( (device_->GetCurrentControlScheme() == FRI_CONTROL_POSITION) )
+          if( (device_->GetCurrentControlScheme() == FRI_CTRL_POSITION) )
           {
              float newJntPosition[n_joints_];
              for (int j = 0; j < n_joints_; j++)
@@ -102,7 +102,7 @@ public:
          case JOINT_IMPEDANCE:
 
           // Ensure the robot is in this mode
-          if( (device_->GetCurrentControlScheme() == FRI_CONTROL_JNT_IMP) )
+          if( (device_->GetCurrentControlScheme() == FRI_CTRL_JNT_IMP) )
           {
            float newJntPosition[n_joints_];
            float newJntStiff[n_joints_];
@@ -193,7 +193,7 @@ public:
       switch( desired_strategy )
       {
         case JOINT_POSITION:
-          ResultValue = device_->StartRobot( FRI_CONTROL_POSITION );
+          ResultValue = device_->StartRobot( FRI_CTRL_POSITION );
           if (ResultValue != EOK)
           {
             std::cout << "An error occurred during starting the robot, couldn't switch to JOINT_POSITION...\n" << std::endl;
@@ -201,7 +201,7 @@ public:
           }
           break;
          case JOINT_IMPEDANCE:
-          ResultValue = device_->StartRobot( FRI_CONTROL_JNT_IMP );
+          ResultValue = device_->StartRobot( FRI_CTRL_JNT_IMP );
           if (ResultValue != EOK)
           {
             std::cout << "An error occurred during starting the robot, couldn't switch to JOINT_IMPEDANCE...\n" << std::endl;
