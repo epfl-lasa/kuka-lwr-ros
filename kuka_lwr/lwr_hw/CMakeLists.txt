@@ -106,7 +106,7 @@ target_link_libraries(${PROJECT_NAME}
 
 ## SIMULATION
 # lwr hw sim gazebo plugin 
-# find_package(gazebo REQUIRED)
+find_package(gazebo REQUIRED)
 # if(gazebo_VERSION_MAJOR GREATER 8)
 #   ign_import_target(UUID)
 #   message(STATUS "Applying patch to ${PROJECT_NAME} to avoid error with GZ9: Target UUID::UUID not found.")
@@ -128,18 +128,18 @@ target_link_libraries(lwr_hw_fril_node
   ${catkin_LIBRARIES}
 )
 
-# include_directories(${GAZEBO_INCLUDE_DIRS})
-# link_directories(${GAZEBO_LIBRARY_DIRS})
-# add_library(lwr_hw_gazebo_plugin  src/lwr_hw_gazebo_plugin.cpp
-#   include/${PROJECT_NAME}/lwr_hw_gazebo.hpp
-# )
-# add_dependencies(lwr_hw_gazebo_plugin
-#   ${PROJECT_NAME}
-# )
-# # target_include_directories(lwr_hw_gazebo_plugin PUBLIC ${UUID_INCLUDE_DIRS})
-# target_link_libraries(lwr_hw_gazebo_plugin
-#   ${PROJECT_NAME}
-#   # ${UUID_LIBRARIES}
-#   ${catkin_LIBRARIES}
-#   # ${GAZEBO_LIBRARIES}
-# )
+include_directories(${GAZEBO_INCLUDE_DIRS})
+link_directories(${GAZEBO_LIBRARY_DIRS})
+add_library(lwr_hw_gazebo_plugin  src/lwr_hw_gazebo_plugin.cpp
+  include/${PROJECT_NAME}/lwr_hw_gazebo.hpp
+)
+add_dependencies(lwr_hw_gazebo_plugin
+  ${PROJECT_NAME}
+)
+# target_include_directories(lwr_hw_gazebo_plugin PUBLIC ${UUID_INCLUDE_DIRS})
+target_link_libraries(lwr_hw_gazebo_plugin
+  ${PROJECT_NAME}
+  # ${UUID_LIBRARIES}
+  ${catkin_LIBRARIES}
+  # ${GAZEBO_LIBRARIES}
+)

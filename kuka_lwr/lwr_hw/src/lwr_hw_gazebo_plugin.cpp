@@ -26,7 +26,8 @@ public:
   virtual ~LWRHWsimPlugin()
   {
     // Disconnect from gazebo events
-    gazebo::event::Events::DisconnectWorldUpdateBegin(update_connection_);
+    // gazebo::event::Events::DisconnectWorldUpdateBegin(update_connection_);
+    update_connection_.reset();
   }
 
   // Overloaded Gazebo entry point
@@ -74,7 +75,7 @@ public:
     }
 
     // Get the Gazebo simulation period
-    ros::Duration gazebo_period(parent_model_->GetWorld()->GetPhysicsEngine()->GetMaxStepSize());
+    ros::Duration gazebo_period(parent_model_->GetWorld()->Physics()->GetMaxStepSize());
 
     // Decide the plugin control period
     if(sdf_->HasElement("controlPeriod"))
@@ -137,7 +138,7 @@ public:
   void Update()
   {
     // Get the simulation time and period
-    gazebo::common::Time gz_time_now = parent_model_->GetWorld()->GetSimTime();
+    gazebo::common::Time gz_time_now = parent_model_->GetWorld()->SimTime();
     ros::Time sim_time_ros(gz_time_now.sec, gz_time_now.nsec);
     ros::Duration sim_period = sim_time_ros - last_update_sim_time_ros_;
 
