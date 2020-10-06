@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(lwr_ros_client)
 
+# Default to C++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 
 find_package(catkin REQUIRED
 tf

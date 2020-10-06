@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(lwr_fri)
 
+# Default to C++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
 find_package(catkin REQUIRED
 fri_library_ros
 lwr_console
