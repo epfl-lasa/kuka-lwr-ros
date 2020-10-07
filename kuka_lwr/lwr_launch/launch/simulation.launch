@@ -25,7 +25,7 @@
   <!-- ROBOT -->
 
   <group ns="lwr">
-    <param name="robot_description" command="$(find xacro)/xacro.py $(arg robot_urdf_file)"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(arg robot_urdf_file)"/>
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
   </group>
 
