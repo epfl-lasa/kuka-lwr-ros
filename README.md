@@ -16,11 +16,11 @@ $ git clone https://github.com/epfl-lasa/kuka-lwr-ros.git
 ```
 $  wstool init
 $  wstool merge kuka-lwr-ros/dependencies.rosinstall 
-$  wstool up 
+$  wstool update
 ```
 * Query and installs all libraries and packages 
 ```
-$ rosdep install --from-paths . --ignore-src --rosdistro kinetic 
+$ rosdep update --include-eol- && rosdep install --from-paths -y . --ignore-src --rosdistro ${ROS_DISTRIB}
 ```
 
 * Install [**Gazebo**](http://gazebosim.org/), follow this [**link**](http://gazebosim.org/tutorials?tut=install_ubuntu&) for 
