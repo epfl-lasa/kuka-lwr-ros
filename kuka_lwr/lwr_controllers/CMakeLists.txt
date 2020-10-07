@@ -89,6 +89,7 @@ set(INC_FILES ${INCLUDE_DIR}/controllers/gravity_compensation.h
               ${INCLUDE_DIR}/controllers/cartesian_position.h
               ${INCLUDE_DIR}/controllers/change_ctrl_mode.h
               ${INCLUDE_DIR}/controllers/passive_ds.h
+              ${INCLUDE_DIR}/controllers/cartesian_force.h
               )
 
 set(SRC_FILES ${SRC_DIR}/controllers/gravity_compensation.cpp
@@ -98,6 +99,7 @@ set(SRC_FILES ${SRC_DIR}/controllers/gravity_compensation.cpp
               ${SRC_DIR}/controllers/ff_fb_cartesian.cpp
               ${SRC_DIR}/controllers/change_ctrl_mode.cpp
               ${SRC_DIR}/controllers/passive_ds.cpp
+              ${SRC_DIR}/controllers/cartesian_force.cpp
 )
 
 set(INC_FILES_UTIL

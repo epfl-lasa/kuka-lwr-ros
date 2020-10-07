@@ -9,6 +9,7 @@ enum class CTRL_MODE{
     CART_VELOCITIY,         /// velocity
     CART_POSITION,          /// position
     CART_PASSIVE_DS,        /// passive ds (velocity cart)
+    CART_FORCE,             /// force and torque
     JOINT_POSITION,         /// standard joint position controller (for goto joint pose)
     GRAV_COMP,              /// sets the controller into gravity compensation
     FF_FB_CARTESIAN         /// feedforward + feedback trajectory for the end effector
@@ -29,6 +30,8 @@ inline std::string ctrl_mod2str(CTRL_MODE mode)
         return "CART_PASSIVE_DS";
     case CTRL_MODE::CART_POSITION:
         return "CART_POSITION";
+    case CTRL_MODE::CART_FORCE:
+        return "CART_FORCE";
     case CTRL_MODE::JOINT_POSITION:
         return "JOINT_POSITION";
     case CTRL_MODE::GRAV_COMP:
