@@ -7,7 +7,6 @@
 #include <urdf/model.h>
 #include <tf/transform_broadcaster.h>
 #include "lwr_controllers/joint_controllers.h"
-#include <yaml-cpp/yaml.h>
 
 int thrott_time = 2;
 
@@ -129,9 +128,6 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     realtime_publisher.reset( new realtime_tools::RealtimePublisher<geometry_msgs::PoseStamped>(n,"x_open_loop",1) );
     frame_id = "world";
     publish_rate_ = 100;
-
-    friction_offsets_.resize(joint_handles_.size());
-    friction_slopes_.resize(joint_handles_.size());
 
     ROS_INFO("Joint_controllers initialised!");
     return true;
@@ -264,41 +260,10 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     }
 
     if(friction_compensation_){
-        if(!friction_comp_params_ok_){
-            bool file_ok = true;
-            std::string paramFilePath = ros::package::getPath("lwr_controllers");
-            paramFilePath += "/param/friction_comp.yaml";
-            YAML::Node params;
-            try{
-                params = YAML::LoadFile(paramFilePath);
-            } catch(const YAML::Exception &ex){
-                ROS_WARN_STREAM_THROTTLE(thrott_time,
-                                       "[JointControllers::update] " << ex.what());
-                ROS_WARN_STREAM_THROTTLE(
-                    thrott_time,
-                    "[JointControllers::update] Impossible to do joint friction "
-                    "compensation. Check the parameter file named 'friction_comp.yaml' "
-                    "in the 'param' directory of the 'lwr_controllers' package.");
-                file_ok = false;
-            }
-            if(file_ok){
-                for(size_t i = 0; i < joint_handles_.size(); i++){
-                    friction_offsets_[i] = params["joint_" + std::to_string(i + 1)]["offset"].as<double>();
-                    friction_slopes_[i] = params["joint_" + std::to_string(i + 1)]["slope"].as<double>();
-                }
-            // TODO assert that values are okay???
-            friction_comp_params_ok_ = true;
-            }
-        }
-        if(friction_comp_params_ok_){
-            ROS_INFO_STREAM_THROTTLE(thrott_time, "i would apply compensation here");
-            for(size_t i = 0; i < joint_handles_.size(); i++){
-                tau_cmd_(i) = tau_cmd_(i);
-            }
-        }else{
-            ROS_WARN_STREAM_THROTTLE(thrott_time,
-                                    "[JointControllers::update] Cannot apply joint "
-                                    "friction compensation");
+        if(FrictionCompensation::compensateFriction(thrott_time, tau_cmd_)){
+            ROS_INFO_STREAM_THROTTLE(thrott_time,"[JointControllers::update] Compensation joint friction");
+        } else{
+            ROS_WARN_STREAM_THROTTLE(thrott_time, "[JointControllers::update] Cannot apply joint friction compensation");
         }
     }
 
@@ -474,6 +439,7 @@ void JointControllers::stiffness_all_callback(lwr_controllers::stiffness_param_a
 void JointControllers::friction_comp_callback(lwr_controllers::friction_comp_paramConfig &config, uint32_t level){
     friction_compensation_ = config.use_friction_compensation;
     if(friction_compensation_){
+        FrictionCompensation::reloadParameters();
         ROS_INFO_STREAM("[JointControllers::friction_comp_callback] Joint friction "
                         "compensation is now active");
     }
@@ -482,7 +448,6 @@ void JointControllers::friction_comp_callback(lwr_controllers::friction_comp_par
         ROS_INFO_STREAM("[JointControllers::friction_comp_callback] Joint friction "
                         "compensation is not active anymore");
     }
-    friction_comp_params_ok_ = false;
 }
 
 }                                                           // namespace

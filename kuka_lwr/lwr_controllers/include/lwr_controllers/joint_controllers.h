@@ -4,7 +4,6 @@
 
 #include "KinematicChainControllerBase.h"
 
-#include "ros/package.h"
 #include <ros/ros.h>
 
 #include <dynamic_reconfigure/server.h>
@@ -50,6 +49,7 @@
 #include "utils/contact_safety.h"
 #include "utils/speed_safety.h"
 #include "utils/safety.h"
+#include "utils/friction_compensation.h"
 
 
 namespace lwr_controllers
@@ -126,7 +126,6 @@ namespace lwr_controllers
 
         bool _first = false;
         bool friction_compensation_ = false;
-        bool friction_comp_params_ok_ = false;
 
 
         boost::scoped_ptr<KDL::ChainDynParam>               id_solver_gravity_;
@@ -163,7 +162,6 @@ namespace lwr_controllers
         double                                                                              last_publish_time_;
         double                                                                              q_x,q_y,q_z,q_w; // Quaternion parameters
         double                                                                              publish_rate_;
-        std::vector<double>                                                                 friction_offsets_, friction_slopes_;
 
 
 	};
