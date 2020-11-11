@@ -55,6 +55,7 @@ generate_dynamic_reconfigure_options(
     cfg/stiffness_param_all.cfg
     cfg/passive_ds_param.cfg
     cfg/PID.cfg
+    cfg/friction_comp.cfg
 )
 
 catkin_package(
@@ -71,7 +72,7 @@ catkin_package(
     passive_ds_control
     lwr_hw
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
+  LIBRARIES ${PROJECT_NAME} yaml-cpp
 )
 
 
@@ -140,8 +141,7 @@ add_library(${PROJECT_NAME}
 )
 
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencpp ${PROJECT_NAME}_gencfg)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} yaml-cpp)
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})

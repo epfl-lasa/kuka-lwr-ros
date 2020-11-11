@@ -4,11 +4,13 @@
 
 #include "KinematicChainControllerBase.h"
 
+#include "ros/package.h"
 #include <ros/ros.h>
 
 #include <dynamic_reconfigure/server.h>
 
 #include <lwr_controllers/damping_paramConfig.h>
+#include <lwr_controllers/friction_comp_paramConfig.h>
 #include <lwr_controllers/passive_ds_paramConfig.h>
 #include <lwr_controllers/stiffness_paramConfig.h>
 #include <lwr_controllers/stiffness_param_allConfig.h>
@@ -89,6 +91,8 @@ namespace lwr_controllers
 
         void stiffness_all_callback(lwr_controllers::stiffness_param_allConfig& config, uint32_t level);
 
+        void friction_comp_callback(lwr_controllers::friction_comp_paramConfig &config, uint32_t level);
+
 	private:
 
         controllers::Change_ctrl_mode                          change_ctrl_mode;
@@ -121,6 +125,8 @@ namespace lwr_controllers
         KDL::JntArrayVel    joint_vel_msr_;
 
         bool _first = false;
+        bool friction_compensation_ = false;
+        bool friction_comp_params_ok_ = false;
 
 
         boost::scoped_ptr<KDL::ChainDynParam>               id_solver_gravity_;
@@ -143,8 +149,9 @@ namespace lwr_controllers
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::stiffness_paramConfig> >       dynamic_server_K_param;
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::damping_param_allConfig> >     dynamic_server_D_all_param;
         boost::scoped_ptr< dynamic_reconfigure::Server< lwr_controllers::stiffness_param_allConfig> >   dynamic_server_K_all_param;
+        boost::scoped_ptr< dynamic_reconfigure::Server<lwr_controllers::friction_comp_paramConfig> >    dynamic_server_friction_comp_param;
 
-        ros::NodeHandle nd1, nd2, nd3,nd4;
+        ros::NodeHandle nd1, nd2, nd3, nd4, nd5;
 
         lwr_controllers::CTRL_MODE       ctrl_mode;
         lwr_controllers::ROBOT_CTRL_MODE robot_ctrl_mode;
@@ -156,6 +163,7 @@ namespace lwr_controllers
         double                                                                              last_publish_time_;
         double                                                                              q_x,q_y,q_z,q_w; // Quaternion parameters
         double                                                                              publish_rate_;
+        std::vector<double>                                                                 friction_offsets_, friction_slopes_;
 
 
 	};
