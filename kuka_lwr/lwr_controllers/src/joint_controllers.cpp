@@ -260,8 +260,8 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
     }
 
     if(friction_compensation_){
-        if(FrictionCompensation::compensateFriction(thrott_time, tau_cmd_)){
-            ROS_INFO_STREAM_THROTTLE(thrott_time,"[JointControllers::update] Compensation joint friction");
+        if(friction_compensator_.compensateFriction(thrott_time, tau_cmd_)){
+            ROS_INFO_STREAM_THROTTLE(thrott_time,"[JointControllers::update] Compensating joint friction");
         } else{
             ROS_WARN_STREAM_THROTTLE(thrott_time, "[JointControllers::update] Cannot apply joint friction compensation");
         }
@@ -439,7 +439,7 @@ void JointControllers::stiffness_all_callback(lwr_controllers::stiffness_param_a
 void JointControllers::friction_comp_callback(lwr_controllers::friction_comp_paramConfig &config, uint32_t level){
     friction_compensation_ = config.use_friction_compensation;
     if(friction_compensation_){
-        FrictionCompensation::reloadParameters();
+        friction_compensator_.reloadParameters();
         ROS_INFO_STREAM("[JointControllers::friction_comp_callback] Joint friction "
                         "compensation is now active");
     }

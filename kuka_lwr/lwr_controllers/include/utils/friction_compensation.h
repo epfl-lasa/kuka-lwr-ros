@@ -13,17 +13,16 @@ namespace lwr_controllers {
 class FrictionCompensation {
 
 public:
-  static void reloadParameters();
-  static bool compensateFriction(double thrott_time, KDL::JntArray &tau);
+  void reloadParameters();
+  bool compensateFriction(double thrott_time, KDL::JntArray &tau);
 
 private:
-  static void loadParameters(std::size_t n_joints);
+  void loadParameters(std::size_t n_joints);
+
+  bool reload_parameters_ = false;
+  bool file_ok_ = false;
+  std::vector<double> coulomb_friction_, viscous_friction_;
 };
-
-static bool reload_parameters_ = false;
-static bool file_ok_ = false;
-
-static std::vector<double> coulomb_friction_, viscous_friction_;
 
 void FrictionCompensation::loadParameters(std::size_t n_joints) {
   std::string paramFilePath = ros::package::getPath("lwr_controllers");
@@ -47,10 +46,10 @@ void FrictionCompensation::loadParameters(std::size_t n_joints) {
     for (std::size_t i = 0; i < n_joints; i++) {
       try {
         coulomb_friction_[i] =
-            params["joint_" + std::to_string(i + 1)]["offset"].as<double>();
+            params["joint_" + std::to_string(i + 1)]["coulomb"].as<double>();
         ROS_WARN_STREAM(coulomb_friction_[i]);
         viscous_friction_[i] =
-            params["joint_" + std::to_string(i + 1)]["slope"].as<double>();
+            params["joint_" + std::to_string(i + 1)]["viscous"].as<double>();
       } catch (YAML::Exception &ex) {
         ROS_WARN_STREAM("[FrictionCompensation::loadParameters] " << ex.what());
         ROS_WARN_STREAM(

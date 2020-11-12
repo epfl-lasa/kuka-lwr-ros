@@ -109,6 +109,7 @@ set(INC_FILES_UTIL
     ${INCLUDE_DIR}/utils/safety.h
     ${INCLUDE_DIR}/utils/speed_safety.h
     ${INCLUDE_DIR}/utils/contact_safety.h
+    ${INCLUDE_DIR}/utils/friction_compensation.h
 )
 
 set(SRC_FILES_UTIL

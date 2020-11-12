@@ -1,3 +1,5 @@
+# put physical model here
+# the units of the coulomb and the viscous friction coefficients is Nm and Nm*s/rad, respectively.
 joint_1:
   coulomb: 0
   viscous: 0

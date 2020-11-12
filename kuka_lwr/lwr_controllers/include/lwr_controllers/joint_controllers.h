@@ -155,7 +155,7 @@ namespace lwr_controllers
         lwr_controllers::CTRL_MODE       ctrl_mode;
         lwr_controllers::ROBOT_CTRL_MODE robot_ctrl_mode;
 
-
+        FrictionCompensation friction_compensator_;
         KDL::Frame                                                                          x_open_loop;
         std::string                                                                         frame_id;
         boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::PoseStamped> >   realtime_publisher;
