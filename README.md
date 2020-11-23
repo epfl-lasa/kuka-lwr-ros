@@ -24,7 +24,7 @@ $ rosdep update --include-eol- && rosdep install --from-paths -y . --ignore-src 
 ```
 * Additionlly, make sure the *ncurses* library is installed on your system
 ```
-$ sudo apt-get install lib32ncurses5-dev
+$ sudo apt-get install libncurses5-dev
 ```
 * Install [**Gazebo**](http://gazebosim.org/), follow this [**link**](http://gazebosim.org/tutorials?tut=install_ubuntu&) for 
 instructions on how to install it on ubuntu. Make sure that the ros libraries of Gazebo are also installed:
