@@ -43,6 +43,7 @@
 #include "controllers/cartesian_position.h"
 #include "controllers/change_ctrl_mode.h"
 #include "controllers/passive_ds.h"
+#include "controllers/cartesian_force.h"
 
 #include "utils/definitions.h"
 #include "utils/contact_safety.h"
@@ -98,6 +99,7 @@ namespace lwr_controllers
         boost::scoped_ptr<controllers::Joint_position>         joint_position_controller;
         boost::scoped_ptr<controllers::Gravity_compensation>   gravity_compensation_controller;
         boost::scoped_ptr<controllers::Passive_ds>             passive_ds_controller;
+        boost::scoped_ptr<controllers::Cartesian_force>        cartesian_force_controller;
 
 		ros::Subscriber sub_gains_;
 		ros::Subscriber sub_posture_;

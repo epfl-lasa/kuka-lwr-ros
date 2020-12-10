@@ -97,6 +97,7 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     gravity_compensation_controller.reset(new controllers::Gravity_compensation(nh_,change_ctrl_mode));
     cartesian_position_controller.reset(new controllers::Cartesian_position(nh_,change_ctrl_mode));
     passive_ds_controller.reset(new controllers::Passive_ds(nh_,change_ctrl_mode));
+    cartesian_force_controller.reset(new controllers::Cartesian_force(nh_, change_ctrl_mode));
 
     change_ctrl_mode.add(ff_fb_controller.get());
     change_ctrl_mode.add(cartesian_velocity_controller.get());
@@ -104,6 +105,7 @@ bool JointControllers::init(hardware_interface::KUKAJointInterface *robot, ros::
     change_ctrl_mode.add(gravity_compensation_controller.get());
     change_ctrl_mode.add(cartesian_position_controller.get());
     change_ctrl_mode.add(passive_ds_controller.get());
+    change_ctrl_mode.add(cartesian_force_controller.get());
 
     ROS_INFO("JointControllers::init finished initialise [controllers]!");
 
@@ -209,6 +211,14 @@ void JointControllers::update(const ros::Time& time, const ros::Duration& period
             ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_PASSIVE_DS");
             // passive_ds_controller->update(tau_cmd_,J_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
             passive_ds_controller->update(wrench,tau_cmd_,J_,joint_msr_,x_dt_msr_.GetTwist(),x_msr_.M,x_msr_.p);
+
+            robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
+            break;
+        }
+        case CTRL_MODE::CART_FORCE:
+        {
+            ROS_INFO_STREAM_THROTTLE(thrott_time,"ctrl_mode ===> CART_FORCE");
+            cartesian_force_controller->update(tau_cmd_, J_);
 
             robot_ctrl_mode = ROBOT_CTRL_MODE::TORQUE_IMP;
             break;
